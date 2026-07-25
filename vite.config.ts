@@ -3,8 +3,11 @@ import react from '@vitejs/plugin-react';
 import path from 'path';
 import {defineConfig} from 'vite';
 
-export default defineConfig(() => {
+export default defineConfig(({ command }) => {
   return {
+    // GitHub Pages serves project sites under /<repo>/. Use the repo path for
+    // production builds, but keep dev/preview at root.
+    base: command === 'build' ? '/peace-academy-of-west-texas/' : '/',
     plugins: [react(), tailwindcss()],
     resolve: {
       alias: {
