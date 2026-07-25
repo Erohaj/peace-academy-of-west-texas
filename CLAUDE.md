@@ -1,0 +1,50 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## Project
+
+Single-page marketing/engagement site for **Peace Academy of West Texas (PAWTX)**, a nonprofit in Odessa/Midland, TX. React 19 + Vite 6 + TypeScript + Tailwind CSS v4. Scaffolded from Google AI Studio (see `metadata.json`, `README.md`); AI Studio injects `GEMINI_API_KEY` / `API_KEY` at runtime.
+
+## Commands
+
+```bash
+npm install        # Node >= 18 required (Vite 6)
+npm run dev        # dev server on http://localhost:3000 (host 0.0.0.0)
+npm run build      # production build to dist/
+npm run preview    # serve the built dist/
+npm run lint       # tsc --noEmit — TYPE CHECK ONLY, the sole automated gate
+```
+
+There is **no test framework** — `npm run lint` (a strict `tsc --noEmit`) is the only check. Run it before considering any change done. There is no "single test" to run.
+
+## Architecture
+
+**No router, no backend.** The whole app is state-driven from one Zustand store.
+
+- **Navigation** is a single `activeTab` field (`'home' | 'events' | 'social' | 'gallery' | 'donate' | 'volunteer'`) in `src/store/useAppStore.ts`. `App.tsx` conditionally renders sections from it — `home` stacks several sections; other tabs render one. To add a "page": extend the `ActiveTab` type in `src/types/index.ts` and add a branch in `App.tsx`. Nav lives in `Navbar`/`Footer`, which call `setActiveTab`.
+
+- **State & "backend"** all live in `useAppStore`. `submitRsvp`, `addDonation`, `loginWithMagicLink`, `toggleShiftBooking` are `async` mocks that optimistically mutate the store and return `true` — there is no server, no persistence. `src/lib/supabaseClient.ts` exists but is imported nowhere (Supabase is not wired up; it tree-shakes out).
+
+- **Seed data** is in `src/data/mockData.ts` (events, gallery, shifts, volunteer profile, and the `IMAGES` registry) and `src/data/socialPosts.ts`. The store initializes from these constants.
+
+- **Images** are centralized in the `IMAGES` object in `mockData.ts`. Real org photos are **bundled** from `src/assets/*.jpg` via ES imports; the rest are external Unsplash URLs. Components reference `IMAGES.*` (or `event.imageUrl` etc. which point at `IMAGES`). **Adding a bundled image:** drop it in `src/assets/`, `import` it in `mockData.ts`, assign into `IMAGES`. This requires `src/vite-env.d.ts` (`/// <reference types="vite/client" />`) — without it, `tsc` fails on image imports.
+
+- **i18n (bilingual EN/ES)** — `src/i18n/config.ts` holds **all** translations inline in one `resources` object. Two patterns coexist: (1) keyed strings via `useTranslation()` `t('...')`; (2) inline `isEs`/`language === 'es'` ternaries reading parallel data fields (`titleEs`, `descriptionEs`, `captionEs`, `roleEs`). `BrochureShowcase` is fully pattern (2). The store's `setLanguage` calls `i18n.changeLanguage` and sets `language`; components read `language` from the store, not just from i18next. Any new user-facing string must be handled in both languages.
+
+- **Styling** — Tailwind v4 via the `@tailwindcss/vite` plugin. **There is no `tailwind.config.js`**: the theme (brand colors, fonts, radii) is declared in `src/index.css` inside `@theme`. Brand palette: terracotta `#A64D32`, olive `#5B6346`, parchment `#FDFBF7`, aged-paper `#F4F1ED`, graphite `#2A2A2A`; fonts Playfair Display (serif/headings) + Inter (sans). The custom classes `animate-fadeIn`, `animate-scaleUp`, `animate-shimmer`, and `scrollbar-none`/`no-scrollbar` are **hand-written plain CSS** at the bottom of `index.css` — they are NOT Tailwind built-ins. If you use a new `animate-*` class, define its `@keyframes` in `index.css` or it silently does nothing.
+
+- **Scroll reveal** — wrap sections in `AnimatedSection` (IntersectionObserver toggles transition classes on visibility). Used pervasively on the home page.
+
+- **Modals** are mounted once at the `App` root and toggled by store flags: `RSVPModal` (`selectedEventForRsvp`), `SearchModal` (`isSearchOpen`, global ⌘K/Ctrl+K listener; indexes events + gallery + shifts), `ContactModal` (local `App` state). Gallery uses a lightbox driven by `lightboxItemIndex` in the store.
+
+- **Error handling** — the `ErrorBoundary` class component wraps both the root (`main.tsx`) and the main content region (`App.tsx`).
+
+- **Optional Gemini AI** — `SocialMediaFeed`'s "AI summary" **lazily** `import('@google/genai')` only when an API key exists (guarded `process.env.API_KEY`, falling back to `import.meta.env.VITE_API_KEY`); with no key it shows a hardcoded fallback summary. Keep this lazy — a static import pulls the heavy SDK into the initial bundle.
+
+## Conventions & gotchas
+
+- `@/*` path alias maps to the project root (`./*`) in both `tsconfig.json` and `vite.config.ts`.
+- Do not touch the `server.hmr` / `server.watch` logic in `vite.config.ts` — it is gated on `DISABLE_HMR` for the AI Studio agent environment.
+- `2.png`-style large source photos must be optimized before bundling (a hero photo should be a few hundred KB, not multiple MB); the app has no image pipeline.
+- All dates in seed data are human strings (e.g. `"Saturday, August 15, 2026"`); `EventCalendar` parses them by stripping the weekday prefix and `new Date(...)`, so keep that format.

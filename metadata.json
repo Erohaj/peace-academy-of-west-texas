@@ -1,0 +1,6 @@
+{
+  "name": "Peace Academy of West Texas",
+  "description": "Engaging Minds, Building Community. Official web platform for Peace Academy of West Texas featuring dynamic events, RSVP engine, interactive media gallery, volunteer portal, and donation management.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

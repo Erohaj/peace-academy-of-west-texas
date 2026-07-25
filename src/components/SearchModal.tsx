@@ -1,0 +1,464 @@
+import React, { useState, useEffect, useRef, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
+import { Search, X, Calendar, Image as ImageIcon, UserCheck, ArrowRight, Tag, MapPin, Clock, Sparkles } from 'lucide-react';
+import { useAppStore } from '../store/useAppStore';
+import { PAWTXEvent, GalleryItem, Shift } from '../types';
+
+type ResultCategory = 'all' | 'events' | 'gallery' | 'shifts';
+
+interface SearchResultItem {
+  id: string;
+  type: 'event' | 'gallery' | 'shift';
+  title: string;
+  subtitle?: string;
+  description: string;
+  date?: string;
+  location?: string;
+  badge: string;
+  imageUrl?: string;
+  rawItem: PAWTXEvent | GalleryItem | Shift;
+}
+
+export const SearchModal: React.FC = () => {
+  const { t, i18n } = useTranslation();
+  const isEs = i18n.language === 'es';
+  const {
+    isSearchOpen,
+    closeSearch,
+    toggleSearch,
+    events,
+    gallery,
+    shifts,
+    setActiveTab,
+    openRsvpModal,
+    openLightbox,
+  } = useAppStore();
+
+  const [query, setQuery] = useState('');
+  const [activeCategory, setActiveCategory] = useState<ResultCategory>('all');
+  const [selectedIndex, setSelectedIndex] = useState(0);
+
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  // Global Keyboard listener for Cmd+K / Ctrl+K
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        toggleSearch();
+      } else if (e.key === 'Escape' && isSearchOpen) {
+        closeSearch();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isSearchOpen, toggleSearch, closeSearch]);
+
+  // Auto focus input when opened
+  useEffect(() => {
+    if (isSearchOpen) {
+      setTimeout(() => {
+        inputRef.current?.focus();
+      }, 50);
+    } else {
+      setQuery('');
+      setSelectedIndex(0);
+    }
+  }, [isSearchOpen]);
+
+  // Index search results
+  const results = useMemo<SearchResultItem[]>(() => {
+    const q = query.trim().toLowerCase();
+    const items: SearchResultItem[] = [];
+
+    // Search Events
+    events.forEach((evt) => {
+      const title = isEs && evt.titleEs ? evt.titleEs : evt.title;
+      const desc = isEs && evt.descriptionEs ? evt.descriptionEs : evt.description;
+      const category = evt.category;
+      const loc = evt.location;
+
+      const matches =
+        !q ||
+        title.toLowerCase().includes(q) ||
+        desc.toLowerCase().includes(q) ||
+        category.toLowerCase().includes(q) ||
+        loc.toLowerCase().includes(q);
+
+      if (matches) {
+        items.push({
+          id: `evt-${evt.id}`,
+          type: 'event',
+          title,
+          subtitle: `${evt.date} • ${evt.time}`,
+          description: desc,
+          date: evt.date,
+          location: loc,
+          badge: isEs ? 'Evento' : 'Community Event',
+          imageUrl: evt.imageUrl,
+          rawItem: evt,
+        });
+      }
+    });
+
+    // Search Gallery
+    gallery.forEach((item, index) => {
+      const title = isEs && item.titleEs ? item.titleEs : item.title;
+      const caption = isEs && item.captionEs ? item.captionEs : item.caption;
+      const loc = item.location;
+
+      const matches =
+        !q ||
+        title.toLowerCase().includes(q) ||
+        caption.toLowerCase().includes(q) ||
+        loc.toLowerCase().includes(q);
+
+      if (matches) {
+        items.push({
+          id: `gal-${item.id}-${index}`,
+          type: 'gallery',
+          title,
+          subtitle: item.date,
+          description: caption,
+          date: item.date,
+          location: loc,
+          badge: isEs ? 'Galería' : 'Media Gallery',
+          imageUrl: item.imageUrl,
+          rawItem: item,
+        });
+      }
+    });
+
+    // Search Shifts / Volunteer Roles
+    shifts.forEach((shift) => {
+      const title = isEs && shift.titleEs ? shift.titleEs : shift.title;
+      const role = isEs && shift.roleEs ? shift.roleEs : shift.role;
+      const desc = isEs && shift.descriptionEs ? shift.descriptionEs : shift.description;
+
+      const matches =
+        !q ||
+        title.toLowerCase().includes(q) ||
+        role.toLowerCase().includes(q) ||
+        desc.toLowerCase().includes(q);
+
+      if (matches) {
+        items.push({
+          id: `shift-${shift.id}`,
+          type: 'shift',
+          title,
+          subtitle: `${shift.date} (${shift.time})`,
+          description: desc,
+          date: shift.date,
+          badge: isEs ? 'Voluntariado' : 'Volunteer Shift',
+          rawItem: shift,
+        });
+      }
+    });
+
+    return items;
+  }, [query, events, gallery, shifts, isEs]);
+
+  // Filter by category chip
+  const filteredResults = useMemo(() => {
+    if (activeCategory === 'all') return results;
+    if (activeCategory === 'events') return results.filter((r) => r.type === 'event');
+    if (activeCategory === 'gallery') return results.filter((r) => r.type === 'gallery');
+    if (activeCategory === 'shifts') return results.filter((r) => r.type === 'shift');
+    return results;
+  }, [results, activeCategory]);
+
+  // Counts for chips
+  const counts = useMemo(() => {
+    return {
+      all: results.length,
+      events: results.filter((r) => r.type === 'event').length,
+      gallery: results.filter((r) => r.type === 'gallery').length,
+      shifts: results.filter((r) => r.type === 'shift').length,
+    };
+  }, [results]);
+
+  // Reset selectedIndex when filtered items change
+  useEffect(() => {
+    setSelectedIndex(0);
+  }, [filteredResults.length, activeCategory]);
+
+  const handleSelectResult = (item: SearchResultItem) => {
+    closeSearch();
+    if (item.type === 'event') {
+      setActiveTab('events');
+      // Option to trigger RSVP modal for event
+      openRsvpModal(item.rawItem as PAWTXEvent);
+    } else if (item.type === 'gallery') {
+      setActiveTab('gallery');
+      const galIndex = gallery.findIndex((g) => g.id === (item.rawItem as GalleryItem).id);
+      if (galIndex !== -1) {
+        openLightbox(galIndex);
+      }
+    } else if (item.type === 'shift') {
+      setActiveTab('volunteer');
+    }
+  };
+
+  const handleKeyDownInList = (e: React.KeyboardEvent) => {
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setSelectedIndex((prev) => (prev + 1) % (filteredResults.length || 1));
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setSelectedIndex((prev) => (prev - 1 + filteredResults.length) % (filteredResults.length || 1));
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      if (filteredResults[selectedIndex]) {
+        handleSelectResult(filteredResults[selectedIndex]);
+      }
+    }
+  };
+
+  if (!isSearchOpen) return null;
+
+  return (
+    <div
+      className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-start justify-center pt-16 sm:pt-24 px-4 pb-6 animate-fadeIn"
+      onClick={closeSearch}
+    >
+      <div
+        className="bg-[#FDFBF7] rounded-[28px] border border-[#E5E0D8] shadow-2xl max-w-2xl w-full overflow-hidden flex flex-col max-h-[82vh] text-[#2A2A2A] relative"
+        onClick={(e) => e.stopPropagation()}
+        onKeyDown={handleKeyDownInList}
+      >
+        {/* Top Search Input Bar */}
+        <div className="p-4 sm:p-5 border-b border-[#E5E0D8] bg-white flex items-center gap-3">
+          <Search className="w-5 h-5 text-[#A64D32] shrink-0" />
+          <input
+            ref={inputRef}
+            type="text"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder={
+              isEs
+                ? "Buscar eventos, fotos de galería o voluntariado..."
+                : "Search events, gallery photos, or volunteer roles..."
+            }
+            className="w-full bg-transparent text-base sm:text-lg font-medium text-[#2A2A2A] placeholder:text-[#5A5A5A]/60 focus:outline-none"
+          />
+          {query && (
+            <button
+              onClick={() => setQuery('')}
+              className="p-1 rounded-full hover:bg-[#F4F1ED] text-[#5A5A5A] transition-colors cursor-pointer"
+              title="Clear search"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          )}
+          <button
+            onClick={closeSearch}
+            className="px-2.5 py-1 rounded-lg bg-[#F4F1ED] text-xs font-mono font-bold text-[#5A5A5A] hover:bg-[#E5E0D8] transition-colors cursor-pointer shrink-0"
+          >
+            ESC
+          </button>
+        </div>
+
+        {/* Category Filter Chips */}
+        <div className="px-4 sm:px-5 py-2.5 border-b border-[#E5E0D8] bg-[#F4F1ED]/60 flex items-center gap-2 overflow-x-auto no-scrollbar">
+          <button
+            onClick={() => setActiveCategory('all')}
+            className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider transition-colors whitespace-nowrap cursor-pointer ${
+              activeCategory === 'all'
+                ? 'bg-[#A64D32] text-white shadow-sm'
+                : 'bg-white text-[#5A5A5A] hover:bg-white/80 border border-[#E5E0D8]'
+            }`}
+          >
+            {isEs ? 'Todos' : 'All'} ({counts.all})
+          </button>
+          <button
+            onClick={() => setActiveCategory('events')}
+            className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider transition-colors flex items-center gap-1.5 whitespace-nowrap cursor-pointer ${
+              activeCategory === 'events'
+                ? 'bg-[#A64D32] text-white shadow-sm'
+                : 'bg-white text-[#5A5A5A] hover:bg-white/80 border border-[#E5E0D8]'
+            }`}
+          >
+            <Calendar className="w-3.5 h-3.5" />
+            {isEs ? 'Eventos' : 'Events'} ({counts.events})
+          </button>
+          <button
+            onClick={() => setActiveCategory('gallery')}
+            className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider transition-colors flex items-center gap-1.5 whitespace-nowrap cursor-pointer ${
+              activeCategory === 'gallery'
+                ? 'bg-[#A64D32] text-white shadow-sm'
+                : 'bg-white text-[#5A5A5A] hover:bg-white/80 border border-[#E5E0D8]'
+            }`}
+          >
+            <ImageIcon className="w-3.5 h-3.5" />
+            {isEs ? 'Galería' : 'Gallery'} ({counts.gallery})
+          </button>
+          <button
+            onClick={() => setActiveCategory('shifts')}
+            className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider transition-colors flex items-center gap-1.5 whitespace-nowrap cursor-pointer ${
+              activeCategory === 'shifts'
+                ? 'bg-[#A64D32] text-white shadow-sm'
+                : 'bg-white text-[#5A5A5A] hover:bg-white/80 border border-[#E5E0D8]'
+            }`}
+          >
+            <UserCheck className="w-3.5 h-3.5" />
+            {isEs ? 'Voluntariado' : 'Volunteering'} ({counts.shifts})
+          </button>
+        </div>
+
+        {/* Results List or Zero Query View */}
+        <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-3">
+          {!query && (
+            <div className="space-y-4">
+              <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-[#A64D32]">
+                <Sparkles className="w-4 h-4" />
+                <span>{isEs ? 'Búsquedas Sugeridas' : 'Popular Search Topics'}</span>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {[
+                  'Cooking Class',
+                  'Food Pantry',
+                  'Cultural Festival',
+                  'Odessa TX',
+                  'Youth Seminar',
+                  'Disaster Relief',
+                  'Interfaith',
+                  'Volunteer Shifts',
+                ].map((tag) => (
+                  <button
+                    key={tag}
+                    onClick={() => setQuery(tag)}
+                    className="px-3 py-1.5 rounded-full bg-white border border-[#E5E0D8] text-xs font-medium text-[#2A2A2A] hover:border-[#A64D32] hover:text-[#A64D32] transition-colors flex items-center gap-1.5 cursor-pointer shadow-2xs"
+                  >
+                    <Tag className="w-3 h-3 text-[#A64D32]" />
+                    <span>{tag}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {query && filteredResults.length === 0 && (
+            <div className="py-12 text-center space-y-3">
+              <Search className="w-10 h-10 text-[#5A5A5A]/40 mx-auto" />
+              <p className="text-base font-bold text-[#2A2A2A]">
+                {isEs ? `No se encontraron resultados para "${query}"` : `No matches found for "${query}"`}
+              </p>
+              <p className="text-xs text-[#5A5A5A]">
+                {isEs
+                  ? 'Prueba buscando términos como "cocina", "voluntario", "Midland" o "evento".'
+                  : 'Try searching for terms like "cooking", "pantry", "Odessa", or "festival".'}
+              </p>
+            </div>
+          )}
+
+          {filteredResults.map((item, index) => {
+            const isSelected = index === selectedIndex;
+            return (
+              <div
+                key={item.id}
+                onClick={() => handleSelectResult(item)}
+                onMouseEnter={() => setSelectedIndex(index)}
+                className={`p-3.5 sm:p-4 rounded-2xl border transition-all cursor-pointer flex items-start gap-4 ${
+                  isSelected
+                    ? 'bg-white border-[#A64D32] shadow-md ring-1 ring-[#A64D32]/20'
+                    : 'bg-white/80 border-[#E5E0D8] hover:bg-white hover:border-[#A64D32]/50'
+                }`}
+              >
+                {/* Image Thumbnail or Category Icon */}
+                {item.imageUrl ? (
+                  <img
+                    src={item.imageUrl}
+                    alt={item.title}
+                    className="w-16 h-16 sm:w-20 sm:h-20 object-cover rounded-xl shrink-0 border border-[#E5E0D8]"
+                  />
+                ) : (
+                  <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-xl bg-[#F4F1ED] border border-[#E5E0D8] flex items-center justify-center shrink-0 text-[#A64D32]">
+                    {item.type === 'event' && <Calendar className="w-6 h-6" />}
+                    {item.type === 'gallery' && <ImageIcon className="w-6 h-6" />}
+                    {item.type === 'shift' && <UserCheck className="w-6 h-6" />}
+                  </div>
+                )}
+
+                {/* Content */}
+                <div className="flex-1 min-w-0 space-y-1">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span
+                      className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                        item.type === 'event'
+                          ? 'bg-emerald-100 text-emerald-800 border border-emerald-200'
+                          : item.type === 'gallery'
+                          ? 'bg-amber-100 text-amber-800 border border-amber-200'
+                          : 'bg-indigo-100 text-indigo-800 border border-indigo-200'
+                      }`}
+                    >
+                      {item.badge}
+                    </span>
+                    {item.subtitle && (
+                      <span className="text-xs text-[#5A5A5A] flex items-center gap-1">
+                        <Clock className="w-3 h-3 text-[#A64D32]" />
+                        {item.subtitle}
+                      </span>
+                    )}
+                  </div>
+
+                  <h4 className="text-sm sm:text-base font-serif font-bold text-[#2A2A2A] truncate">
+                    {item.title}
+                  </h4>
+
+                  <p className="text-xs text-[#5A5A5A] line-clamp-2 leading-relaxed">
+                    {item.description}
+                  </p>
+
+                  {item.location && (
+                    <div className="flex items-center gap-1 text-[11px] text-[#5A5A5A]/80 pt-0.5">
+                      <MapPin className="w-3 h-3 text-[#A64D32]" />
+                      <span className="truncate">{item.location}</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Arrow Action CTA */}
+                <div className="self-center shrink-0 pl-1">
+                  <div
+                    className={`p-2 rounded-full transition-colors ${
+                      isSelected ? 'bg-[#A64D32] text-white' : 'bg-[#F4F1ED] text-[#5A5A5A]'
+                    }`}
+                  >
+                    <ArrowRight className="w-4 h-4" />
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Modal Footer Quick Keyboard Hints */}
+        <div className="px-4 py-3 border-t border-[#E5E0D8] bg-[#F4F1ED]/80 text-[11px] text-[#5A5A5A] flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <span>
+              <kbd className="px-1.5 py-0.5 rounded bg-white border border-[#E5E0D8] font-mono text-[10px] shadow-2xs">
+                ↑↓
+              </kbd>{' '}
+              {isEs ? 'Navegar' : 'Navigate'}
+            </span>
+            <span>
+              <kbd className="px-1.5 py-0.5 rounded bg-white border border-[#E5E0D8] font-mono text-[10px] shadow-2xs">
+                ↵
+              </kbd>{' '}
+              {isEs ? 'Seleccionar' : 'Select'}
+            </span>
+            <span>
+              <kbd className="px-1.5 py-0.5 rounded bg-white border border-[#E5E0D8] font-mono text-[10px] shadow-2xs">
+                ESC
+              </kbd>{' '}
+              {isEs ? 'Cerrar' : 'Close'}
+            </span>
+          </div>
+          <span className="font-bold text-[#A64D32]">
+            {filteredResults.length} {isEs ? 'resultados' : 'results'}
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+};
