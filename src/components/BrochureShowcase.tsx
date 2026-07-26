@@ -155,10 +155,18 @@ export const BrochureShowcase: React.FC = () => {
             {signatureActivities.map((act, index) => (
               <AnimatedSection key={index} direction="up" delayMs={100 + (index % 3) * 100}>
                 <div className="bg-[#FDFBF7] rounded-[24px] overflow-hidden border border-[#E5E0D8] shadow-sm hover:shadow-md transition-all group flex flex-col justify-between h-full">
-                  <div className="relative h-48 overflow-hidden">
+                  {/* Brand-tinted backdrop so a photo that fails to load (the
+                      stock Global Aid image currently 404s) degrades to a clean
+                      block with its badge instead of a broken-image icon. */}
+                  <div className="relative h-48 overflow-hidden bg-gradient-to-br from-[#5B6346] to-[#A64D32]">
                     <img
                       src={act.image}
                       alt={act.title}
+                      loading="lazy"
+                      decoding="async"
+                      onError={(e) => {
+                        e.currentTarget.style.display = 'none';
+                      }}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />

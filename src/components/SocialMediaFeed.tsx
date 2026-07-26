@@ -399,6 +399,8 @@ export const SocialMediaFeed: React.FC = () => {
                       <img
                         src={post.author.avatarUrl}
                         alt={post.author.name}
+                        loading="lazy"
+                        decoding="async"
                         className="w-10 h-10 rounded-full object-cover border border-[#E5E0D8]"
                       />
                       <div>
@@ -432,6 +434,8 @@ export const SocialMediaFeed: React.FC = () => {
                       <img
                         src={post.mediaUrl}
                         alt="Social Media Preview"
+                        loading="lazy"
+                        decoding="async"
                         className="w-full h-full object-cover group-hover/media:scale-105 transition-transform duration-500"
                       />
                       <div className="absolute inset-0 bg-black/20 opacity-0 group-hover/media:opacity-100 transition-opacity flex items-center justify-center">
@@ -603,6 +607,8 @@ export const SocialMediaFeed: React.FC = () => {
                     <img
                       src={previewMediaPost.author.avatarUrl}
                       alt={previewMediaPost.author.name}
+                      loading="lazy"
+                      decoding="async"
                       className="w-10 h-10 rounded-full border border-[#E5E0D8]"
                     />
                     <div>

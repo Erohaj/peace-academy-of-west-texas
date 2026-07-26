@@ -27,6 +27,10 @@ export const Hero: React.FC = () => {
           alt="Peace Academy West Texas Parade Banner"
           className="w-full h-full object-cover object-center transform filter contrast-[1.05]"
           referrerPolicy="no-referrer"
+          // The one image that must win the initial race — everything below the
+          // fold is lazy so it doesn't compete for connections.
+          fetchPriority="high"
+          decoding="async"
         />
         <div className="absolute inset-0 bg-gradient-to-r from-black/65 via-black/45 to-black/60" />
         <div className="absolute inset-0 bg-[#a64d32]/10 mix-blend-overlay" />

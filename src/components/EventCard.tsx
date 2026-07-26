@@ -32,6 +32,8 @@ export const EventCard: React.FC<EventCardProps> = ({ event }) => {
         <img
           src={event.imageUrl}
           alt={title}
+          loading="lazy"
+          decoding="async"
           onLoad={() => setIsImageLoaded(true)}
           className={`w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ${
             isImageLoaded ? 'opacity-100' : 'opacity-0'

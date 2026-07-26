@@ -125,6 +125,8 @@ export const VolunteerPortal: React.FC = () => {
             <img
               src={volunteer?.avatarUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80'}
               alt={volunteer?.fullName}
+              loading="lazy"
+              decoding="async"
               className="w-14 h-14 rounded-full object-cover border-2 border-[#A64D32]"
             />
             <div>

@@ -369,6 +369,8 @@ export const SearchModal: React.FC = () => {
                   <img
                     src={item.imageUrl}
                     alt={item.title}
+                    loading="lazy"
+                    decoding="async"
                     className="w-16 h-16 sm:w-20 sm:h-20 object-cover rounded-xl shrink-0 border border-[#E5E0D8]"
                   />
                 ) : (

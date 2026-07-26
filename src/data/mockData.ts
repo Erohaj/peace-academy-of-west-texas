@@ -1,27 +1,27 @@
 import { PAWTXEvent, GalleryItem, Shift, VolunteerProfile } from '../types';
 
 // Official Peace Academy of West Texas community photos (bundled & optimized)
-import logoImg from '../assets/logo.jpg';
-import heroParadeImg from '../assets/hero-parade.jpg';
-import communityOneImg from '../assets/community-one.jpg';
-import tajikistanBoothImg from '../assets/tajikistan-booth.jpg';
-import mexicanFolkImg from '../assets/mexican-folk.jpg';
-import nigeriaBoothImg from '../assets/nigeria-booth.jpg';
-import turkeyBoothImg from '../assets/turkey-booth.jpg';
-import jordanBoothImg from '../assets/jordan-booth.jpg';
-import germanyBoothImg from '../assets/germany-booth.jpg';
-import cameroonPeruBoothImg from '../assets/cameroon-peru-booth.jpg';
-import vietnamBoothImg from '../assets/vietnam-booth.jpg';
-import firefightersGroupImg from '../assets/firefighters-group.jpg';
-import nativeHeritageDanceImg from '../assets/native-heritage-dance.jpg';
-import oneCommunityEncoreImg from '../assets/one-community-encore.jpg';
-import indiaBoothImg from '../assets/india-booth.jpg';
-import cookingClassImg from '../assets/cooking-class.jpg';
-import cookingWorkshopImg from '../assets/cooking-workshop.jpg';
-import coffeeNightImg from '../assets/coffee-night.jpg';
-import reliefDriveImg from '../assets/relief-drive.jpg';
-import sportsCampImg from '../assets/sports-camp.jpg';
-import culturalCostumeExchangeImg from '../assets/cultural-costume-exchange.jpg';
+import logoImg from '../assets/logo.webp';
+import heroParadeImg from '../assets/hero-parade.webp';
+import communityOneImg from '../assets/community-one.webp';
+import tajikistanBoothImg from '../assets/tajikistan-booth.webp';
+import mexicanFolkImg from '../assets/mexican-folk.webp';
+import nigeriaBoothImg from '../assets/nigeria-booth.webp';
+import turkeyBoothImg from '../assets/turkey-booth.webp';
+import jordanBoothImg from '../assets/jordan-booth.webp';
+import germanyBoothImg from '../assets/germany-booth.webp';
+import cameroonPeruBoothImg from '../assets/cameroon-peru-booth.webp';
+import vietnamBoothImg from '../assets/vietnam-booth.webp';
+import firefightersGroupImg from '../assets/firefighters-group.webp';
+import nativeHeritageDanceImg from '../assets/native-heritage-dance.webp';
+import oneCommunityEncoreImg from '../assets/one-community-encore.webp';
+import indiaBoothImg from '../assets/india-booth.webp';
+import cookingClassImg from '../assets/cooking-class.webp';
+import cookingWorkshopImg from '../assets/cooking-workshop.webp';
+import coffeeNightImg from '../assets/coffee-night.webp';
+import reliefDriveImg from '../assets/relief-drive.webp';
+import sportsCampImg from '../assets/sports-camp.webp';
+import culturalCostumeExchangeImg from '../assets/cultural-costume-exchange.webp';
 
 // High resolution image assets matching PAWTX community photos
 export const IMAGES = {
