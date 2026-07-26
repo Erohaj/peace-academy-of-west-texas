@@ -4,6 +4,14 @@ import { Heart, CheckCircle2, ShieldCheck, CreditCard, Sparkles, Lock, ArrowRigh
 import { useAppStore } from '../store/useAppStore';
 import { AnimatedSection } from './AnimatedSection';
 
+// Shared by the preset buttons and the impact meter below so both stay in sync.
+const DONATION_TIERS = [
+  { amount: 25, label: 'Seed' },
+  { amount: 50, label: 'Scholar' },
+  { amount: 100, label: 'Community' },
+  { amount: 250, label: 'Benefactor' },
+] as const;
+
 export const DonationWidget: React.FC = () => {
   const { t } = useTranslation();
   const { addDonation } = useAppStore();
@@ -18,6 +26,14 @@ export const DonationWidget: React.FC = () => {
   const [isSuccess, setIsSuccess] = useState(false);
 
   const amountToDonate = selectedPreset === 'custom' ? Number(customAmount) || 0 : selectedPreset;
+
+  // Scale expands past $250 for large custom gifts so the fill bar and tier
+  // ticks stay proportionally accurate instead of clipping at 100%. A sqrt
+  // curve (rather than linear) spaces out the lower tiers so their tick
+  // labels don't collide, while staying monotonic with the fill bar.
+  const meterMax = Math.max(DONATION_TIERS[DONATION_TIERS.length - 1].amount, amountToDonate);
+  const meterPct = (amount: number) => Math.min(100, (Math.sqrt(amount) / Math.sqrt(meterMax)) * 100);
+  const meterFillPct = Math.max(4, meterPct(amountToDonate));
 
   const getImpactLabel = (amt: number) => {
     if (amt <= 25) return t('donate.impact25');
@@ -107,15 +123,15 @@ export const DonationWidget: React.FC = () => {
                 </label>
 
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                  {[25, 50, 100, 250].map((preset) => {
-                    const isSelected = selectedPreset === preset;
+                  {DONATION_TIERS.map(({ amount }) => {
+                    const isSelected = selectedPreset === amount;
                     return (
                       <button
-                        key={preset}
+                        key={amount}
                         type="button"
                         onClick={() => {
-                          setSelectedPreset(preset);
-                          setCustomAmount(preset.toString());
+                          setSelectedPreset(amount);
+                          setCustomAmount(amount.toString());
                         }}
                         className={`py-4 rounded-2xl border font-serif font-bold text-xl sm:text-2xl transition-all cursor-pointer ${
                           isSelected
@@ -123,7 +139,7 @@ export const DonationWidget: React.FC = () => {
                             : 'border-[#E5E0D8] bg-[#FDFBF7] text-[#2A2A2A] hover:bg-white'
                         }`}
                       >
-                        ${preset}
+                        ${amount}
                       </button>
                     );
                   })}
@@ -164,19 +180,42 @@ export const DonationWidget: React.FC = () => {
                   {getImpactLabel(amountToDonate)}
                 </div>
 
-                {/* Progress bar scale */}
-                <div className="space-y-1 pt-1">
+                {/* Progress bar scale — tick positions are proportional to each
+                    tier's actual dollar amount, so they line up with where the
+                    fill bar really reaches instead of being evenly spaced. */}
+                <div className="pt-1">
                   <div className="w-full bg-[#E5E0D8] h-2.5 rounded-full overflow-hidden p-0.5">
                     <div
                       className="bg-gradient-to-r from-[#5B6346] via-[#A64D32] to-[#8b3f28] h-full rounded-full transition-all duration-500 ease-out"
-                      style={{ width: `${Math.min(100, Math.max(10, (amountToDonate / 250) * 100))}%` }}
+                      style={{ width: `${meterFillPct}%` }}
                     />
                   </div>
-                  <div className="flex justify-between text-[10px] uppercase font-bold text-[#8A8A8A] tracking-wider pt-0.5">
-                    <span>$25 Seed</span>
-                    <span>$50 Scholar</span>
-                    <span>$100 Community</span>
-                    <span>$250+ Benefactor</span>
+                  <div className="relative h-12 mt-1.5">
+                    {DONATION_TIERS.map((tier, idx) => {
+                      const leftPct = meterPct(tier.amount);
+                      const isReached = amountToDonate >= tier.amount;
+                      const edgeAlign =
+                        idx === 0 ? 'translate-x-0' : idx === DONATION_TIERS.length - 1 ? '-translate-x-full' : '-translate-x-1/2';
+                      // Adjacent low tiers sit close together on the sqrt scale;
+                      // staggering labels onto two rows keeps them from colliding.
+                      const rowOffset = idx % 2 === 1 ? 'mt-4' : '';
+                      return (
+                        <div
+                          key={tier.amount}
+                          className={`absolute top-0 flex flex-col items-center gap-1 ${edgeAlign}`}
+                          style={{ left: `${leftPct}%` }}
+                        >
+                          <span className={`w-1 h-1.5 rounded-full shrink-0 ${isReached ? 'bg-[#A64D32]' : 'bg-[#D6D0C4]'}`} />
+                          <span
+                            className={`text-[9px] sm:text-[10px] uppercase font-bold tracking-wider whitespace-nowrap ${rowOffset} ${
+                              isReached ? 'text-[#A64D32]' : 'text-[#8A8A8A]'
+                            }`}
+                          >
+                            ${tier.amount}{tier.amount === DONATION_TIERS[DONATION_TIERS.length - 1].amount ? '+' : ''} {tier.label}
+                          </span>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
               </div>

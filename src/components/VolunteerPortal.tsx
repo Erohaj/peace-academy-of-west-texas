@@ -29,6 +29,14 @@ export const VolunteerPortal: React.FC = () => {
 
   const myBookedShifts = shifts.filter((s) => s.isTakenByMe);
 
+  // Next hours milestone shown as a locked badge on the Hours tab — computed
+  // from the volunteer's real totalHours so it updates as shifts are booked,
+  // instead of a hardcoded snapshot.
+  const nextMilestoneHours = 50;
+  const currentHours = volunteer?.totalHours || 0;
+  const milestonePct = Math.min(100, (currentHours / nextMilestoneHours) * 100);
+  const hoursToNextMilestone = Math.max(0, nextMilestoneHours - currentHours);
+
   const filteredShifts = shifts.filter((s) => {
     if (selectedRole === 'all') return true;
     return s.role === selectedRole;
@@ -457,27 +465,33 @@ export const VolunteerPortal: React.FC = () => {
                 <div className="bg-[#FDFBF7] p-6 rounded-2xl border border-[#E5E0D8] space-y-4">
                   <div className="flex items-center justify-between">
                     <span className="font-bold text-sm text-[#2A2A2A]">Total Verified Hours:</span>
-                    <span className="text-2xl font-bold font-serif text-[#A64D32]">{volunteer?.totalHours} Hours</span>
+                    <span className="text-2xl font-bold font-serif text-[#A64D32]">{currentHours} Hours</span>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4 border-t border-[#E5E0D8]">
-                    <div className="p-4 bg-[#F4F1ED] rounded-xl border border-[#E5E0D8] text-center space-y-1">
-                      <Award className="w-6 h-6 text-[#A64D32] mx-auto" />
-                      <div className="font-bold text-xs text-[#2A2A2A]">Culinary Ambassador</div>
-                      <div className="text-[10px] text-[#5B6346] font-bold uppercase tracking-wider">Unlocked</div>
-                    </div>
+                    {volunteer?.badges.map((badge) => (
+                      <div key={badge} className="p-4 bg-[#F4F1ED] rounded-xl border border-[#E5E0D8] text-center space-y-1">
+                        <Award className="w-6 h-6 text-[#A64D32] mx-auto" />
+                        <div className="font-bold text-xs text-[#2A2A2A]">{badge}</div>
+                        <div className="text-[10px] text-[#5B6346] font-bold uppercase tracking-wider">Unlocked</div>
+                      </div>
+                    ))}
 
-                    <div className="p-4 bg-[#F4F1ED] rounded-xl border border-[#E5E0D8] text-center space-y-1">
-                      <Award className="w-6 h-6 text-[#A64D32] mx-auto" />
-                      <div className="font-bold text-xs text-[#2A2A2A]">Heritage Helper</div>
-                      <div className="text-[10px] text-[#5B6346] font-bold uppercase tracking-wider">Unlocked</div>
-                    </div>
-
-                    <div className="p-4 bg-[#F4F1ED] rounded-xl border border-[#E5E0D8] text-center space-y-1">
-                      <Award className="w-6 h-6 text-gray-400 mx-auto" />
-                      <div className="font-bold text-xs text-[#2A2A2A]">West Texas Legend (50 Hrs)</div>
-                      <div className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Progress: 18.5 / 50</div>
-                    </div>
+                    {milestonePct < 100 && (
+                      <div className="p-4 bg-[#F4F1ED] rounded-xl border border-[#E5E0D8] text-center space-y-2">
+                        <Award className="w-6 h-6 text-gray-400 mx-auto" />
+                        <div className="font-bold text-xs text-[#2A2A2A]">West Texas Legend ({nextMilestoneHours} Hrs)</div>
+                        <div className="w-full bg-[#E5E0D8] rounded-full h-1.5 overflow-hidden">
+                          <div
+                            className="bg-[#A64D32] h-full rounded-full transition-all duration-500"
+                            style={{ width: `${milestonePct}%` }}
+                          />
+                        </div>
+                        <div className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">
+                          {hoursToNextMilestone.toFixed(1)} hrs to go
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
