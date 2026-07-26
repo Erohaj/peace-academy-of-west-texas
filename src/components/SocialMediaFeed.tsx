@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Instagram,
@@ -24,6 +24,7 @@ import { SocialPost, SocialPlatform, SocialPostComment } from '../types';
 import { INITIAL_SOCIAL_POSTS } from '../data/socialPosts';
 import { useAppStore } from '../store/useAppStore';
 import { AnimatedSection } from './AnimatedSection';
+import { formatRelativeTime } from '../lib/relativeTime';
 
 export const SocialMediaFeed: React.FC = () => {
   const { t } = useTranslation();
@@ -33,6 +34,33 @@ export const SocialMediaFeed: React.FC = () => {
   const [selectedPlatform, setSelectedPlatform] = useState<SocialPlatform>('all');
   const [isFetching, setIsFetching] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  // Load real Instagram/Facebook posts written by the fetch-social GitHub
+  // Action (public/social-posts.json). Falls back to the curated mock posts
+  // if that file is empty/missing (e.g. local dev before the first run).
+  useEffect(() => {
+    let cancelled = false;
+
+    fetch(`${import.meta.env.BASE_URL}social-posts.json`)
+      .then((res) => (res.ok ? res.json() : []))
+      .then((livePosts: SocialPost[]) => {
+        if (cancelled || !Array.isArray(livePosts) || livePosts.length === 0) return;
+        const stillMocked = INITIAL_SOCIAL_POSTS.filter(
+          (p) => p.platform !== 'facebook' && p.platform !== 'instagram'
+        );
+        const combined = [...livePosts, ...stillMocked].sort(
+          (a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
+        );
+        setPosts(combined);
+      })
+      .catch(() => {
+        // No live feed yet — keep showing the curated mock posts.
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   // Active Comment Drawer state
   const [expandedCommentPostId, setExpandedCommentPostId] = useState<string | null>(null);
@@ -356,7 +384,9 @@ export const SocialMediaFeed: React.FC = () => {
           {filteredPosts.map((post, idx) => {
             const badge = getPlatformBadge(post.platform);
             const contentText = language === 'es' ? post.contentEs : post.content;
-            const timeAgo = language === 'es' ? post.publishedAtRelativeEs : post.publishedAtRelative;
+            const timeAgo =
+              formatRelativeTime(post.publishedAt, language) ||
+              (language === 'es' ? post.publishedAtRelativeEs : post.publishedAtRelative);
             const isCommentsExpanded = expandedCommentPostId === post.id;
 
             return (
