@@ -6,6 +6,22 @@ import heroParadeImg from '../assets/hero-parade.jpg';
 import communityOneImg from '../assets/community-one.jpg';
 import tajikistanBoothImg from '../assets/tajikistan-booth.jpg';
 import mexicanFolkImg from '../assets/mexican-folk.jpg';
+import nigeriaBoothImg from '../assets/nigeria-booth.jpg';
+import turkeyBoothImg from '../assets/turkey-booth.jpg';
+import jordanBoothImg from '../assets/jordan-booth.jpg';
+import germanyBoothImg from '../assets/germany-booth.jpg';
+import cameroonPeruBoothImg from '../assets/cameroon-peru-booth.jpg';
+import vietnamBoothImg from '../assets/vietnam-booth.jpg';
+import firefightersGroupImg from '../assets/firefighters-group.jpg';
+import nativeHeritageDanceImg from '../assets/native-heritage-dance.jpg';
+import oneCommunityEncoreImg from '../assets/one-community-encore.jpg';
+import indiaBoothImg from '../assets/india-booth.jpg';
+import cookingClassImg from '../assets/cooking-class.jpg';
+import cookingWorkshopImg from '../assets/cooking-workshop.jpg';
+import coffeeNightImg from '../assets/coffee-night.jpg';
+import reliefDriveImg from '../assets/relief-drive.jpg';
+import sportsCampImg from '../assets/sports-camp.jpg';
+import culturalCostumeExchangeImg from '../assets/cultural-costume-exchange.jpg';
 
 // High resolution image assets matching PAWTX community photos
 export const IMAGES = {
@@ -15,14 +31,25 @@ export const IMAGES = {
   communitySign: communityOneImg,
   tajikistanBooth: tajikistanBoothImg,
   mexicanCostume: mexicanFolkImg,
-  kenyaBooth: 'https://images.unsplash.com/photo-1528605248644-14dd04022da1?auto=format&fit=crop&w=1200&q=80',
-  cookingClass: 'https://images.unsplash.com/photo-1556910103-1c02745aae4d?auto=format&fit=crop&w=1200&q=80',
-  cookingWorkshop: 'https://images.unsplash.com/photo-1556910103-1c02745aae4d?auto=format&fit=crop&w=1200&q=80',
-  coffeeNight: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1200&q=80',
+  nigeriaBooth: nigeriaBoothImg,
+  turkeyBooth: turkeyBoothImg,
+  jordanBooth: jordanBoothImg,
+  germanyBooth: germanyBoothImg,
+  cameroonPeruBooth: cameroonPeruBoothImg,
+  vietnamBooth: vietnamBoothImg,
+  firefightersGroup: firefightersGroupImg,
+  nativeHeritageDance: nativeHeritageDanceImg,
+  oneCommunityEncore: oneCommunityEncoreImg,
+  indiaBooth: indiaBoothImg,
+  cookingClass: cookingClassImg,
+  cookingWorkshop: cookingWorkshopImg,
+  coffeeNight: coffeeNightImg,
+  reliefDrive: reliefDriveImg,
+  sportsCamp: sportsCampImg,
+  heroDinner: firefightersGroupImg,
+  culturalCostumeExchange: culturalCostumeExchangeImg,
+  // No real PAWTX photo available for these two yet (source Drive folders were empty) — still stock:
   seminar: 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&w=1200&q=80',
-  reliefDrive: 'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?auto=format&fit=crop&w=1200&q=80',
-  sportsCamp: 'https://images.unsplash.com/photo-1526232761682-d26e03ac148e?auto=format&fit=crop&w=1200&q=80',
-  heroDinner: 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=1200&q=80',
   waterWell: 'https://images.unsplash.com/photo-1541888946425-d0fbb186a5b3?auto=format&fit=crop&w=1200&q=80'
 };
 
@@ -154,14 +181,14 @@ export const INITIAL_GALLERY: GalleryItem[] = [
   },
   {
     id: 'gal-5',
-    title: 'Kenya Cultural Exchange Booth',
-    titleEs: 'Stand de Intercambio Cultural de Kenia',
+    title: 'India Cultural Pavilion',
+    titleEs: 'Pabellón Cultural de India',
     category: 'cultural',
-    imageUrl: IMAGES.kenyaBooth,
-    caption: 'Kenyan-American volunteers presenting Maasai shúkà fabrics, beadwork, and traditional music during the festival.',
-    captionEs: 'Voluntarios keniano-americanos presentando telas Maasai shúkà, artesanías en abalorios y música tradicional.',
-    date: 'September 2025',
-    location: 'Midland, TX'
+    imageUrl: IMAGES.indiaBooth,
+    caption: 'Volunteers at the India booth share crafts and hospitality with festival visitors beneath a Taj Mahal backdrop.',
+    captionEs: 'Voluntarios en el stand de India comparten artesanías y hospitalidad con los visitantes bajo un fondo del Taj Mahal.',
+    date: 'October 2025',
+    location: 'Noel Heritage Plaza, Odessa, TX'
   },
   {
     id: 'gal-6',
@@ -173,6 +200,116 @@ export const INITIAL_GALLERY: GalleryItem[] = [
     captionEs: 'Miembros comunitarios aprendiendo técnicas de especias y amasado en nuestro taller de cocina mensual.',
     date: 'November 2025',
     location: 'Odessa Community Kitchen, TX'
+  },
+  {
+    id: 'gal-7',
+    title: 'Nigeria Cultural Pavilion',
+    titleEs: 'Pabellón Cultural de Nigeria',
+    category: 'cultural',
+    imageUrl: IMAGES.nigeriaBooth,
+    caption: 'A Nigerian-American family shares traditional dress and heritage with festival visitors at the International Cultural Festival.',
+    captionEs: 'Una familia nigeriano-americana comparte vestimenta tradicional y herencia cultural con los visitantes del Festival Cultural Internacional.',
+    date: 'October 2025',
+    location: 'Noel Heritage Plaza, Odessa, TX'
+  },
+  {
+    id: 'gal-8',
+    title: 'Turkish Cultural Pavilion',
+    titleEs: 'Pabellón Cultural de Turquía',
+    category: 'cultural',
+    imageUrl: IMAGES.turkeyBooth,
+    caption: 'Volunteers welcome guests to the Turkey booth, sharing flags, crafts, and traditions with the West Texas community.',
+    captionEs: 'Voluntarios reciben a los visitantes en el stand de Turquía, compartiendo banderas, artesanías y tradiciones con la comunidad.',
+    date: 'October 2025',
+    location: 'Noel Heritage Plaza, Odessa, TX'
+  },
+  {
+    id: 'gal-9',
+    title: 'Jordan Cultural Pavilion',
+    titleEs: 'Pabellón Cultural de Jordania',
+    category: 'cultural',
+    imageUrl: IMAGES.jordanBooth,
+    caption: 'Guests sample traditional treats and tea at the Jordan booth during the International Cultural Festival.',
+    captionEs: 'Los invitados prueban dulces y té tradicionales en el stand de Jordania durante el Festival Cultural Internacional.',
+    date: 'October 2025',
+    location: 'Noel Heritage Plaza, Odessa, TX'
+  },
+  {
+    id: 'gal-10',
+    title: 'Germany Cultural Pavilion',
+    titleEs: 'Pabellón Cultural de Alemania',
+    category: 'cultural',
+    imageUrl: IMAGES.germanyBooth,
+    caption: 'Volunteers representing Germany welcome festival-goers beneath a Brandenburg Gate backdrop.',
+    captionEs: 'Voluntarios representando a Alemania reciben a los asistentes del festival bajo un fondo de la Puerta de Brandeburgo.',
+    date: 'October 2025',
+    location: 'Noel Heritage Plaza, Odessa, TX'
+  },
+  {
+    id: 'gal-11',
+    title: 'Cameroon & Peru Cultural Booths',
+    titleEs: 'Stands Culturales de Camerún y Perú',
+    category: 'cultural',
+    imageUrl: IMAGES.cameroonPeruBooth,
+    caption: 'A volunteer in traditional Cameroonian dress welcomes visitors alongside the neighboring Peru pavilion.',
+    captionEs: 'Una voluntaria con vestimenta tradicional camerunesa recibe a los visitantes junto al pabellón vecino de Perú.',
+    date: 'October 2025',
+    location: 'Noel Heritage Plaza, Odessa, TX'
+  },
+  {
+    id: 'gal-12',
+    title: 'Vietnam Food Pavilion',
+    titleEs: 'Pabellón Gastronómico de Vietnam',
+    category: 'cooking',
+    imageUrl: IMAGES.vietnamBooth,
+    caption: 'Volunteers serve traditional dishes at the Vietnam booth, part of the festival’s global food showcase.',
+    captionEs: 'Voluntarios sirven platillos tradicionales en el stand de Vietnam, parte de la muestra gastronómica global del festival.',
+    date: 'October 2025',
+    location: 'Noel Heritage Plaza, Odessa, TX'
+  },
+  {
+    id: 'gal-13',
+    title: 'Community Fire & Rescue Partnership',
+    titleEs: 'Asociación Comunitaria con Bomberos y Rescate',
+    category: 'relief',
+    imageUrl: IMAGES.firefightersGroup,
+    caption: 'Local firefighters join the festival grounds, strengthening ties between first responders and the community they serve.',
+    captionEs: 'Bomberos locales se unen al festival, fortaleciendo los lazos entre los primeros respondientes y la comunidad a la que sirven.',
+    date: 'October 2025',
+    location: 'Noel Heritage Plaza, Odessa, TX'
+  },
+  {
+    id: 'gal-14',
+    title: 'Native Heritage Dance Performance',
+    titleEs: 'Presentación de Danza de Herencia Nativa',
+    category: 'cultural',
+    imageUrl: IMAGES.nativeHeritageDance,
+    caption: 'A dancer in traditional regalia performs for festival guests, honoring Native heritage as part of the cultural showcase.',
+    captionEs: 'Un bailarín con atuendo tradicional se presenta ante los invitados del festival, honrando la herencia nativa como parte de la muestra cultural.',
+    date: 'October 2025',
+    location: 'Noel Heritage Plaza, Odessa, TX'
+  },
+  {
+    id: 'gal-15',
+    title: 'Different Cultures, One Community (Encore)',
+    titleEs: 'Diferentes Culturas, Una Sola Comunidad (Bis)',
+    category: 'cultural',
+    imageUrl: IMAGES.oneCommunityEncore,
+    caption: 'Another group of volunteers and neighbors rally behind the festival’s signature message of unity in diversity.',
+    captionEs: 'Otro grupo de voluntarios y vecinos se une en torno al mensaje distintivo del festival: la unidad en la diversidad.',
+    date: 'October 2025',
+    location: 'Noel Heritage Plaza, Odessa, TX'
+  },
+  {
+    id: 'gal-16',
+    title: 'Trying On Traditions Together',
+    titleEs: 'Probando Tradiciones Juntas',
+    category: 'cultural',
+    imageUrl: IMAGES.culturalCostumeExchange,
+    caption: 'Women from different backgrounds share and try on each other’s traditional dress during a community cultural exchange evening.',
+    captionEs: 'Mujeres de diferentes orígenes comparten y se prueban trajes tradicionales entre sí durante una velada comunitaria de intercambio cultural.',
+    date: 'November 2023',
+    location: 'Odessa, TX'
   }
 ];
 

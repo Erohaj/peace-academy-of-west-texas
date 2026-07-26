@@ -18,6 +18,10 @@ npm run lint       # tsc --noEmit — TYPE CHECK ONLY, the sole automated gate
 
 There is **no test framework** — `npm run lint` (a strict `tsc --noEmit`) is the only check. Run it before considering any change done. There is no "single test" to run.
 
+## Deployment
+
+Pushing to `main` triggers `.github/workflows/deploy.yml`, which runs `npm run build` and publishes `dist/` to GitHub Pages. `vite.config.ts` sets `base: '/peace-academy-of-west-texas/'` only when `command === 'build'` (root `/` for dev/preview) — do not hardcode either path in app code; use relative asset imports/`import.meta.env.BASE_URL` if an absolute base path is ever needed.
+
 ## Architecture
 
 **No router, no backend.** The whole app is state-driven from one Zustand store.
