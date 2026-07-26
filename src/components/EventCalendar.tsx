@@ -15,45 +15,12 @@ import {
 } from 'lucide-react';
 import { PAWTXEvent, EventCategory } from '../types';
 import { useAppStore } from '../store/useAppStore';
+import { parseEventDate, getGoogleCalendarUrl } from '../lib/eventDates';
 
 interface EventCalendarProps {
   events: PAWTXEvent[];
   selectedCategory: EventCategory;
   searchQuery: string;
-}
-
-// Utility to parse event date strings into standardized date objects
-export function parseEventDate(dateStr: string): { year: number; month: number; day: number; isoDate: string; dateObj: Date } | null {
-  if (!dateStr) return null;
-  // Remove day-of-week prefix like "Saturday, "
-  const cleaned = dateStr.replace(/^[A-Za-z]+,\s*/, '').trim();
-  const d = new Date(cleaned);
-  if (isNaN(d.getTime())) return null;
-
-  const year = d.getFullYear();
-  const month = d.getMonth(); // 0-indexed
-  const day = d.getDate();
-  const isoDate = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-  return { year, month, day, isoDate, dateObj: d };
-}
-
-// Generate Google Calendar URL for an event
-function getGoogleCalendarUrl(event: PAWTXEvent, isSpanish: boolean): string {
-  const title = isSpanish ? event.titleEs : event.title;
-  const description = isSpanish ? event.descriptionEs : event.description;
-  const parsed = parseEventDate(event.date);
-
-  let datesParam = '';
-  if (parsed) {
-    const yyyy = parsed.year;
-    const mm = String(parsed.month + 1).padStart(2, '0');
-    const dd = String(parsed.day).padStart(2, '0');
-    const startDate = `${yyyy}${mm}${dd}T170000Z`;
-    const endDate = `${yyyy}${mm}${dd}T200000Z`;
-    datesParam = `&dates=${startDate}/${endDate}`;
-  }
-
-  return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(title)}&details=${encodeURIComponent(description)}&location=${encodeURIComponent(event.location)}${datesParam}`;
 }
 
 export const EventCalendar: React.FC<EventCalendarProps> = ({ events, selectedCategory, searchQuery }) => {

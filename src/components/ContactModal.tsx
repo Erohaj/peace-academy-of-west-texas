@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { X, Send, Mail, Phone, MapPin, CheckCircle2 } from 'lucide-react';
 
@@ -13,6 +13,16 @@ export const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose }) =
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
   const [isSubmitted, setIsSubmitted] = useState(false);
+
+  // Like the RSVP modal, this stays mounted and only renders null while closed,
+  // so clear the form on each open instead of reopening on "Message Sent!".
+  useEffect(() => {
+    if (!isOpen) return;
+    setName('');
+    setEmail('');
+    setMessage('');
+    setIsSubmitted(false);
+  }, [isOpen]);
 
   if (!isOpen) return null;
 

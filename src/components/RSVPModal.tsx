@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { X, CheckCircle2, Calendar, Heart, User, Mail, Phone, Users as UsersIcon, ArrowRight, Download, ExternalLink } from 'lucide-react';
+import { X, CheckCircle2, Calendar, Heart, User, Mail, Phone, Users as UsersIcon, ArrowRight, ExternalLink } from 'lucide-react';
 import { useAppStore } from '../store/useAppStore';
+import { getGoogleCalendarUrl } from '../lib/eventDates';
 
 export const RSVPModal: React.FC = () => {
   const { t } = useTranslation();
@@ -15,6 +16,23 @@ export const RSVPModal: React.FC = () => {
   const [donationAmount, setDonationAmount] = useState<number | null>(10);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<{ fullName?: string; email?: string }>({});
+
+  // The modal is mounted once at the App root and merely renders null while
+  // closed, so its state survives between openings. Reset the wizard each time
+  // it opens — otherwise reopening it drops the visitor back on the previous
+  // RSVP's success screen with stale guest details.
+  const activeEventId = selectedEventForRsvp?.id;
+  useEffect(() => {
+    if (!activeEventId) return;
+    setStep(1);
+    setFullName('');
+    setEmail('');
+    setPhone('');
+    setGuestCount(0);
+    setDonationAmount(10);
+    setIsSubmitting(false);
+    setErrors({});
+  }, [activeEventId]);
 
   if (!selectedEventForRsvp) return null;
 
@@ -49,11 +67,7 @@ export const RSVPModal: React.FC = () => {
     setStep(3); // Success Screen
   };
 
-  const googleCalendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(
-    title
-  )}&details=${encodeURIComponent(
-    selectedEventForRsvp.description
-  )}&location=${encodeURIComponent(selectedEventForRsvp.location)}`;
+  const googleCalendarUrl = getGoogleCalendarUrl(selectedEventForRsvp, language === 'es');
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fadeIn">

@@ -27,6 +27,11 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenContact }) => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // The translucent dark treatment only reads correctly over the home hero
+  // photo. Every other tab opens on a cream background (and setActiveTab
+  // scrolls to top), so those need the solid light bar from the start.
+  const isSolid = isScrolled || activeTab !== 'home';
+
   const navItems: { id: ActiveTab; label: string; icon: React.ReactNode }[] = [
     { id: 'home', label: t('nav.home'), icon: <Home className="w-4 h-4" /> },
     { id: 'events', label: t('nav.events'), icon: <Calendar className="w-4 h-4" /> },
@@ -55,7 +60,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenContact }) => {
   return (
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled
+        isSolid
           ? 'bg-[#FDFBF7]/95 backdrop-blur-md shadow-sm border-b border-[#E5E0D8]'
           : 'bg-gradient-to-b from-black/80 via-black/40 to-transparent text-white'
       }`}
@@ -85,7 +90,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenContact }) => {
                   className={`px-3.5 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer ${
                     isActive
                       ? 'bg-[#A64D32] text-white shadow-sm'
-                      : isScrolled
+                      : isSolid
                       ? 'text-[#2A2A2A] hover:bg-[#F4F1ED] hover:text-[#A64D32]'
                       : 'text-white/90 hover:text-white hover:bg-white/10'
                   }`}
@@ -100,7 +105,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenContact }) => {
               <button
                 onClick={onOpenContact}
                 className={`px-3.5 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer ${
-                  isScrolled
+                  isSolid
                     ? 'text-[#2A2A2A] hover:bg-[#F4F1ED] hover:text-[#A64D32]'
                     : 'text-white/90 hover:text-white hover:bg-white/10'
                 }`}
@@ -117,7 +122,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenContact }) => {
             <button
               onClick={openSearch}
               className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all flex items-center gap-2 border cursor-pointer ${
-                isScrolled
+                isSolid
                   ? 'border-[#E5E0D8] bg-[#FDFBF7] text-[#2A2A2A] hover:bg-[#F4F1ED] hover:border-[#A64D32]'
                   : 'border-white/40 bg-black/30 text-white hover:bg-black/50 hover:border-white'
               }`}
@@ -126,7 +131,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenContact }) => {
               <Search className="w-3.5 h-3.5 text-[#A64D32]" />
               <span className="hidden lg:inline">{language === 'es' ? 'Buscar...' : 'Search...'}</span>
               <kbd className={`px-1.5 py-0.5 rounded text-[10px] font-mono font-bold ${
-                isScrolled ? 'bg-[#E5E0D8] text-[#5A5A5A]' : 'bg-white/20 text-white'
+                isSolid ? 'bg-[#E5E0D8] text-[#5A5A5A]' : 'bg-white/20 text-white'
               }`}>
                 ⌘K
               </kbd>
@@ -136,7 +141,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenContact }) => {
             <button
               onClick={toggleLanguage}
               className={`px-3.5 py-1.5 rounded-full text-xs font-bold tracking-wider transition-all flex items-center gap-1.5 border cursor-pointer ${
-                isScrolled
+                isSolid
                   ? 'border-[#E5E0D8] bg-[#FDFBF7] text-[#2A2A2A] hover:bg-[#F4F1ED]'
                   : 'border-white/40 bg-black/30 text-white hover:bg-black/50'
               }`}
@@ -173,7 +178,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenContact }) => {
             <button
               onClick={openSearch}
               className={`p-2 rounded-full border transition-colors ${
-                isScrolled ? 'border-[#E5E0D8] text-[#2A2A2A]' : 'border-white/40 text-white'
+                isSolid ? 'border-[#E5E0D8] text-[#2A2A2A]' : 'border-white/40 text-white'
               }`}
               title="Search"
             >
@@ -183,7 +188,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenContact }) => {
             <button
               onClick={toggleLanguage}
               className={`px-2.5 py-1 rounded-full text-xs font-bold border ${
-                isScrolled ? 'border-[#E5E0D8] text-[#2A2A2A]' : 'border-white/40 text-white'
+                isSolid ? 'border-[#E5E0D8] text-[#2A2A2A]' : 'border-white/40 text-white'
               }`}
             >
               {language.toUpperCase()}
@@ -192,7 +197,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenContact }) => {
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className={`p-2 rounded-lg transition-colors ${
-                isScrolled ? 'text-[#2A2A2A] hover:bg-[#F4F1ED]' : 'text-white hover:bg-white/10'
+                isSolid ? 'text-[#2A2A2A] hover:bg-[#F4F1ED]' : 'text-white hover:bg-white/10'
               }`}
               aria-label="Toggle Navigation"
             >

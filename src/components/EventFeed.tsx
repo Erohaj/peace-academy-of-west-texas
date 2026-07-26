@@ -1,39 +1,19 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Search, Filter, Sparkles, LayoutGrid, Calendar as CalendarIcon, RefreshCw } from 'lucide-react';
+import { Search, Filter, Sparkles, LayoutGrid, Calendar as CalendarIcon } from 'lucide-react';
 import { useAppStore } from '../store/useAppStore';
 import { EventCard } from './EventCard';
 import { EventCalendar } from './EventCalendar';
 import { EventCategory } from '../types';
 import { AnimatedSection } from './AnimatedSection';
-import { EventGridSkeleton, CalendarSkeleton } from './Skeletons';
 
 export const EventFeed: React.FC = () => {
   const { t } = useTranslation();
   const { events, language } = useAppStore();
-  
+
   const [selectedCategory, setSelectedCategory] = useState<EventCategory>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [viewMode, setViewMode] = useState<'grid' | 'calendar'>('grid');
-  const [isLoading, setIsLoading] = useState(false);
-
-  // Trigger a brief skeleton loading animation on filter/view switch
-  const handleCategoryChange = (cat: EventCategory) => {
-    setSelectedCategory(cat);
-    setIsLoading(true);
-    setTimeout(() => setIsLoading(false), 350);
-  };
-
-  const handleViewModeChange = (mode: 'grid' | 'calendar') => {
-    setViewMode(mode);
-    setIsLoading(true);
-    setTimeout(() => setIsLoading(false), 350);
-  };
-
-  const handleRefresh = () => {
-    setIsLoading(true);
-    setTimeout(() => setIsLoading(false), 500);
-  };
 
   const filteredEvents = useMemo(() => {
     return events.filter((evt) => {
@@ -84,14 +64,15 @@ export const EventFeed: React.FC = () => {
         <AnimatedSection direction="up" delayMs={100}>
           <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4 bg-[#F4F1ED] p-4 rounded-3xl border border-[#E5E0D8] shadow-sm">
             
-            {/* Category Filter Pills */}
-            <div className="flex items-center gap-2 overflow-x-auto pb-2 lg:pb-0 scrollbar-none">
+            {/* Category Filter Pills — swipeable on small screens, wrapping on
+                desktop so a pill label never gets sliced by the search field. */}
+            <div className="flex items-center gap-2 overflow-x-auto pb-2 lg:pb-0 scrollbar-none lg:flex-wrap lg:overflow-visible">
               {categories.map((cat) => {
                 const isActive = selectedCategory === cat.id;
                 return (
                   <button
                     key={cat.id}
-                    onClick={() => handleCategoryChange(cat.id)}
+                    onClick={() => setSelectedCategory(cat.id)}
                     className={`px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all cursor-pointer whitespace-nowrap ${
                       isActive
                         ? 'bg-[#A64D32] text-white shadow-sm'
@@ -118,40 +99,30 @@ export const EventFeed: React.FC = () => {
                 />
               </div>
 
-              {/* View Mode Toggle Switch & Refresh */}
-              <div className="flex items-center gap-2">
-                <div className="flex items-center bg-[#FDFBF7] p-1 rounded-full border border-[#E5E0D8] justify-center">
-                  <button
-                    onClick={() => handleViewModeChange('grid')}
-                    className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
-                      viewMode === 'grid'
-                        ? 'bg-[#5B6346] text-white shadow-xs'
-                        : 'text-[#5A5A5A] hover:text-[#2A2A2A]'
-                    }`}
-                  >
-                    <LayoutGrid className="w-3.5 h-3.5" />
-                    <span>{t('events.viewGrid')}</span>
-                  </button>
-
-                  <button
-                    onClick={() => handleViewModeChange('calendar')}
-                    className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
-                      viewMode === 'calendar'
-                        ? 'bg-[#5B6346] text-white shadow-xs'
-                        : 'text-[#5A5A5A] hover:text-[#2A2A2A]'
-                    }`}
-                  >
-                    <CalendarIcon className="w-3.5 h-3.5" />
-                    <span>{t('events.viewCalendar')}</span>
-                  </button>
-                </div>
+              {/* View Mode Toggle Switch */}
+              <div className="flex items-center bg-[#FDFBF7] p-1 rounded-full border border-[#E5E0D8] justify-center">
+                <button
+                  onClick={() => setViewMode('grid')}
+                  className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                    viewMode === 'grid'
+                      ? 'bg-[#5B6346] text-white shadow-xs'
+                      : 'text-[#5A5A5A] hover:text-[#2A2A2A]'
+                  }`}
+                >
+                  <LayoutGrid className="w-3.5 h-3.5" />
+                  <span>{t('events.viewGrid')}</span>
+                </button>
 
                 <button
-                  onClick={handleRefresh}
-                  title="Simulate Data Refresh"
-                  className="p-2 rounded-full bg-[#FDFBF7] hover:bg-white text-[#5A5A5A] border border-[#E5E0D8] transition-colors cursor-pointer"
+                  onClick={() => setViewMode('calendar')}
+                  className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                    viewMode === 'calendar'
+                      ? 'bg-[#5B6346] text-white shadow-xs'
+                      : 'text-[#5A5A5A] hover:text-[#2A2A2A]'
+                  }`}
                 >
-                  <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin text-[#A64D32]' : ''}`} />
+                  <CalendarIcon className="w-3.5 h-3.5" />
+                  <span>{t('events.viewCalendar')}</span>
                 </button>
               </div>
             </div>
@@ -159,14 +130,7 @@ export const EventFeed: React.FC = () => {
           </div>
         </AnimatedSection>
 
-        {/* View Mode Content or Skeletons */}
-        {isLoading ? (
-          viewMode === 'calendar' ? (
-            <CalendarSkeleton />
-          ) : (
-            <EventGridSkeleton count={6} />
-          )
-        ) : viewMode === 'calendar' ? (
+        {viewMode === 'calendar' ? (
           <AnimatedSection direction="fade" delayMs={50}>
             <EventCalendar
               events={events}

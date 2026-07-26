@@ -1,10 +1,9 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Search, X, ChevronLeft, ChevronRight, MapPin, Calendar, Camera, Sparkles, RefreshCw } from 'lucide-react';
+import { Search, X, ChevronLeft, ChevronRight, MapPin, Calendar, Camera } from 'lucide-react';
 import { useAppStore } from '../store/useAppStore';
 import { GalleryCategory } from '../types';
 import { AnimatedSection } from './AnimatedSection';
-import { GalleryGridSkeleton } from './Skeletons';
 
 export const Gallery: React.FC = () => {
   const { t } = useTranslation();
@@ -20,19 +19,7 @@ export const Gallery: React.FC = () => {
 
   const [selectedCategory, setSelectedCategory] = useState<GalleryCategory>('all');
   const [searchQuery, setSearchQuery] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
   const [loadedImages, setLoadedImages] = useState<Record<string, boolean>>({});
-
-  const handleCategoryChange = (cat: GalleryCategory) => {
-    setSelectedCategory(cat);
-    setIsLoading(true);
-    setTimeout(() => setIsLoading(false), 350);
-  };
-
-  const handleRefresh = () => {
-    setIsLoading(true);
-    setTimeout(() => setIsLoading(false), 500);
-  };
 
   const handleImageLoad = (id: string) => {
     setLoadedImages((prev) => ({ ...prev, [id]: true }));
@@ -102,13 +89,13 @@ export const Gallery: React.FC = () => {
         <AnimatedSection direction="up" delayMs={100}>
           <div className="flex flex-col md:flex-row items-center justify-between gap-4 bg-[#F4F1ED] p-4 rounded-3xl border border-[#E5E0D8]">
             
-            <div className="flex items-center gap-2 overflow-x-auto w-full md:w-auto pb-2 md:pb-0 scrollbar-none">
+            <div className="flex items-center gap-2 overflow-x-auto w-full md:w-auto pb-2 md:pb-0 scrollbar-none md:flex-wrap md:overflow-visible">
               {categories.map((cat) => {
                 const isActive = selectedCategory === cat.id;
                 return (
                   <button
                     key={cat.id}
-                    onClick={() => handleCategoryChange(cat.id)}
+                    onClick={() => setSelectedCategory(cat.id)}
                     className={`px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all cursor-pointer whitespace-nowrap ${
                       isActive
                         ? 'bg-[#A64D32] text-white shadow-sm'
@@ -121,35 +108,22 @@ export const Gallery: React.FC = () => {
               })}
             </div>
 
-            <div className="flex items-center gap-2 w-full md:w-auto">
-              <div className="relative w-full md:w-72">
-                <Search className="w-4 h-4 text-[#5A5A5A] absolute left-3.5 top-1/2 -translate-y-1/2" />
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder={t('gallery.searchPlaceholder')}
-                  className="w-full bg-[#FDFBF7] border border-[#E5E0D8] rounded-full pl-10 pr-4 py-2 text-xs text-[#2A2A2A] focus:outline-none focus:border-[#A64D32]"
-                />
-              </div>
-
-              <button
-                onClick={handleRefresh}
-                title="Refresh Gallery"
-                className="p-2 rounded-full bg-[#FDFBF7] hover:bg-white text-[#5A5A5A] border border-[#E5E0D8] transition-colors cursor-pointer shrink-0"
-              >
-                <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin text-[#A64D32]' : ''}`} />
-              </button>
+            <div className="relative w-full md:w-72">
+              <Search className="w-4 h-4 text-[#5A5A5A] absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder={t('gallery.searchPlaceholder')}
+                className="w-full bg-[#FDFBF7] border border-[#E5E0D8] rounded-full pl-10 pr-4 py-2 text-xs text-[#2A2A2A] focus:outline-none focus:border-[#A64D32]"
+              />
             </div>
 
           </div>
         </AnimatedSection>
 
-        {/* Gallery Image Grid or Skeletons */}
-        {isLoading ? (
-          <GalleryGridSkeleton count={6} />
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {/* Gallery Image Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredGallery.map((item, idx) => {
               const originalIndex = gallery.findIndex((g) => g.id === item.id);
               const title = language === 'es' ? item.titleEs : item.title;
@@ -197,7 +171,6 @@ export const Gallery: React.FC = () => {
             );
           })}
         </div>
-        )}
 
       </div>
 
