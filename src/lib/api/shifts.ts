@@ -46,6 +46,27 @@ export async function fetchShifts(): Promise<ShiftRow[]> {
 }
 
 /**
+ * Every shift, drafts included, for the admin panel.
+ *
+ * `fetchShifts` above filters on `published` in the client. RLS already lets an
+ * admin read unpublished rows ("shifts: read published" is `published or
+ * is_admin()`), so that filter — not the database — is what would otherwise
+ * hide a draft from the person who just saved it.
+ *
+ * Newest first, the opposite of the public list: staff are usually looking for
+ * the shift they just created, while volunteers want the next one coming up.
+ */
+export async function fetchAllShiftsForAdmin(): Promise<ShiftRow[]> {
+  const { data, error } = await requireSupabase()
+    .from('shifts')
+    .select('*')
+    .order('starts_at', { ascending: false });
+
+  if (error) throw error;
+  return data ?? [];
+}
+
+/**
  * Shift ids the signed-in volunteer has claimed.
  *
  * The `user_id` filter is required, not redundant: the "admins manage all"

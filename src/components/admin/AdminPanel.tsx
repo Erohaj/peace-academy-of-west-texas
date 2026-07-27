@@ -1,12 +1,13 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ShieldAlert, CalendarDays, Image as ImageIcon, Inbox, HeartHandshake } from 'lucide-react';
+import { ShieldAlert, CalendarDays, Image as ImageIcon, Inbox, HeartHandshake, HandHeart } from 'lucide-react';
 import { useAppStore } from '../../store/useAppStore';
 import { EventsAdmin } from './EventsAdmin';
 import { GalleryAdmin } from './GalleryAdmin';
+import { ShiftsAdmin } from './ShiftsAdmin';
 import { SubmissionsAdmin } from './SubmissionsAdmin';
 
-type AdminSection = 'events' | 'gallery' | 'rsvps' | 'donations';
+type AdminSection = 'events' | 'shifts' | 'gallery' | 'rsvps' | 'donations';
 
 /**
  * Staff-only content management.
@@ -34,6 +35,7 @@ export const AdminPanel: React.FC = () => {
     () =>
       [
         { id: 'events' as const, label: 'Events', icon: CalendarDays },
+        { id: 'shifts' as const, label: 'Volunteer Shifts', icon: HandHeart },
         { id: 'gallery' as const, label: 'Gallery', icon: ImageIcon },
         { id: 'rsvps' as const, label: 'RSVPs & Messages', icon: Inbox },
         { id: 'donations' as const, label: 'Donations', icon: HeartHandshake }
@@ -109,6 +111,7 @@ export const AdminPanel: React.FC = () => {
 
           <div className="lg:col-span-9">
             {section === 'events' && <EventsAdmin />}
+            {section === 'shifts' && <ShiftsAdmin />}
             {section === 'gallery' && <GalleryAdmin />}
             {section === 'rsvps' && <SubmissionsAdmin view="rsvps" />}
             {section === 'donations' && <SubmissionsAdmin view="donations" />}

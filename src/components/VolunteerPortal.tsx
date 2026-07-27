@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Mail, Clock, Calendar, Award, CheckCircle2, LogOut, ArrowRight, ShieldCheck, Filter, AlertCircle, LayoutDashboard, CalendarCheck, Sparkles } from 'lucide-react';
 import { useAppStore } from '../store/useAppStore';
+import { VOLUNTEER_ROLES } from '../data/volunteerRoles';
 import { VolunteerRole } from '../types';
 
 export const VolunteerPortal: React.FC = () => {
@@ -92,7 +93,10 @@ export const VolunteerPortal: React.FC = () => {
     return s.role === selectedRole;
   });
 
-  const roles: (VolunteerRole | 'all')[] = ['all', 'Food Prep', 'Greeter', 'Event Setup', 'Translator', 'Distribution'];
+  // Derived from the role vocabulary rather than listed by hand: the hardcoded
+  // version left out 'General Support', so a shift with that role could not be
+  // reached by any filter but "All".
+  const roles: (VolunteerRole | 'all')[] = ['all', ...VOLUNTEER_ROLES.map((entry) => entry.value)];
 
   // Auth Screen if not logged in
   if (!isLoggedIn) {

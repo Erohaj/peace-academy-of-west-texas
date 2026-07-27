@@ -74,6 +74,41 @@ export async function deleteGalleryItem(id: string): Promise<void> {
 }
 
 // ---------------------------------------------------------------------------
+// Volunteer shifts
+// ---------------------------------------------------------------------------
+
+export async function createShift(input: TablesInsert<'shifts'>): Promise<Tables<'shifts'>> {
+  const { data, error } = await requireSupabase().from('shifts').insert(input).select().single();
+  if (error) throw error;
+  return data;
+}
+
+/**
+ * Note what a caller must NOT put in `patch`: `spots_filled` is maintained by
+ * the shift_signups trigger and the UPDATE grant deliberately excludes it, and
+ * `duration_hours` is a generated column. Postgres rejects both outright.
+ */
+export async function updateShift(
+  id: string,
+  patch: TablesUpdate<'shifts'>
+): Promise<Tables<'shifts'>> {
+  const { data, error } = await requireSupabase()
+    .from('shifts')
+    .update(patch)
+    .eq('id', id)
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
+}
+
+/** Cascades to shift_signups, so every volunteer on the roster loses their place. */
+export async function deleteShift(id: string): Promise<void> {
+  const { error } = await requireSupabase().from('shifts').delete().eq('id', id);
+  if (error) throw error;
+}
+
+// ---------------------------------------------------------------------------
 // Contact messages
 // ---------------------------------------------------------------------------
 
