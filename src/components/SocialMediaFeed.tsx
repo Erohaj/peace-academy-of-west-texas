@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { ORG_LINKS } from '../data/orgLinks';
 import {
   Instagram,
   Facebook,
@@ -653,7 +654,7 @@ export const SocialMediaFeed: React.FC = () => {
             {/* Platform Follow Quick Buttons */}
             <div className="flex flex-wrap items-center justify-center gap-3">
               <a
-                href="https://instagram.com"
+                href={ORG_LINKS.instagram}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="px-4 py-2.5 rounded-full bg-gradient-to-r from-purple-600 to-pink-500 text-white text-xs font-bold flex items-center gap-2 shadow-sm hover:opacity-90 transition-opacity"
@@ -663,7 +664,7 @@ export const SocialMediaFeed: React.FC = () => {
               </a>
 
               <a
-                href="https://facebook.com"
+                href={ORG_LINKS.facebook}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="px-4 py-2.5 rounded-full bg-[#1877F2] text-white text-xs font-bold flex items-center gap-2 shadow-sm hover:opacity-90 transition-opacity"
@@ -673,7 +674,7 @@ export const SocialMediaFeed: React.FC = () => {
               </a>
 
               <a
-                href="https://youtube.com"
+                href={ORG_LINKS.youtube}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="px-4 py-2.5 rounded-full bg-[#FF0000] text-white text-xs font-bold flex items-center gap-2 shadow-sm hover:opacity-90 transition-opacity"
@@ -683,7 +684,7 @@ export const SocialMediaFeed: React.FC = () => {
               </a>
 
               <a
-                href="https://x.com"
+                href={ORG_LINKS.x}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="px-4 py-2.5 rounded-full bg-[#14171A] text-white text-xs font-bold flex items-center gap-2 shadow-sm hover:opacity-90 transition-opacity"

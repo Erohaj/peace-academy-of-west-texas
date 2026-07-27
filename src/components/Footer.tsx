@@ -1,8 +1,9 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { Heart, Globe, Mail, MapPin, ShieldCheck, Instagram, Facebook, Twitter } from 'lucide-react';
+import { Heart, Globe, Mail, MapPin, ShieldCheck, Instagram, Facebook, Twitter, Youtube } from 'lucide-react';
 import { useAppStore } from '../store/useAppStore';
 import { PAWTXLogo } from './PAWTXLogo';
+import { ORG_ADDRESS, ORG_LINKS } from '../data/orgLinks';
 
 interface FooterProps {
   onOpenContact: () => void;
@@ -73,14 +74,22 @@ export const Footer: React.FC<FooterProps> = ({ onOpenContact }) => {
               Community Outreach
             </h4>
             <div className="space-y-2 text-xs text-[#E5E0D8]/80">
-              <div className="flex items-center gap-2">
-                <MapPin className="w-3.5 h-3.5 text-[#A64D32]" />
-                <span>3411 Brentwood Dr, Odessa, TX 79762</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Mail className="w-3.5 h-3.5 text-[#A64D32]" />
+              <a
+                href={ORG_LINKS.map}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 hover:text-white transition-colors"
+              >
+                <MapPin className="w-3.5 h-3.5 text-[#A64D32] shrink-0" />
+                <span>{ORG_ADDRESS}</span>
+              </a>
+              <a
+                href="mailto:paowtx@gmail.com"
+                className="flex items-center gap-2 hover:text-white transition-colors"
+              >
+                <Mail className="w-3.5 h-3.5 text-[#A64D32] shrink-0" />
                 <span>paowtx@gmail.com</span>
-              </div>
+              </a>
               <p className="pt-2 text-[11px] text-white/50">
                 Serving Ector & Midland Counties with cultural education and food security programs.
               </p>
@@ -148,15 +157,24 @@ export const Footer: React.FC<FooterProps> = ({ onOpenContact }) => {
           </p>
 
           <div className="flex items-center gap-4">
-            <a href="#" className="hover:text-[#A64D32] transition-colors" title="Instagram">
-              <Instagram className="w-4 h-4" />
-            </a>
-            <a href="#" className="hover:text-[#A64D32] transition-colors" title="Facebook">
-              <Facebook className="w-4 h-4" />
-            </a>
-            <a href="#" className="hover:text-[#A64D32] transition-colors" title="Twitter">
-              <Twitter className="w-4 h-4" />
-            </a>
+            {[
+              { href: ORG_LINKS.instagram, label: 'Instagram', Icon: Instagram },
+              { href: ORG_LINKS.facebook, label: 'Facebook', Icon: Facebook },
+              { href: ORG_LINKS.youtube, label: 'YouTube', Icon: Youtube },
+              { href: ORG_LINKS.x, label: 'X', Icon: Twitter }
+            ].map(({ href, label, Icon }) => (
+              <a
+                key={label}
+                href={href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-[#A64D32] transition-colors"
+                title={label}
+                aria-label={label}
+              >
+                <Icon className="w-4 h-4" />
+              </a>
+            ))}
           </div>
         </div>
 
