@@ -16,6 +16,7 @@ import { ContactModal } from './components/ContactModal';
 import { SearchModal } from './components/SearchModal';
 import { Footer } from './components/Footer';
 import { ErrorBoundary } from './components/ErrorBoundary';
+import { CertificateVerify } from './components/CertificateVerify';
 import { readDonationReturn } from './lib/donationReturn';
 import { SITE_NAME, SITE_TITLE } from './lib/seo';
 import { ActiveTab } from './types';
@@ -43,6 +44,14 @@ export const App: React.FC = () => {
   const [isContactOpen, setIsContactOpen] = useState(false);
   const { t } = useTranslation();
 
+  // Read once: the value comes from the URL the visitor arrived on, and
+  // re-reading it on every render would fight the hash writer below.
+  const [verifyRequest] = useState(() =>
+    typeof window === 'undefined'
+      ? null
+      : new URLSearchParams(window.location.search).get('verify')
+  );
+
   // Loads events, gallery and shifts, and subscribes to auth changes. Guarded
   // inside the store against StrictMode's double effect in development.
   useEffect(() => {
@@ -55,6 +64,13 @@ export const App: React.FC = () => {
   useEffect(() => {
     if (readDonationReturn()) setActiveTab('donate');
   }, [setActiveTab]);
+
+  // ?verify=PAWTX-XXXX-XXXX — what the QR code on a certificate points at.
+  // A query parameter rather than a hash so the address survives being typed
+  // out or pasted into an email, and so the tab logic below stays untouched.
+  useEffect(() => {
+    if (verifyRequest) setActiveTab('verify');
+  }, [verifyRequest, setActiveTab]);
 
   // Bookmarkable section links, e.g. .../#admin — the admin panel is otherwise
   // reachable only through a footer link that appears after signing in, which
@@ -97,6 +113,11 @@ export const App: React.FC = () => {
   // '#' behind), and it does not fire hashchange, so this cannot ping-pong
   // with the listener above.
   useEffect(() => {
+    // 'verify' is addressed by ?verify=..., not by a fragment. Writing #verify
+    // would put a tab in the URL that the reader above does not recognise —
+    // it is not in LINKABLE_TABS — so going back would land on home instead.
+    if (activeTab === 'verify') return;
+
     const target =
       activeTab === 'home'
         ? `${window.location.pathname}${window.location.search}`
@@ -135,6 +156,8 @@ export const App: React.FC = () => {
         return `${t('nav.donate')} | ${SITE_NAME}`;
       case 'admin':
         return `${t('footer.adminPanel')} | ${SITE_NAME}`;
+      case 'verify':
+        return `Verify a certificate | ${SITE_NAME}`;
       case 'home':
       default:
         return SITE_TITLE;
@@ -217,6 +240,8 @@ export const App: React.FC = () => {
           {activeTab === 'volunteer' && <VolunteerPortal />}
 
           {activeTab === 'donate' && <DonationWidget asPageTitle />}
+
+          {activeTab === 'verify' && <CertificateVerify initialNumber={verifyRequest ?? undefined} />}
 
           {activeTab === 'admin' && (
             <Suspense

@@ -328,6 +328,54 @@ export interface Database {
         ];
       };
 
+      volunteer_certificates: {
+        Row: {
+          id: string;
+          user_id: string;
+          certificate_no: string;
+          recipient_name: string;
+          period_start: string;
+          period_end: string;
+          total_hours: number;
+          entry_count: number;
+          entries: Json;
+          issued_by: string;
+          issued_by_name: string;
+          issued_by_title: string | null;
+          issued_at: string;
+          revoked_at: string | null;
+          revoked_reason: string | null;
+        };
+        // Admins only, and `issued_by` must equal auth.uid() per the WITH CHECK.
+        Insert: {
+          id?: string;
+          user_id: string;
+          certificate_no: string;
+          recipient_name: string;
+          period_start: string;
+          period_end: string;
+          total_hours: number;
+          entry_count?: number;
+          entries?: Json;
+          issued_by: string;
+          issued_by_name: string;
+          issued_by_title?: string | null;
+        };
+        // Issued figures are frozen; only revocation is granted at column level.
+        Update: {
+          revoked_at?: string | null;
+          revoked_reason?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'volunteer_certificates_user_id_fkey';
+            columns: ['user_id'];
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          }
+        ];
+      };
+
       donations: {
         Row: {
           id: string;
@@ -386,6 +434,25 @@ export interface Database {
       is_admin: {
         Args: Record<string, never>;
         Returns: boolean;
+      };
+      /**
+       * Public certificate lookup. Callable by anon on purpose — it takes one
+       * unguessable number and returns only what a verifier needs to see.
+       */
+      verify_certificate: {
+        Args: { p_certificate_no: string };
+        Returns: {
+          certificate_no: string;
+          recipient_name: string;
+          total_hours: number;
+          period_start: string;
+          period_end: string;
+          issued_at: string;
+          issued_by_name: string;
+          issued_by_title: string | null;
+          is_valid: boolean;
+          revoked_at: string | null;
+        }[];
       };
     };
 

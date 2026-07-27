@@ -100,7 +100,18 @@ export interface Donation {
   createdAt: string;
 }
 
-export type ActiveTab = 'home' | 'events' | 'social' | 'gallery' | 'donate' | 'volunteer' | 'admin';
+export type ActiveTab =
+  | 'home'
+  | 'events'
+  | 'social'
+  | 'gallery'
+  | 'donate'
+  | 'volunteer'
+  | 'admin'
+  // Reached by scanning the QR on a certificate, not from the navigation. The
+  // visitor is a school registrar or a court officer checking somebody else's
+  // document, so it is deliberately absent from the menu.
+  | 'verify';
 
 /** Loading state for anything fetched from Supabase. */
 export type DataStatus = 'idle' | 'loading' | 'ready' | 'error';
