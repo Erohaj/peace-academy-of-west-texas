@@ -1,13 +1,22 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ShieldAlert, CalendarDays, Image as ImageIcon, Inbox, HeartHandshake, HandHeart } from 'lucide-react';
+import { ShieldAlert, CalendarDays, Image as ImageIcon, Inbox, HeartHandshake, HandHeart, ClipboardList, Award } from 'lucide-react';
 import { useAppStore } from '../../store/useAppStore';
 import { EventsAdmin } from './EventsAdmin';
 import { GalleryAdmin } from './GalleryAdmin';
 import { ShiftsAdmin } from './ShiftsAdmin';
+import { ApplicationsAdmin } from './ApplicationsAdmin';
+import { CertificatesAdmin } from './CertificatesAdmin';
 import { SubmissionsAdmin } from './SubmissionsAdmin';
 
-type AdminSection = 'events' | 'shifts' | 'gallery' | 'rsvps' | 'donations';
+type AdminSection =
+  | 'events'
+  | 'shifts'
+  | 'applications'
+  | 'certificates'
+  | 'gallery'
+  | 'rsvps'
+  | 'donations';
 
 /**
  * Staff-only content management.
@@ -36,6 +45,8 @@ export const AdminPanel: React.FC = () => {
       [
         { id: 'events' as const, label: 'Events', icon: CalendarDays },
         { id: 'shifts' as const, label: 'Volunteer Shifts', icon: HandHeart },
+        { id: 'applications' as const, label: 'Applications', icon: ClipboardList },
+        { id: 'certificates' as const, label: 'Certificates', icon: Award },
         { id: 'gallery' as const, label: 'Gallery', icon: ImageIcon },
         { id: 'rsvps' as const, label: 'RSVPs & Messages', icon: Inbox },
         { id: 'donations' as const, label: 'Donations', icon: HeartHandshake }
@@ -112,6 +123,8 @@ export const AdminPanel: React.FC = () => {
           <div className="lg:col-span-9">
             {section === 'events' && <EventsAdmin />}
             {section === 'shifts' && <ShiftsAdmin />}
+            {section === 'applications' && <ApplicationsAdmin />}
+            {section === 'certificates' && <CertificatesAdmin />}
             {section === 'gallery' && <GalleryAdmin />}
             {section === 'rsvps' && <SubmissionsAdmin view="rsvps" />}
             {section === 'donations' && <SubmissionsAdmin view="donations" />}

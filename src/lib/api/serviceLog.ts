@@ -52,6 +52,33 @@ export async function fetchMyServiceLog(userId: string): Promise<ServiceLogRow[]
 const isMissingTable = (error: { code?: string | null }): boolean =>
   error.code === 'PGRST205' || error.code === '42P01';
 
+/**
+ * One volunteer's credited hours within a date range, for the certificate
+ * issuing screen. Relies on "service_log: admins read all" — a non-admin
+ * calling this for someone else's `userId` simply gets nothing back.
+ *
+ * No `isMissingTable` fallback here: certificate issuing is an admin-only,
+ * deliberate action rather than something rendered to every visitor on page
+ * load, so there is no equivalent case for silently surviving an unmigrated
+ * database — surfacing the error is the more honest failure here.
+ */
+export async function fetchServiceLogForUserInRange(
+  userId: string,
+  periodStart: string,
+  periodEnd: string
+): Promise<ServiceLogRow[]> {
+  const { data, error } = await requireSupabase()
+    .from('service_log')
+    .select('*')
+    .eq('user_id', userId)
+    .gte('served_on', periodStart)
+    .lte('served_on', periodEnd)
+    .order('served_on', { ascending: true });
+
+  if (error) throw error;
+  return data ?? [];
+}
+
 /** Total credited hours, rounded the way the portal displays them. */
 export const sumHours = (rows: readonly ServiceLogRow[]): number =>
   Math.round(rows.reduce((total, row) => total + Number(row.hours), 0) * 10) / 10;

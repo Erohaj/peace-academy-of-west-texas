@@ -56,6 +56,29 @@ export async function fetchShifts(): Promise<ShiftRow[]> {
  * Newest first, the opposite of the public list: staff are usually looking for
  * the shift they just created, while volunteers want the next one coming up.
  */
+/**
+ * Titles for a specific set of shift ids, keyed by id.
+ *
+ * Used by the certificate screen to label each service_log entry with what
+ * the volunteer actually did, rather than a bare date and a number of hours.
+ * Deliberately not filtered on `published`: a shift can be unpublished long
+ * after it happened, and the hours already credited for it still deserve a
+ * real label on a certificate.
+ */
+export async function fetchShiftTitlesByIds(
+  ids: readonly string[]
+): Promise<Map<string, { title: string; titleEs: string }>> {
+  if (ids.length === 0) return new Map();
+
+  const { data, error } = await requireSupabase()
+    .from('shifts')
+    .select('id, title, title_es')
+    .in('id', ids);
+
+  if (error) throw error;
+  return new Map((data ?? []).map((row) => [row.id, { title: row.title, titleEs: row.title_es }]));
+}
+
 export async function fetchAllShiftsForAdmin(): Promise<ShiftRow[]> {
   const { data, error } = await requireSupabase()
     .from('shifts')

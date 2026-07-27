@@ -191,6 +191,9 @@ const resources = {
         tabMySchedule: "My Schedule",
         tabHours: "Hours Log & Badges",
         tabProfile: "My Details",
+        tabForms: "Volunteer Forms",
+        formsIntro:
+          "Your application, agreement, release, code of conduct and media consent — signed once, kept on file.",
         profileIntro:
           "Your name is what appears on any service letter PAWTX issues for the hours you have served, so make sure it is the one you want on it.",
         profileName: "Full name",
@@ -457,6 +460,9 @@ const resources = {
         tabMySchedule: "Mi Horario",
         tabHours: "Registro de Horas e Insignias",
         tabProfile: "Mis Datos",
+        tabForms: "Formularios",
+        formsIntro:
+          "Tu solicitud, acuerdo, exención, código de conducta y consentimiento de medios — firmados una vez, guardados en tu expediente.",
         profileIntro:
           "Tu nombre es el que aparecerá en cualquier constancia de servicio que PAWTX emita por las horas que has servido, así que asegúrate de que sea el que quieres que lleve.",
         profileName: "Nombre completo",

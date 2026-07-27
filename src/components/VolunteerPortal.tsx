@@ -1,9 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Mail, Clock, Calendar, Award, CheckCircle2, LogOut, ArrowRight, ShieldCheck, Filter, AlertCircle, LayoutDashboard, CalendarCheck, Sparkles, UserRound } from 'lucide-react';
+import { Mail, Clock, Calendar, Award, CheckCircle2, LogOut, ArrowRight, ShieldCheck, Filter, AlertCircle, LayoutDashboard, CalendarCheck, Sparkles, UserRound, FileCheck2 } from 'lucide-react';
 import { useAppStore } from '../store/useAppStore';
 import { VOLUNTEER_ROLES } from '../data/volunteerRoles';
 import { VolunteerRole } from '../types';
+import { OnboardingWizard } from './volunteer/OnboardingWizard';
+import { CertificateView } from './CertificateView';
+import { fetchMyCertificates, type CertificateRow } from '../lib/api/certificates';
 
 export const VolunteerPortal: React.FC = () => {
   const { t } = useTranslation();
@@ -27,7 +30,7 @@ export const VolunteerPortal: React.FC = () => {
 
   const [emailInput, setEmailInput] = useState('');
   const [activeTab, setActiveTab] = useState<
-    'overview' | 'shifts' | 'mySchedule' | 'hours' | 'profile'
+    'overview' | 'shifts' | 'mySchedule' | 'hours' | 'profile' | 'forms'
   >('overview');
   const [selectedRole, setSelectedRole] = useState<VolunteerRole | 'all'>('all');
   const [loginSent, setLoginSent] = useState(false);
@@ -40,6 +43,22 @@ export const VolunteerPortal: React.FC = () => {
   const [isSavingProfile, setIsSavingProfile] = useState(false);
   const [profileMessage, setProfileMessage] = useState<string | null>(null);
   const [profileError, setProfileError] = useState<string | null>(null);
+
+  const [certificates, setCertificates] = useState<CertificateRow[]>([]);
+  const [certificatesLoaded, setCertificatesLoaded] = useState(false);
+  const [expandedCertId, setExpandedCertId] = useState<string | null>(null);
+
+  // Loaded once, the first time the Hours tab is opened — not on every mount
+  // of the portal, since most sessions never look at this tab at all.
+  useEffect(() => {
+    if (activeTab !== 'hours' || certificatesLoaded || !volunteer?.id) return;
+    void fetchMyCertificates(volunteer.id)
+      .then((rows) => {
+        setCertificates(rows);
+        setCertificatesLoaded(true);
+      })
+      .catch((error) => console.error('[PAWTX] Failed to load certificates', error));
+  }, [activeTab, certificatesLoaded, volunteer?.id]);
 
   /**
    * True while the account has no real name on it.
@@ -333,6 +352,18 @@ export const VolunteerPortal: React.FC = () => {
               </button>
 
               <button
+                onClick={() => setActiveTab('forms')}
+                className={`w-full text-left px-4 py-3 rounded-xl font-bold text-xs uppercase tracking-wider flex items-center gap-3 transition-colors cursor-pointer ${
+                  activeTab === 'forms'
+                    ? 'bg-[#A64D32] text-white shadow-sm'
+                    : 'text-[#2A2A2A] hover:bg-[#FDFBF7]'
+                }`}
+              >
+                <FileCheck2 className="w-4 h-4" />
+                <span>{t('volunteer.tabForms')}</span>
+              </button>
+
+              <button
                 onClick={() => setActiveTab('shifts')}
                 className={`w-full text-left px-4 py-3 rounded-xl font-bold text-xs uppercase tracking-wider flex items-center gap-3 transition-colors cursor-pointer ${
                   activeTab === 'shifts'
@@ -407,6 +438,19 @@ export const VolunteerPortal: React.FC = () => {
               <div className="flex items-start gap-2 bg-[#A64D32]/10 border border-[#A64D32]/30 rounded-2xl px-4 py-3 text-xs text-[#A64D32]">
                 <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
                 <span>{shiftError}</span>
+              </div>
+            )}
+
+            {/* FORMS TAB */}
+            {activeTab === 'forms' && (
+              <div className="bg-[#F4F1ED] rounded-2xl p-6 border border-[#E5E0D8] shadow-sm animate-fadeIn">
+                <h3 className="text-2xl font-serif font-bold text-[#2A2A2A] mb-1">
+                  {t('volunteer.tabForms')}
+                </h3>
+                <p className="text-xs text-[#5A5A5A] mb-6">
+                  {t('volunteer.formsIntro')}
+                </p>
+                <OnboardingWizard />
               </div>
             )}
 
@@ -722,6 +766,48 @@ export const VolunteerPortal: React.FC = () => {
                       </div>
                     )}
                   </div>
+                </div>
+
+                <div className="space-y-3 pt-2">
+                  <h4 className="text-sm font-bold uppercase tracking-[0.2em] text-[#5A5A5A]">
+                    My certificates
+                  </h4>
+                  {certificatesLoaded && certificates.length === 0 && (
+                    <p className="text-xs text-[#5A5A5A]">
+                      No certificate has been issued yet. Ask a staff member once your hours cover
+                      the period you need documented.
+                    </p>
+                  )}
+                  {certificates.map((cert) => (
+                    <div key={cert.id} className="bg-[#FDFBF7] border border-[#E5E0D8] rounded-xl">
+                      <button
+                        onClick={() =>
+                          setExpandedCertId(expandedCertId === cert.id ? null : cert.id)
+                        }
+                        className="w-full flex items-center justify-between px-4 py-3 text-left cursor-pointer"
+                      >
+                        <span className="text-xs">
+                          <span className="font-mono font-bold">{cert.certificate_no}</span>
+                          <span className="text-[#5A5A5A] ml-3">
+                            {cert.period_start} — {cert.period_end} · {Number(cert.total_hours)} hrs
+                          </span>
+                          {cert.revoked_at && (
+                            <span className="ml-3 text-[10px] font-bold uppercase tracking-wider bg-[#A64D32]/15 text-[#A64D32] px-2 py-0.5 rounded-full">
+                              Withdrawn
+                            </span>
+                          )}
+                        </span>
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-[#A64D32]">
+                          {expandedCertId === cert.id ? 'Hide' : 'View / print'}
+                        </span>
+                      </button>
+                      {expandedCertId === cert.id && (
+                        <div className="border-t border-[#E5E0D8] p-4">
+                          <CertificateView certificate={cert} />
+                        </div>
+                      )}
+                    </div>
+                  ))}
                 </div>
               </div>
             )}

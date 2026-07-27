@@ -11,6 +11,7 @@
     "lint": "tsc --noEmit",
     "optimize:images": "node scripts/optimize-images.mjs",
     "seo:assets": "node scripts/generate-seo-assets.mjs",
+    "seed:legal": "node scripts/generate-legal-seed.mjs > supabase/migrations/$(date +%Y%m%d%H%M%S)_seed_legal_documents.sql",
     "db:start": "supabase start",
     "db:stop": "supabase stop",
     "db:reset": "supabase db reset",
@@ -33,6 +34,8 @@
     "react": "^19.0.1",
     "react-dom": "^19.0.1",
     "react-i18next": "^17.0.11",
+    "react-markdown": "^10.1.0",
+    "remark-gfm": "^4.0.1",
     "vite": "^6.2.3",
     "zustand": "^5.0.14"
   },

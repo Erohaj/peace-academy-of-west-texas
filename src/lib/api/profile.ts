@@ -26,6 +26,22 @@ export async function fetchMyProfile(userId: string): Promise<ProfileRow | null>
   return data;
 }
 
+/**
+ * Every volunteer, for the admin certificate screen's "who is this for"
+ * search. Relies on the "profiles: admins read all" policy — a non-admin
+ * calling this simply gets their own single row back, which is harmless but
+ * useless, so this is not exposed anywhere a volunteer can reach it.
+ */
+export async function fetchAllVolunteersForAdmin(): Promise<ProfileRow[]> {
+  const { data, error } = await requireSupabase()
+    .from('profiles')
+    .select('*')
+    .order('full_name', { ascending: true });
+
+  if (error) throw error;
+  return data ?? [];
+}
+
 export async function updateMyProfile(
   userId: string,
   patch: { full_name?: string | null; phone?: string | null; avatar_url?: string | null }

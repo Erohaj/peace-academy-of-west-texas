@@ -26,6 +26,20 @@ export type DonationStatusRow = 'pending' | 'paid' | 'failed' | 'refunded';
 export type ProfileRoleRow = 'volunteer' | 'admin';
 export type AttendanceRow = 'attended' | 'no_show';
 export type ServiceSourceRow = 'shift' | 'manual';
+export type LegalDocumentKindRow =
+  | 'application'
+  | 'agreement'
+  | 'release'
+  | 'media_consent'
+  | 'guardian_consent'
+  | 'code_of_conduct';
+export type ApplicationStatusRow =
+  | 'submitted'
+  | 'in_review'
+  | 'approved'
+  | 'declined'
+  | 'withdrawn';
+export type SignerRoleRow = 'volunteer' | 'guardian';
 
 export interface Database {
   public: {
@@ -323,6 +337,180 @@ export interface Database {
             foreignKeyName: 'service_log_shift_id_fkey';
             columns: ['shift_id'];
             referencedRelation: 'shifts';
+            referencedColumns: ['id'];
+          }
+        ];
+      };
+
+      legal_documents: {
+        Row: {
+          id: string;
+          slug: string;
+          title: string;
+          title_es: string;
+          kind: LegalDocumentKindRow;
+          required: boolean;
+          minors_only: boolean;
+          sort_order: number;
+          created_at: string;
+        };
+        // Public read-only from the client; admins write, but the editor UI
+        // for these is out of scope for now — seeded via
+        // scripts/generate-legal-seed.mjs instead.
+        Insert: never;
+        Update: never;
+        Relationships: [];
+      };
+
+      legal_document_versions: {
+        Row: {
+          id: string;
+          document_id: string;
+          version: string;
+          effective_from: string;
+          body_md: string;
+          body_md_es: string;
+          body_hash: string;
+          is_current: boolean;
+          created_at: string;
+        };
+        Insert: never;
+        Update: never;
+        Relationships: [
+          {
+            foreignKeyName: 'legal_document_versions_document_id_fkey';
+            columns: ['document_id'];
+            referencedRelation: 'legal_documents';
+            referencedColumns: ['id'];
+          }
+        ];
+      };
+
+      volunteer_applications: {
+        Row: {
+          id: string;
+          user_id: string | null;
+          full_name: string;
+          email: string;
+          phone: string | null;
+          date_of_birth: string;
+          was_minor_at_submission: boolean;
+          address_line: string | null;
+          city: string | null;
+          state: string | null;
+          postal_code: string | null;
+          emergency_name: string;
+          emergency_phone: string;
+          emergency_relation: string | null;
+          skills: string | null;
+          availability: string | null;
+          languages: string | null;
+          interested_in_youth_programs: boolean;
+          motivation: string | null;
+          status: ApplicationStatusRow;
+          reviewed_by: string | null;
+          reviewed_at: string | null;
+          review_note: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          full_name: string;
+          email: string;
+          phone?: string | null;
+          date_of_birth: string;
+          was_minor_at_submission: boolean;
+          address_line?: string | null;
+          city?: string | null;
+          state?: string | null;
+          postal_code?: string | null;
+          emergency_name: string;
+          emergency_phone: string;
+          emergency_relation?: string | null;
+          skills?: string | null;
+          availability?: string | null;
+          languages?: string | null;
+          interested_in_youth_programs?: boolean;
+          motivation?: string | null;
+        };
+        // Two shapes share this table's grant: an applicant editing their own
+        // contact details, and an admin moving `status`. Both are modelled
+        // here since RLS — not this type — is what actually keeps them apart
+        // (see the column GRANTs in the migration).
+        Update: {
+          phone?: string | null;
+          address_line?: string | null;
+          city?: string | null;
+          state?: string | null;
+          postal_code?: string | null;
+          emergency_name?: string;
+          emergency_phone?: string;
+          emergency_relation?: string | null;
+          skills?: string | null;
+          availability?: string | null;
+          languages?: string | null;
+          motivation?: string | null;
+          status?: ApplicationStatusRow;
+          reviewed_by?: string | null;
+          reviewed_at?: string | null;
+          review_note?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'volunteer_applications_user_id_fkey';
+            columns: ['user_id'];
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          }
+        ];
+      };
+
+      document_signatures: {
+        Row: {
+          id: string;
+          version_id: string;
+          user_id: string | null;
+          application_id: string | null;
+          signer_name: string;
+          signer_email: string;
+          signer_role: SignerRoleRow;
+          minor_name: string | null;
+          relationship: string | null;
+          /** Only meaningful for the media-consent document — see the column comment. */
+          choice: 'yes' | 'photos_only' | 'no' | null;
+          body_hash: string;
+          signed_at: string;
+          ip_address: string | null;
+          user_agent: string | null;
+        };
+        Insert: {
+          id?: string;
+          version_id: string;
+          user_id: string;
+          application_id?: string | null;
+          signer_name: string;
+          signer_email: string;
+          signer_role: SignerRoleRow;
+          minor_name?: string | null;
+          relationship?: string | null;
+          choice?: 'yes' | 'photos_only' | 'no' | null;
+          body_hash: string;
+          user_agent?: string | null;
+        };
+        // Nobody may update or delete a signature — see the migration.
+        Update: never;
+        Relationships: [
+          {
+            foreignKeyName: 'document_signatures_version_id_fkey';
+            columns: ['version_id'];
+            referencedRelation: 'legal_document_versions';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'document_signatures_application_id_fkey';
+            columns: ['application_id'];
+            referencedRelation: 'volunteer_applications';
             referencedColumns: ['id'];
           }
         ];
