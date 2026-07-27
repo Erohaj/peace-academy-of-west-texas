@@ -120,6 +120,7 @@ export type ActionError =
   | 'shift_full'
   | 'not_configured'
   | 'unauthenticated'
+  | 'rate_limited'
   | 'network';
 
 /**

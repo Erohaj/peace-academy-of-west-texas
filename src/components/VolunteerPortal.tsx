@@ -41,7 +41,11 @@ export const VolunteerPortal: React.FC = () => {
     if (result.ok) {
       setLoginSent(true);
     } else {
-      setLoginError(t('volunteer.magicLinkError'));
+      setLoginError(
+        result.error === 'rate_limited'
+          ? t('volunteer.magicLinkRateLimited')
+          : t('volunteer.magicLinkError')
+      );
     }
   };
 

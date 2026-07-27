@@ -19,15 +19,26 @@ const SQLSTATE_TO_ACTION_ERROR: Record<string, ActionError> = {
   // Unique violation on shift_signups — already signed up for this shift.
   '23505': 'already_registered',
   // RLS rejected the write: the caller isn't who they need to be.
-  '42501': 'unauthenticated'
+  '42501': 'unauthenticated',
+  // Supabase Auth throttles outbound email. Worth its own code: telling
+  // someone to "check the address" when the address is fine sends them
+  // hunting for a typo that does not exist.
+  over_email_send_rate_limit: 'rate_limited',
+  over_request_rate_limit: 'rate_limited'
 };
 
 export function toActionError(error: unknown): ActionError {
   if (error instanceof SupabaseNotConfiguredError) return 'not_configured';
 
-  if (error && typeof error === 'object' && 'code' in error) {
-    const code = String((error as PostgrestError).code);
-    if (code in SQLSTATE_TO_ACTION_ERROR) return SQLSTATE_TO_ACTION_ERROR[code];
+  if (error && typeof error === 'object') {
+    const candidate = error as PostgrestError & { status?: number };
+
+    if (candidate.code && String(candidate.code) in SQLSTATE_TO_ACTION_ERROR) {
+      return SQLSTATE_TO_ACTION_ERROR[String(candidate.code)];
+    }
+
+    // Older SDK versions report throttling only as an HTTP status.
+    if (candidate.status === 429) return 'rate_limited';
   }
 
   return 'network';
