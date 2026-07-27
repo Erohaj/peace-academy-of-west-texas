@@ -4,7 +4,7 @@ import { X, CheckCircle2, Calendar, Heart, User, Mail, Phone, Users as UsersIcon
 import { useAppStore } from '../store/useAppStore';
 import { getGoogleCalendarUrl } from '../lib/eventDates';
 import { ActionError } from '../types';
-import { emailEnabled } from '../lib/features';
+import { donationsEnabled, emailEnabled } from '../lib/features';
 
 export const RSVPModal: React.FC = () => {
   const { t } = useTranslation();
@@ -55,9 +55,19 @@ export const RSVPModal: React.FC = () => {
 
   const handleNextStep = (e: React.FormEvent) => {
     e.preventDefault();
-    if (validateStep1()) {
-      setStep(2);
+    if (!validateStep1()) return;
+
+    // The "Optional Event Support" step offers $10/$25/$50 buttons under
+    // copy about tax-deductible giving, but takes no payment — it only
+    // writes a number into the rsvps row. Someone who picks $25 leaves
+    // believing they donated. Until the amount can actually be charged,
+    // skip the step entirely rather than stage a transaction that isn't one.
+    if (!donationsEnabled) {
+      void handleFinalSubmit();
+      return;
     }
+
+    setStep(2);
   };
 
   const handleFinalSubmit = async () => {
@@ -70,7 +80,9 @@ export const RSVPModal: React.FC = () => {
       email,
       phone,
       guestCount,
-      optionalDonation: donationAmount || 0
+      // Zero when the donation step never ran — otherwise the default $10 in
+      // component state would be recorded as a gift nobody chose.
+      optionalDonation: donationsEnabled ? donationAmount || 0 : 0
     });
 
     setIsSubmitting(false);
@@ -216,10 +228,19 @@ export const RSVPModal: React.FC = () => {
               <div className="pt-4">
                 <button
                   type="submit"
-                  className="w-full bg-[#A64D32] hover:bg-[#8b3f28] text-white py-3 rounded-full font-bold text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md"
+                  disabled={isSubmitting}
+                  className="w-full bg-[#A64D32] hover:bg-[#8b3f28] text-white py-3 rounded-full font-bold text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md disabled:opacity-50"
                 >
-                  <span>{t('rsvpModal.continueToStep2')}</span>
-                  <ArrowRight className="w-4 h-4" />
+                  {/* Without the donation step this button is the last one, so
+                      it must not promise a "step 2" that no longer exists. */}
+                  <span>
+                    {isSubmitting
+                      ? t('rsvpModal.submitting')
+                      : donationsEnabled
+                        ? t('rsvpModal.continueToStep2')
+                        : t('rsvpModal.confirmRsvp')}
+                  </span>
+                  {!isSubmitting && <ArrowRight className="w-4 h-4" />}
                 </button>
               </div>
 
@@ -375,7 +396,7 @@ export const RSVPModal: React.FC = () => {
                     retrying, so only offer the button when it can actually help. */}
                 {errorCopy.retryable && (
                   <button
-                    onClick={handleFinalSubmit}
+                    onClick={() => void handleFinalSubmit()}
                     disabled={isSubmitting}
                     className="w-full bg-[#A64D32] hover:bg-[#8b3f28] text-white py-3 rounded-full text-xs font-bold uppercase tracking-widest transition-all shadow-sm cursor-pointer disabled:opacity-50"
                   >
