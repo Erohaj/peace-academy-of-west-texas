@@ -62,10 +62,53 @@ export const App: React.FC = () => {
   // Stripe return still wins; guarded by the tab whitelist so a stray hash
   // can't put the app in an unknown state. It grants nothing on its own:
   // AdminPanel still checks the session, and RLS still checks every query.
+  //
+  // Kept listening rather than read once at mount, so the back button steps
+  // back through the tabs the visitor opened instead of leaving the site.
+  // `popstate` as well as `hashchange` because a traversal that lands on the
+  // bare URL, with no fragment left to change, only fires the former.
   useEffect(() => {
-    const requested = window.location.hash.replace('#', '') as ActiveTab;
-    if (requested && LINKABLE_TABS.includes(requested)) setActiveTab(requested);
+    // An absent fragment means "home" when the visitor navigated back to it,
+    // but means nothing at all on the first render — the effect above may
+    // have just sent a returning donor to the donate tab, and falling back to
+    // home here would snatch the thank-you screen away from them.
+    const applyHash = (fallBackToHome: boolean) => {
+      const requested = window.location.hash.replace('#', '') as ActiveTab;
+      if (requested && LINKABLE_TABS.includes(requested)) setActiveTab(requested);
+      else if (fallBackToHome) setActiveTab('home');
+    };
+
+    const onHistoryNavigation = () => applyHash(true);
+
+    applyHash(false);
+    window.addEventListener('hashchange', onHistoryNavigation);
+    window.addEventListener('popstate', onHistoryNavigation);
+    return () => {
+      window.removeEventListener('hashchange', onHistoryNavigation);
+      window.removeEventListener('popstate', onHistoryNavigation);
+    };
   }, [setActiveTab]);
+
+  // The other direction: opening a tab records it in the URL, so the address
+  // bar can be copied and the back button has somewhere to go.
+  //
+  // pushState rather than assigning location.hash, for two reasons: it can
+  // clear the fragment entirely on the home tab (assigning '' leaves a bare
+  // '#' behind), and it does not fire hashchange, so this cannot ping-pong
+  // with the listener above.
+  useEffect(() => {
+    const target =
+      activeTab === 'home'
+        ? `${window.location.pathname}${window.location.search}`
+        : `#${activeTab}`;
+
+    const current = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+    const resolved = new URL(target, window.location.href);
+
+    if (`${resolved.pathname}${resolved.search}${resolved.hash}` !== current) {
+      window.history.pushState(null, '', target);
+    }
+  }, [activeTab]);
 
   /**
    * The browser tab caption, which is the one piece of head metadata that

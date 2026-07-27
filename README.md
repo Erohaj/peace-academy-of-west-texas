@@ -1,12 +1,29 @@
 <div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" />
+<img width="600" alt="Peace Academy of West Texas" src="public/og-image.jpg" />
 </div>
 
-# Run and deploy your AI Studio app
+# Peace Academy of West Texas
 
-This contains everything you need to run your app locally.
+The website of [Peace Academy of West Texas](https://erohaj.github.io/peace-academy-of-west-texas/)
+(PAWTX), a 501(c)(3) nonprofit in Odessa and Midland, Texas, running
+cross-cultural education, interfaith dialogue and food security programmes
+across the Permian Basin.
 
-View your app in AI Studio: https://ai.studio/apps/20e5a058-8fc2-4ef6-bed7-2c6ff235286d
+The site is bilingual (English/Spanish) and carries the events calendar and
+RSVPs, a photo gallery, a live Instagram and Facebook feed, the volunteer
+portal, online donations, and a staff admin panel for editing all of it.
+
+**Stack:** React 19 + TypeScript + Vite 6 + Tailwind v4, with Supabase
+(Postgres, Auth, Storage, Edge Functions) as the backend and Stripe Checkout
+for donations. It builds to a static bundle and is published to GitHub Pages
+by [.github/workflows/deploy.yml](.github/workflows/deploy.yml) on every push
+to `main`; the browser talks to Supabase directly, so **row-level security is
+the only thing standing between a visitor and the data** — see
+[CLAUDE.md](CLAUDE.md) before changing a policy.
+
+Scaffolded from Google AI Studio
+([app](https://ai.studio/apps/20e5a058-8fc2-4ef6-bed7-2c6ff235286d)); the
+backend, i18n and everything below were added afterwards.
 
 ## Run Locally
 
