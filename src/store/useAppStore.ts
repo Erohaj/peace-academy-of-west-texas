@@ -27,7 +27,7 @@ import {
   mapShiftRow,
   releaseShift
 } from '../lib/api/shifts';
-import { ProfileRow, fetchMyProfile, mapProfileRow } from '../lib/api/profile';
+import { ProfileRow, fetchMyProfile, mapProfileRow, updateMyProfile } from '../lib/api/profile';
 import { ServiceLogRow, fetchMyServiceLog } from '../lib/api/serviceLog';
 import { createRsvp } from '../lib/api/rsvps';
 
@@ -130,6 +130,7 @@ interface AppState {
   loginWithGoogle: () => Promise<ActionResult>;
   logout: () => Promise<void>;
   toggleShiftBooking: (shiftId: string) => Promise<ActionResult>;
+  saveProfile: (patch: { fullName: string; phone: string }) => Promise<ActionResult>;
 }
 
 /**
@@ -349,9 +350,44 @@ export const useAppStore = create<AppState>((set, get) => ({
   logout: async () => {
     await supabase?.auth.signOut();
     set((state) => {
-      const raw = { ...state.raw, profile: null, takenShiftIds: [] };
+      // serviceLog too: it is one volunteer's credited hours, and leaving it
+      // behind would show them to whoever signs in next on this browser.
+      const raw = { ...state.raw, profile: null, takenShiftIds: [], serviceLog: [] };
       return { isLoggedIn: false, raw, ...derive(raw, state.language) };
     });
+  },
+
+  /**
+   * Lets a volunteer put their own name to their account.
+   *
+   * Magic-link sign-in supplies nothing but an email, so the portal greeted
+   * people as "murok.roha@gmail.com" and, worse, a service letter would have
+   * carried that too. Google sign-in fills the name in automatically, which is
+   * why this went unnoticed.
+   *
+   * The row is re-read rather than patched locally: `role` and `badges` are not
+   * writable here, and this keeps the store holding what the database actually
+   * has rather than what the client hoped it wrote.
+   */
+  saveProfile: async ({ fullName, phone }) => {
+    const userId = get().raw.profile?.id;
+    if (!userId) return { ok: false, error: 'unauthenticated' };
+
+    try {
+      await updateMyProfile(userId, {
+        full_name: fullName.trim() || null,
+        phone: phone.trim() || null
+      });
+
+      const profile = await fetchMyProfile(userId);
+      set((state) => {
+        const raw = { ...state.raw, profile };
+        return { raw, ...derive(raw, state.language) };
+      });
+      return { ok: true };
+    } catch (error) {
+      return { ok: false, error: reportError('Failed to save the volunteer profile', error) };
+    }
   },
 
   toggleShiftBooking: async (shiftId) => {

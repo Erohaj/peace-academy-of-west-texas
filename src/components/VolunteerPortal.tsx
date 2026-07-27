@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Mail, Clock, Calendar, Award, CheckCircle2, LogOut, ArrowRight, ShieldCheck, Filter, AlertCircle, LayoutDashboard, CalendarCheck, Sparkles } from 'lucide-react';
+import { Mail, Clock, Calendar, Award, CheckCircle2, LogOut, ArrowRight, ShieldCheck, Filter, AlertCircle, LayoutDashboard, CalendarCheck, Sparkles, UserRound } from 'lucide-react';
 import { useAppStore } from '../store/useAppStore';
 import { VOLUNTEER_ROLES } from '../data/volunteerRoles';
 import { VolunteerRole } from '../types';
@@ -15,6 +15,7 @@ export const VolunteerPortal: React.FC = () => {
     loginWithGoogle,
     logout,
     toggleShiftBooking,
+    saveProfile,
     // Aliased: this component already has its own `activeTab` for the
     // dashboard's inner tabs, which is unrelated to the site-wide one.
     setActiveTab: setSiteTab,
@@ -25,12 +26,51 @@ export const VolunteerPortal: React.FC = () => {
   const serviceLog = raw.serviceLog;
 
   const [emailInput, setEmailInput] = useState('');
-  const [activeTab, setActiveTab] = useState<'overview' | 'shifts' | 'mySchedule' | 'hours'>('overview');
+  const [activeTab, setActiveTab] = useState<
+    'overview' | 'shifts' | 'mySchedule' | 'hours' | 'profile'
+  >('overview');
   const [selectedRole, setSelectedRole] = useState<VolunteerRole | 'all'>('all');
   const [loginSent, setLoginSent] = useState(false);
   const [isSendingLink, setIsSendingLink] = useState(false);
   const [loginError, setLoginError] = useState<string | null>(null);
   const [shiftError, setShiftError] = useState<string | null>(null);
+
+  const [nameInput, setNameInput] = useState('');
+  const [phoneInput, setPhoneInput] = useState('');
+  const [isSavingProfile, setIsSavingProfile] = useState(false);
+  const [profileMessage, setProfileMessage] = useState<string | null>(null);
+  const [profileError, setProfileError] = useState<string | null>(null);
+
+  /**
+   * True while the account has no real name on it.
+   *
+   * `fullName` falls back to the email address, so the check is against the
+   * fallback rather than emptiness. Magic-link sign-in supplies no name at
+   * all, and a service letter made out to an email address is not a document
+   * anyone can hand to a school.
+   */
+  const needsName = Boolean(volunteer) && volunteer?.fullName === volunteer?.email;
+
+  // Seeded from the profile once it arrives, and left alone afterwards so
+  // typing is not overwritten by a background refresh.
+  useEffect(() => {
+    if (!volunteer) return;
+    setNameInput(volunteer.fullName === volunteer.email ? '' : volunteer.fullName);
+    setPhoneInput(volunteer.phone ?? '');
+  }, [volunteer?.id]);
+
+  const handleSaveProfile = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSavingProfile(true);
+    setProfileError(null);
+    setProfileMessage(null);
+
+    const result = await saveProfile({ fullName: nameInput, phone: phoneInput });
+    setIsSavingProfile(false);
+
+    if (result.ok) setProfileMessage(t('volunteer.profileSaved'));
+    else setProfileError(t('volunteer.profileError'));
+  };
 
   const handleMagicLinkSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -72,7 +112,13 @@ export const VolunteerPortal: React.FC = () => {
     }
   };
 
-  const myBookedShifts = shifts.filter((s) => s.isTakenByMe);
+  // Only shifts that have not finished yet. Without the second half of this a
+  // shift from last month sat under "Your Upcoming Shifts" for ever, offering
+  // a Cancel button for something that had already happened. Whether it was
+  // actually served is a separate question, answered by the hours log.
+  const myBookedShifts = shifts.filter(
+    (s) => s.isTakenByMe && new Date(s.endsAt).getTime() > Date.now()
+  );
 
   // Up to two letters from the display name, falling back to the email when a
   // magic-link user has no name recorded yet.
@@ -327,6 +373,26 @@ export const VolunteerPortal: React.FC = () => {
               >
                 <Award className="w-4 h-4" />
                 <span>{t('volunteer.tabHours')}</span>
+              </button>
+
+              <button
+                onClick={() => setActiveTab('profile')}
+                className={`w-full text-left px-4 py-3 rounded-xl font-bold text-xs uppercase tracking-wider flex items-center justify-between transition-colors cursor-pointer ${
+                  activeTab === 'profile'
+                    ? 'bg-[#A64D32] text-white shadow-sm'
+                    : 'text-[#2A2A2A] hover:bg-[#FDFBF7]'
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <UserRound className="w-4 h-4" />
+                  <span>{t('volunteer.tabProfile')}</span>
+                </div>
+                {/* A dot rather than a number: there is one thing missing, and
+                    it is the name that would otherwise appear on a service
+                    letter. */}
+                {needsName && (
+                  <span className="w-2 h-2 rounded-full bg-[#A64D32]" aria-hidden="true" />
+                )}
               </button>
 
             </div>
@@ -657,6 +723,85 @@ export const VolunteerPortal: React.FC = () => {
                     )}
                   </div>
                 </div>
+              </div>
+            )}
+
+            {/* PROFILE TAB */}
+            {activeTab === 'profile' && (
+              <div className="bg-[#F4F1ED] rounded-2xl p-6 border border-[#E5E0D8] shadow-sm space-y-6 animate-fadeIn">
+                <div className="space-y-2">
+                  <h3 className="text-2xl font-serif font-bold text-[#2A2A2A]">
+                    {t('volunteer.tabProfile')}
+                  </h3>
+                  <p className="text-xs text-[#5A5A5A]">
+                    {t('volunteer.profileIntro')}
+                  </p>
+                </div>
+
+                <form onSubmit={handleSaveProfile} className="space-y-4 max-w-md">
+                  <div>
+                    <label
+                      htmlFor="volunteer-name"
+                      className="block text-xs font-bold uppercase tracking-[0.2em] text-[#5A5A5A] mb-1"
+                    >
+                      {t('volunteer.profileName')}
+                    </label>
+                    <input
+                      id="volunteer-name"
+                      value={nameInput}
+                      onChange={(e) => setNameInput(e.target.value)}
+                      placeholder={t('volunteer.profileNamePlaceholder')}
+                      className="w-full bg-[#FDFBF7] border border-[#E5E0D8] rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#A64D32]"
+                    />
+                  </div>
+
+                  <div>
+                    <label
+                      htmlFor="volunteer-phone"
+                      className="block text-xs font-bold uppercase tracking-[0.2em] text-[#5A5A5A] mb-1"
+                    >
+                      {t('volunteer.profilePhone')}
+                    </label>
+                    <input
+                      id="volunteer-phone"
+                      type="tel"
+                      value={phoneInput}
+                      onChange={(e) => setPhoneInput(e.target.value)}
+                      className="w-full bg-[#FDFBF7] border border-[#E5E0D8] rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#A64D32]"
+                    />
+                  </div>
+
+                  <div>
+                    <span className="block text-xs font-bold uppercase tracking-[0.2em] text-[#5A5A5A] mb-1">
+                      {t('volunteer.profileEmail')}
+                    </span>
+                    {/* Not editable: it is the identity the account signs in
+                        with, and changing it here would not change that. */}
+                    <p className="text-sm text-[#2A2A2A]">{volunteer?.email}</p>
+                  </div>
+
+                  {profileError && (
+                    <div className="flex items-start gap-2 bg-[#A64D32]/10 border border-[#A64D32]/30 rounded-xl px-3 py-2.5 text-xs text-[#A64D32]">
+                      <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                      <span>{profileError}</span>
+                    </div>
+                  )}
+
+                  {profileMessage && (
+                    <div className="flex items-start gap-2 bg-[#5B6346]/10 border border-[#5B6346]/30 rounded-xl px-3 py-2.5 text-xs text-[#5B6346]">
+                      <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5" />
+                      <span>{profileMessage}</span>
+                    </div>
+                  )}
+
+                  <button
+                    type="submit"
+                    disabled={isSavingProfile}
+                    className="bg-[#A64D32] hover:bg-[#8b3f28] text-white px-6 py-2.5 rounded-full text-xs font-bold uppercase tracking-widest transition-colors cursor-pointer disabled:opacity-50"
+                  >
+                    {isSavingProfile ? t('volunteer.profileSaving') : t('volunteer.profileSave')}
+                  </button>
+                </form>
               </div>
             )}
 
