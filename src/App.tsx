@@ -18,12 +18,24 @@ import { SearchModal } from './components/SearchModal';
 import { Footer } from './components/Footer';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { readDonationReturn } from './lib/donationReturn';
+import { ActiveTab } from './types';
 
 // Staff-only, and a sizeable chunk of forms and tables. Loading it lazily
 // keeps it out of the bundle every ordinary visitor downloads.
 const AdminPanel = lazy(() =>
   import('./components/admin/AdminPanel').then((module) => ({ default: module.AdminPanel }))
 );
+
+/** Tabs that may be opened straight from a URL hash. */
+const LINKABLE_TABS: ActiveTab[] = [
+  'home',
+  'events',
+  'social',
+  'gallery',
+  'donate',
+  'volunteer',
+  'admin'
+];
 
 export const App: React.FC = () => {
   const { activeTab, setActiveTab, initialize, dataStatus, dataError, refreshContent } =
@@ -42,6 +54,17 @@ export const App: React.FC = () => {
   // (and on home), and the thank-you screen belongs on the former.
   useEffect(() => {
     if (readDonationReturn()) setActiveTab('donate');
+  }, [setActiveTab]);
+
+  // Bookmarkable section links, e.g. .../#admin — the admin panel is otherwise
+  // reachable only through a footer link that appears after signing in, which
+  // is a poor thing to have to rediscover. Runs after the donation check so a
+  // Stripe return still wins; guarded by the tab whitelist so a stray hash
+  // can't put the app in an unknown state. It grants nothing on its own:
+  // AdminPanel still checks the session, and RLS still checks every query.
+  useEffect(() => {
+    const requested = window.location.hash.replace('#', '') as ActiveTab;
+    if (requested && LINKABLE_TABS.includes(requested)) setActiveTab(requested);
   }, [setActiveTab]);
 
   const getMetaData = (tab: string) => {

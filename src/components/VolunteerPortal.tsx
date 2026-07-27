@@ -13,6 +13,9 @@ export const VolunteerPortal: React.FC = () => {
     loginWithMagicLink,
     logout,
     toggleShiftBooking,
+    // Aliased: this component already has its own `activeTab` for the
+    // dashboard's inner tabs, which is unrelated to the site-wide one.
+    setActiveTab: setSiteTab,
     language
   } = useAppStore();
 
@@ -170,6 +173,20 @@ export const VolunteerPortal: React.FC = () => {
           </div>
 
           <div className="flex items-center gap-3 w-full md:w-auto justify-end">
+            {/* Staff land here after signing in, so this is where the admin
+                entrance belongs — the footer link alone meant scrolling the
+                whole page to find it. Visibility is convenience only; the
+                panel and every query behind it are gated by RLS. */}
+            {volunteer?.role === 'admin' && (
+              <button
+                onClick={() => setSiteTab('admin')}
+                className="px-4 py-2 rounded-full bg-[#A64D32] hover:bg-[#8b3f28] text-white text-xs font-bold uppercase tracking-wider transition-colors flex items-center gap-1.5 cursor-pointer"
+              >
+                <ShieldCheck className="w-3.5 h-3.5" />
+                <span>{t('footer.adminPanel')}</span>
+              </button>
+            )}
+
             <button
               onClick={logout}
               className="px-4 py-2 rounded-full border border-[#E5E0D8] text-xs font-bold uppercase tracking-wider text-[#5A5A5A] hover:bg-[#FDFBF7] hover:text-red-700 transition-colors flex items-center gap-1.5 cursor-pointer"
