@@ -4,6 +4,7 @@ import { X, CheckCircle2, Calendar, Heart, User, Mail, Phone, Users as UsersIcon
 import { useAppStore } from '../store/useAppStore';
 import { getGoogleCalendarUrl } from '../lib/eventDates';
 import { ActionError } from '../types';
+import { emailEnabled } from '../lib/features';
 
 export const RSVPModal: React.FC = () => {
   const { t } = useTranslation();
@@ -312,7 +313,10 @@ export const RSVPModal: React.FC = () => {
                   {t('rsvpModal.successTitle')}
                 </h4>
                 <p className="text-sm text-[#5A5A5A] max-w-sm mx-auto">
-                  {t('rsvpModal.successMessage', { email, title })}
+                  {/* Only promise an email when one can actually be sent. */}
+                  {emailEnabled
+                    ? t('rsvpModal.successMessage', { email, title })
+                    : t('rsvpModal.successMessageNoEmail', { title })}
                 </p>
               </div>
 

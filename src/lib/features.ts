@@ -13,5 +13,18 @@
  */
 export const donationsEnabled = import.meta.env.VITE_DONATIONS_ENABLED === 'true';
 
+/**
+ * Whether outbound transactional email actually works.
+ *
+ * Requires RESEND_API_KEY in the Edge Function secrets AND the Database
+ * Webhook on `rsvps` that triggers send-rsvp-confirmation. Until both exist,
+ * confirmation screens must not claim "we have sent you an email" — a promise
+ * the visitor will check their inbox for, and find nothing.
+ *
+ * Flip by setting VITE_EMAIL_ENABLED=true in .env.local and in the GitHub
+ * Actions build environment.
+ */
+export const emailEnabled = import.meta.env.VITE_EMAIL_ENABLED === 'true';
+
 /** Address shown when a visitor wants to give but online payment is disabled. */
 export const CONTACT_EMAIL = 'paowtx@gmail.com';
