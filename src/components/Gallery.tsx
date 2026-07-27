@@ -4,6 +4,7 @@ import { Search, X, ChevronLeft, ChevronRight, MapPin, Calendar, Camera } from '
 import { useAppStore } from '../store/useAppStore';
 import { GalleryCategory } from '../types';
 import { AnimatedSection } from './AnimatedSection';
+import { GalleryGridSkeleton } from './Skeletons';
 
 export const Gallery: React.FC = () => {
   const { t } = useTranslation();
@@ -14,8 +15,12 @@ export const Gallery: React.FC = () => {
     closeLightbox,
     nextLightbox,
     prevLightbox,
-    language
+    language,
+    dataStatus
   } = useAppStore();
+
+  const isLoadingGallery =
+    dataStatus === 'idle' || (dataStatus === 'loading' && gallery.length === 0);
 
   const [selectedCategory, setSelectedCategory] = useState<GalleryCategory>('all');
   const [searchQuery, setSearchQuery] = useState('');
@@ -121,6 +126,10 @@ export const Gallery: React.FC = () => {
 
           </div>
         </AnimatedSection>
+
+        {/* Photos load from Supabase; show placeholders rather than an empty
+            grid on the first paint. */}
+        {isLoadingGallery && <GalleryGridSkeleton count={6} />}
 
         {/* Gallery Image Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">

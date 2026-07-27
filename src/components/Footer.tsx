@@ -10,7 +10,7 @@ interface FooterProps {
 
 export const Footer: React.FC<FooterProps> = ({ onOpenContact }) => {
   const { t } = useTranslation();
-  const { setActiveTab, language, setLanguage } = useAppStore();
+  const { setActiveTab, language, setLanguage, volunteer } = useAppStore();
 
   return (
     <footer className="bg-[#2A2A2A] text-white pt-16 pb-12 border-t border-white/10">
@@ -131,8 +131,20 @@ export const Footer: React.FC<FooterProps> = ({ onOpenContact }) => {
 
         {/* Bottom Bar */}
         <div className="pt-8 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#E5E0D8]/70">
-          <p>
-            © {new Date().getFullYear()} Peace Academy of West Texas. All rights reserved.
+          <p className="flex items-center gap-3">
+            <span>© {new Date().getFullYear()} Peace Academy of West Texas. All rights reserved.</span>
+
+            {/* Shown only to staff accounts. This is a convenience, not a
+                security control — the panel's writes are gated by RLS on
+                profiles.role, which the browser cannot talk its way around. */}
+            {volunteer?.role === 'admin' && (
+              <button
+                onClick={() => setActiveTab('admin')}
+                className="text-[#A64D32] hover:text-white transition-colors cursor-pointer font-bold uppercase tracking-wider"
+              >
+                {t('footer.adminPanel')}
+              </button>
+            )}
           </p>
 
           <div className="flex items-center gap-4">

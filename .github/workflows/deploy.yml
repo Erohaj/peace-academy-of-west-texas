@@ -33,6 +33,13 @@ jobs:
 
       - name: Build
         run: npm run build
+        env:
+          # Vite inlines these at build time, so they must be present here or
+          # the published site ships with no backend at all. Both are public
+          # values (the anon key is protected by RLS), but they still live in
+          # repo secrets so the project can be re-pointed without a code change.
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
 
       - name: Setup Pages
         uses: actions/configure-pages@v5

@@ -20,11 +20,36 @@ export const VolunteerPortal: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'overview' | 'shifts' | 'mySchedule' | 'hours'>('overview');
   const [selectedRole, setSelectedRole] = useState<VolunteerRole | 'all'>('all');
   const [loginSent, setLoginSent] = useState(false);
+  const [isSendingLink, setIsSendingLink] = useState(false);
+  const [loginError, setLoginError] = useState<string | null>(null);
+  const [shiftError, setShiftError] = useState<string | null>(null);
 
   const handleMagicLinkSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoginSent(true);
-    await loginWithMagicLink(emailInput);
+    setIsSendingLink(true);
+    setLoginError(null);
+
+    const result = await loginWithMagicLink(emailInput);
+    setIsSendingLink(false);
+
+    // Only claim the link was sent once it actually was. The previous version
+    // flipped straight to the confirmation screen and logged the visitor in
+    // regardless of whether any email existed.
+    if (result.ok) {
+      setLoginSent(true);
+    } else {
+      setLoginError(t('volunteer.magicLinkError'));
+    }
+  };
+
+  const handleToggleShift = async (shiftId: string) => {
+    setShiftError(null);
+    const result = await toggleShiftBooking(shiftId);
+    if (!result.ok) {
+      setShiftError(
+        result.error === 'shift_full' ? t('volunteer.shiftFullError') : t('volunteer.shiftError')
+      );
+    }
   };
 
   const myBookedShifts = shifts.filter((s) => s.isTakenByMe);
@@ -80,33 +105,38 @@ export const VolunteerPortal: React.FC = () => {
                       className="w-full bg-[#FDFBF7] border border-[#E5E0D8] rounded-xl pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:border-[#A64D32]"
                     />
                   </div>
+                  <p className="text-[11px] text-[#5A5A5A] mt-1.5">{t('volunteer.magicLinkDesc')}</p>
                 </div>
+
+                {loginError && (
+                  <div className="flex items-start gap-2 bg-[#A64D32]/10 border border-[#A64D32]/30 rounded-xl px-3 py-2.5 text-xs text-[#A64D32]">
+                    <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                    <span>{loginError}</span>
+                  </div>
+                )}
 
                 <button
                   type="submit"
-                  className="w-full bg-[#A64D32] hover:bg-[#8b3f28] text-white py-3 rounded-full font-bold text-xs uppercase tracking-widest transition-all shadow-md cursor-pointer flex items-center justify-center gap-2"
+                  disabled={isSendingLink}
+                  className="w-full bg-[#A64D32] hover:bg-[#8b3f28] text-white py-3 rounded-full font-bold text-xs uppercase tracking-widest transition-all shadow-md cursor-pointer flex items-center justify-center gap-2 disabled:opacity-50"
                 >
-                  <span>{t('volunteer.sendMagicLink')}</span>
-                  <ArrowRight className="w-4 h-4" />
+                  <span>
+                    {isSendingLink ? t('volunteer.sendingMagicLink') : t('volunteer.sendMagicLink')}
+                  </span>
+                  {!isSendingLink && <ArrowRight className="w-4 h-4" />}
                 </button>
               </form>
             ) : (
               <div className="text-center py-4 space-y-3">
                 <CheckCircle2 className="w-10 h-10 text-[#5B6346] mx-auto" />
-                <div className="text-sm font-bold font-serif">Magic Link Sent!</div>
-                <p className="text-xs text-[#5A5A5A]">Check your inbox or click below to enter demo mode.</p>
+                <div className="text-sm font-bold font-serif">
+                  {t('volunteer.magicLinkSentTitle')}
+                </div>
+                <p className="text-xs text-[#5A5A5A]">
+                  {t('volunteer.magicLinkSentText', { email: emailInput })}
+                </p>
               </div>
             )}
-
-            <div className="pt-2 border-t border-[#E5E0D8] text-center">
-              <button
-                type="button"
-                onClick={() => loginWithMagicLink('volunteer.sarah@pawtx.org')}
-                className="w-full bg-[#2A2A2A] hover:bg-black text-white py-2.5 rounded-full text-xs font-bold uppercase tracking-widest transition-colors cursor-pointer"
-              >
-                {t('volunteer.demoLoginBtn')}
-              </button>
-            </div>
 
           </div>
         </div>
@@ -217,7 +247,16 @@ export const VolunteerPortal: React.FC = () => {
 
           {/* Main Area Content */}
           <div className="lg:col-span-9 space-y-6">
-            
+
+            {/* Shift booking failures surface here rather than silently
+                reverting the optimistic update the store just rolled back. */}
+            {shiftError && (
+              <div className="flex items-start gap-2 bg-[#A64D32]/10 border border-[#A64D32]/30 rounded-2xl px-4 py-3 text-xs text-[#A64D32]">
+                <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                <span>{shiftError}</span>
+              </div>
+            )}
+
             {/* OVERVIEW TAB */}
             {activeTab === 'overview' && (
               <div className="space-y-6 animate-fadeIn">
@@ -305,7 +344,7 @@ export const VolunteerPortal: React.FC = () => {
                             <div className="text-xs text-[#5A5A5A]">{shift.date} • {shift.time}</div>
                           </div>
                           <button
-                            onClick={() => toggleShiftBooking(shift.id)}
+                            onClick={() => handleToggleShift(shift.id)}
                             className="text-xs font-bold text-red-700 hover:underline cursor-pointer"
                           >
                             Cancel
@@ -386,7 +425,7 @@ export const VolunteerPortal: React.FC = () => {
                               </td>
                               <td className="p-4 text-right">
                                 <button
-                                  onClick={() => toggleShiftBooking(shift.id)}
+                                  onClick={() => handleToggleShift(shift.id)}
                                   className={`px-4 py-2 rounded-full font-bold text-xs uppercase tracking-wider cursor-pointer transition-all ${
                                     isBooked
                                       ? 'bg-[#5B6346] text-white'
@@ -429,7 +468,7 @@ export const VolunteerPortal: React.FC = () => {
                         </div>
 
                         <button
-                          onClick={() => toggleShiftBooking(shift.id)}
+                          onClick={() => handleToggleShift(shift.id)}
                           className="px-4 py-2 border border-red-300 text-red-700 hover:bg-red-50 rounded-full text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer"
                         >
                           {t('volunteer.cancelShift')}

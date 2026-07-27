@@ -155,9 +155,8 @@ export const BrochureShowcase: React.FC = () => {
             {signatureActivities.map((act, index) => (
               <AnimatedSection key={index} direction="up" delayMs={100 + (index % 3) * 100}>
                 <div className="bg-[#FDFBF7] rounded-[24px] overflow-hidden border border-[#E5E0D8] shadow-sm hover:shadow-md transition-all group flex flex-col justify-between h-full">
-                  {/* Brand-tinted backdrop so a photo that fails to load (the
-                      stock Global Aid image currently 404s) degrades to a clean
-                      block with its badge instead of a broken-image icon. */}
+                  {/* Brand-tinted backdrop so a photo that fails to load degrades
+                      to a clean block with its badge rather than a broken icon. */}
                   <div className="relative h-48 overflow-hidden bg-gradient-to-br from-[#5B6346] to-[#A64D32]">
                     <img
                       src={act.image}

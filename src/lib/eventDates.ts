@@ -1,98 +1,88 @@
 import { PAWTXEvent } from '../types';
+import { EVENT_TIME_ZONE, parseTimestamp } from './formatEventDate';
 
-// PAWTX operates in Odessa/Midland, TX — Central Time. Google Calendar links
-// pin the event to this zone so the times don't shift for out-of-state viewers.
-const EVENT_TIME_ZONE = 'America/Chicago';
+// Fallback window (2 hours) used when an event has no end time recorded, so an
+// "Add to Calendar" link still produces a sensible block.
+const FALLBACK_DURATION_MS = 2 * 60 * 60 * 1000;
 
-// Fallback window (5:00–7:00 PM local) used when an event's time string can't
-// be parsed, so an "Add to Calendar" link still lands on the right day.
-const FALLBACK_START_MINUTES = 17 * 60;
-const FALLBACK_DURATION_MINUTES = 120;
-
-// Seed-data dates are human strings like "Saturday, August 15, 2026" — strip
-// the weekday prefix before handing them to Date.
-export function parseEventDate(
-  dateStr: string
+/**
+ * Calendar-day parts for an event, resolved in the venue's timezone.
+ *
+ * These used to come from parsing a human string ("Saturday, August 15, 2026")
+ * with `new Date`. Now that events carry a real timestamptz, the day has to be
+ * derived *in Central Time* — otherwise a visitor reading from Tokyo would see
+ * a Friday-evening event land on Saturday in the month grid.
+ *
+ * `dateObj` is local midday on that calendar day, which is what the calendar
+ * grid wants for its day-by-day arithmetic.
+ */
+export function getEventDateParts(
+  event: Pick<PAWTXEvent, 'startsAt'>
 ): { year: number; month: number; day: number; isoDate: string; dateObj: Date } | null {
-  if (!dateStr) return null;
-  const cleaned = dateStr.replace(/^[A-Za-z]+,\s*/, '').trim();
-  const d = new Date(cleaned);
-  if (isNaN(d.getTime())) return null;
+  const start = parseTimestamp(event.startsAt);
+  if (!start) return null;
 
-  const year = d.getFullYear();
-  const month = d.getMonth(); // 0-indexed
-  const day = d.getDate();
-  const isoDate = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-  return { year, month, day, isoDate, dateObj: d };
+  // en-CA yields ISO-ordered "2026-08-15", which is trivial to split.
+  const isoDate = new Intl.DateTimeFormat('en-CA', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    timeZone: EVENT_TIME_ZONE
+  }).format(start);
+
+  const [year, month, day] = isoDate.split('-').map(Number);
+
+  return {
+    year,
+    month: month - 1, // callers expect a 0-indexed month, like Date#getMonth
+    day,
+    isoDate,
+    dateObj: new Date(year, month - 1, day, 12, 0, 0)
+  };
 }
 
-// "5:30 PM" → minutes since midnight, or null if it isn't in that shape.
-function parseClockTime(value: string): number | null {
-  const match = value.trim().match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
-  if (!match) return null;
+// Google Calendar's local-time format: YYYYMMDDTHHMMSS (no trailing Z, so it
+// is read as wall-clock time in the `ctz` zone rather than UTC).
+function toCalendarStamp(date: Date): string {
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false,
+    timeZone: EVENT_TIME_ZONE
+  }).formatToParts(date);
 
-  const minutes = Number(match[2]);
-  if (minutes > 59) return null;
+  const get = (type: Intl.DateTimeFormatPartTypes) =>
+    parts.find((part) => part.type === type)?.value ?? '00';
 
-  let hours = Number(match[1]) % 12;
-  if (match[3].toUpperCase() === 'PM') hours += 12;
-  return hours * 60 + minutes;
+  // Intl renders midnight as hour "24" in some ICU versions of the h23 cycle.
+  const hour = get('hour') === '24' ? '00' : get('hour');
+
+  return `${get('year')}${get('month')}${get('day')}T${hour}${get('minute')}${get('second')}`;
 }
 
-// Seed-data times are ranges like "5:30 PM - 8:30 PM".
-function parseEventTimeRange(timeStr: string): { startMinutes: number; endMinutes: number } {
-  const [rawStart, rawEnd] = (timeStr || '').split('-');
-  const startMinutes = rawStart ? parseClockTime(rawStart) : null;
-
-  if (startMinutes === null) {
-    return {
-      startMinutes: FALLBACK_START_MINUTES,
-      endMinutes: FALLBACK_START_MINUTES + FALLBACK_DURATION_MINUTES,
-    };
-  }
-
-  const parsedEnd = rawEnd ? parseClockTime(rawEnd) : null;
-  // Guard against a malformed or backwards range (e.g. an end before the start).
-  const endMinutes =
-    parsedEnd !== null && parsedEnd > startMinutes
-      ? parsedEnd
-      : startMinutes + FALLBACK_DURATION_MINUTES;
-
-  return { startMinutes, endMinutes };
-}
-
-// Google Calendar's local-time format: YYYYMMDDTHHMMSS (no trailing Z, so it is
-// read as wall-clock time in the `ctz` zone rather than UTC).
-function toCalendarStamp(year: number, month: number, day: number, minutesFromMidnight: number): string {
-  const stampDate = new Date(year, month, day);
-  stampDate.setMinutes(minutesFromMidnight);
-
-  const pad = (n: number) => String(n).padStart(2, '0');
-  return (
-    `${stampDate.getFullYear()}${pad(stampDate.getMonth() + 1)}${pad(stampDate.getDate())}` +
-    `T${pad(stampDate.getHours())}${pad(stampDate.getMinutes())}00`
-  );
-}
-
-// Builds an "Add to Google Calendar" URL carrying the event's real day and
-// start/end time. Used by both the event calendar and the RSVP confirmation.
+/**
+ * Builds an "Add to Google Calendar" URL carrying the event's real day and
+ * start/end time. Used by both the event calendar and the RSVP confirmation.
+ */
 export function getGoogleCalendarUrl(event: PAWTXEvent, isSpanish: boolean): string {
   const title = isSpanish ? event.titleEs : event.title;
   const description = isSpanish ? event.descriptionEs : event.description;
-  const parsed = parseEventDate(event.date);
 
   const params = new URLSearchParams({
     action: 'TEMPLATE',
     text: title,
     details: description,
-    location: event.location,
+    location: event.location
   });
 
-  if (parsed) {
-    const { startMinutes, endMinutes } = parseEventTimeRange(event.time);
-    const start = toCalendarStamp(parsed.year, parsed.month, parsed.day, startMinutes);
-    const end = toCalendarStamp(parsed.year, parsed.month, parsed.day, endMinutes);
-    params.set('dates', `${start}/${end}`);
+  const start = parseTimestamp(event.startsAt);
+  if (start) {
+    const end = parseTimestamp(event.endsAt) ?? new Date(start.getTime() + FALLBACK_DURATION_MS);
+    params.set('dates', `${toCalendarStamp(start)}/${toCalendarStamp(end)}`);
     params.set('ctz', EVENT_TIME_ZONE);
   }
 

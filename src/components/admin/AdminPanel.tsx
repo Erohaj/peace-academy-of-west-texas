@@ -1,0 +1,121 @@
+import React, { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { ShieldAlert, CalendarDays, Image as ImageIcon, Inbox, HeartHandshake } from 'lucide-react';
+import { useAppStore } from '../../store/useAppStore';
+import { EventsAdmin } from './EventsAdmin';
+import { GalleryAdmin } from './GalleryAdmin';
+import { SubmissionsAdmin } from './SubmissionsAdmin';
+
+type AdminSection = 'events' | 'gallery' | 'rsvps' | 'donations';
+
+/**
+ * Staff-only content management.
+ *
+ * The guard below hides the panel from non-admins, but it is a courtesy, not
+ * a security control — anyone can edit the JavaScript that renders it. Writes
+ * are actually gated by the RLS policies in
+ * supabase/migrations/*_rls_and_rpc.sql, which check `profiles.role = 'admin'`
+ * in the database on every statement.
+ */
+export const AdminPanel: React.FC = () => {
+  const { t } = useTranslation();
+  const { volunteer, isLoggedIn, authStatus, setActiveTab } = useAppStore();
+  const [section, setSection] = useState<AdminSection>('events');
+
+  const isAdmin = volunteer?.role === 'admin';
+
+  // Send anyone who lands here without rights to the sign-in screen rather
+  // than leaving them on an empty page.
+  useEffect(() => {
+    if (authStatus === 'ready' && !isLoggedIn) setActiveTab('volunteer');
+  }, [authStatus, isLoggedIn, setActiveTab]);
+
+  const sections = useMemo(
+    () =>
+      [
+        { id: 'events' as const, label: 'Events', icon: CalendarDays },
+        { id: 'gallery' as const, label: 'Gallery', icon: ImageIcon },
+        { id: 'rsvps' as const, label: 'RSVPs & Messages', icon: Inbox },
+        { id: 'donations' as const, label: 'Donations', icon: HeartHandshake }
+      ],
+    []
+  );
+
+  if (authStatus !== 'ready') {
+    return (
+      <section className="py-20 bg-[#FDFBF7] min-h-[70vh] flex items-center justify-center">
+        <p className="text-sm text-[#5A5A5A]">{t('common.loading')}</p>
+      </section>
+    );
+  }
+
+  if (!isAdmin) {
+    return (
+      <section className="py-20 bg-[#FDFBF7] min-h-[70vh] flex items-center justify-center text-[#2A2A2A]">
+        <div className="max-w-md w-full mx-auto px-4 text-center space-y-4">
+          <div className="w-14 h-14 bg-[#A64D32]/10 text-[#A64D32] rounded-2xl flex items-center justify-center mx-auto">
+            <ShieldAlert className="w-7 h-7" />
+          </div>
+          <h2 className="text-2xl font-serif font-bold">Staff access only</h2>
+          <p className="text-sm text-[#5A5A5A]">
+            This area is limited to Peace Academy staff accounts. If you manage content for
+            PAWTX, ask an administrator to grant your account access.
+          </p>
+          <button
+            onClick={() => setActiveTab('home')}
+            className="bg-[#2A2A2A] hover:bg-black text-white px-6 py-2.5 rounded-full text-xs font-bold uppercase tracking-widest cursor-pointer"
+          >
+            Back to site
+          </button>
+        </div>
+      </section>
+    );
+  }
+
+  return (
+    <section className="py-12 bg-[#FDFBF7] min-h-screen text-[#2A2A2A]">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+
+        <div className="bg-[#F4F1ED] rounded-2xl p-6 border border-[#E5E0D8] shadow-sm">
+          <div className="text-xs font-bold uppercase tracking-[0.2em] text-[#A64D32]">
+            {t('footer.adminPanel')}
+          </div>
+          <h1 className="text-2xl font-serif font-bold mt-1">
+            Signed in as {volunteer?.fullName}
+          </h1>
+          <p className="text-xs text-[#5A5A5A] mt-1">
+            Changes publish to the live site immediately.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+
+          <nav className="lg:col-span-3 space-y-2">
+            {sections.map(({ id, label, icon: Icon }) => (
+              <button
+                key={id}
+                onClick={() => setSection(id)}
+                className={`w-full text-left px-4 py-3 rounded-xl font-bold text-xs uppercase tracking-wider flex items-center gap-3 transition-colors cursor-pointer ${
+                  section === id
+                    ? 'bg-[#A64D32] text-white shadow-sm'
+                    : 'text-[#2A2A2A] hover:bg-[#F4F1ED]'
+                }`}
+              >
+                <Icon className="w-4 h-4" />
+                <span>{label}</span>
+              </button>
+            ))}
+          </nav>
+
+          <div className="lg:col-span-9">
+            {section === 'events' && <EventsAdmin />}
+            {section === 'gallery' && <GalleryAdmin />}
+            {section === 'rsvps' && <SubmissionsAdmin view="rsvps" />}
+            {section === 'donations' && <SubmissionsAdmin view="donations" />}
+          </div>
+
+        </div>
+      </div>
+    </section>
+  );
+};

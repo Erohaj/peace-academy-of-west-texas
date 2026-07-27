@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-Single-page marketing/engagement site for **Peace Academy of West Texas (PAWTX)**, a nonprofit in Odessa/Midland, TX. React 19 + Vite 6 + TypeScript + Tailwind CSS v4. Scaffolded from Google AI Studio (see `metadata.json`, `README.md`); AI Studio injects `GEMINI_API_KEY` / `API_KEY` at runtime.
+Single-page marketing/engagement site for **Peace Academy of West Texas (PAWTX)**, a nonprofit in Odessa/Midland, TX. React 19 + Vite 6 + TypeScript + Tailwind CSS v4, with a **Supabase backend** (Postgres + Auth + Storage + Edge Functions) and **Stripe Checkout** for donations. Scaffolded from Google AI Studio (see `metadata.json`, `README.md`).
 
 ## Commands
 
@@ -14,9 +14,16 @@ npm run dev        # dev server on http://localhost:3000 (host 0.0.0.0)
 npm run build      # production build to dist/
 npm run preview    # serve the built dist/
 npm run lint       # tsc --noEmit — TYPE CHECK ONLY, the sole automated gate
+
+npm run db:start   # local Supabase stack (needs Docker Desktop running)
+npm run db:reset   # re-run migrations + supabase/seed.sql
+npm run db:push    # apply migrations to the linked remote project
+npm run db:types   # regenerate src/lib/database.types.ts from the live schema
+npm run functions:serve   # Edge Functions locally
+npm run functions:deploy  # deploy all five (stripe-webhook gets --no-verify-jwt)
 ```
 
-There is **no test framework** — `npm run lint` (a strict `tsc --noEmit`) is the only check. Run it before considering any change done. There is no "single test" to run.
+There is **no test framework** — `npm run lint` is the only automated check. Run it before considering any change done. Note that `tsconfig.json` does **not** enable `strict`; in particular `strictNullChecks` is off, so TypeScript will not narrow a union by a boolean discriminant (this is why `ActionResult`'s success branch declares `error?: undefined`). `tsconfig.json` excludes `supabase/` because Edge Functions are Deno modules that import from `https://` URLs.
 
 ## Deployment
 
@@ -24,19 +31,33 @@ Pushing to `main` triggers `.github/workflows/deploy.yml`, which runs `npm run b
 
 ## Architecture
 
-**No router, no backend.** The whole app is state-driven from one Zustand store.
+**No router.** The whole app is state-driven from one Zustand store; the backend is Supabase, called directly from the browser.
 
-- **Navigation** is a single `activeTab` field (`'home' | 'events' | 'social' | 'gallery' | 'donate' | 'volunteer'`) in `src/store/useAppStore.ts`. `App.tsx` conditionally renders sections from it — `home` stacks several sections; other tabs render one. To add a "page": extend the `ActiveTab` type in `src/types/index.ts` and add a branch in `App.tsx`. Nav lives in `Navbar`/`Footer`, which call `setActiveTab`.
+- **Navigation** is a single `activeTab` field (`'home' | 'events' | 'social' | 'gallery' | 'donate' | 'volunteer' | 'admin'`) in `src/store/useAppStore.ts`. `App.tsx` conditionally renders sections from it — `home` stacks several sections; other tabs render one. To add a "page": extend the `ActiveTab` type in `src/types/index.ts` and add a branch in `App.tsx`. Nav lives in `Navbar`/`Footer`, which call `setActiveTab`.
 
-- **State & "backend"** all live in `useAppStore`. `submitRsvp`, `addDonation`, `loginWithMagicLink`, `toggleShiftBooking` are `async` mocks that optimistically mutate the store and return `true` — there is no server, no persistence. `src/lib/supabaseClient.ts` exists but is imported nowhere (Supabase is not wired up; it tree-shakes out).
+- **Backend layout.** `supabase/migrations/` holds the schema (`*_init_schema.sql`), the RLS policies and the `create_rsvp` function (`*_rls_and_rpc.sql`), and the Storage bucket (`*_storage.sql`). `supabase/seed.sql` carries the former `mockData.ts` content. `supabase/functions/` holds five Deno Edge Functions: `create-checkout-session`, `stripe-webhook`, `donation-status`, `send-contact-message`, `send-rsvp-confirmation`.
 
-- **Seed data** is in `src/data/mockData.ts` (events, gallery, shifts, volunteer profile, and the `IMAGES` registry) and `src/data/socialPosts.ts`. The store initializes from these constants.
+- **RLS is the only security boundary.** The site is a static bundle on GitHub Pages, so the anon key ships to every visitor and the browser talks to PostgREST directly. Anything not explicitly denied by a policy is public. `rsvps`, `donations` and `contact_messages` have **no** public `select`; `events`, `gallery_items` and `shifts` are readable when `published`. Writes to content tables require `profiles.role = 'admin'`, checked via the `is_admin()` SECURITY DEFINER helper (a policy on `profiles` that queried `profiles` directly would recurse). Column privileges — not policies — are what stop a user setting their own `role`, and what stop an admin clobbering `events.reserved_spots`.
+
+- **State** lives in `useAppStore`, which holds both the raw database rows (`raw.events`, `raw.shifts`, …) and the mapped view models. Display labels are language-dependent, so `setLanguage` re-runs `derive()` over the stored rows rather than refetching. `initialize()` loads content and subscribes to auth; it is guarded by a module-level flag against StrictMode's double effect.
+
+- **Data access** is `src/lib/api/*` — one module per table, mapping snake_case rows to the camelCase types in `src/types/index.ts`. Actions return `ActionResult` (`{ok:true}` / `{ok:false, error}`) rather than a bare boolean, so the UI can distinguish "event full" from "already registered" from a network failure. `src/lib/api/errors.ts` maps the custom SQLSTATEs (`PA001`–`PA004`) raised by `create_rsvp` onto those codes.
+
+- **RSVP capacity** is enforced by `create_rsvp()`, which takes a `FOR UPDATE` lock on the event row. Direct inserts into `rsvps` are revoked from anon and authenticated — the RPC is the only way in. Never re-add a client-side seat check; two simultaneous submissions cannot see each other's pending writes.
+
+- **Payments.** The donation form has **no card field, deliberately** — collecting a card number in the page would put the site in PCI scope. `createCheckoutSession` calls an Edge Function that validates the amount server-side and returns a hosted Stripe URL; the browser navigates there. Stripe returns to `?donation=success&session_id=…`, which `App.tsx` reads (no router) and routes to the donate tab. The `stripe-webhook` function is the only writer that marks a donation `paid`, and it must be deployed with `--no-verify-jwt`. Donation receipts omit the tax-ID line unless `ORG_EIN` is set — printing a placeholder EIN would forge a tax document.
+
+- **Images** come from two places, resolved by `resolveImage()` in `src/lib/api/images.ts`: photos bundled in `src/assets/*.webp` are content-hashed by Vite, so the database stores an `image_key` naming an entry in the `IMAGES` registry; admin uploads go to the `media` Storage bucket and store an absolute `image_url`, which wins when both are present.
+
+- **`src/data/mockData.ts` is now only the `IMAGES` registry** despite its name — events, gallery, shifts and the volunteer profile moved to Postgres. `src/data/socialPosts.ts` is still genuinely mock data.
 
 - **Live social feed** — `SocialMediaFeed` fetches `public/social-posts.json` on mount and, if it has entries, merges them (real Instagram + Facebook posts) with the still-mocked YouTube/X entries from `INITIAL_SOCIAL_POSTS`; on fetch failure/empty it falls back to the full mock set. That JSON is generated by `scripts/fetch-social-posts.mjs` via Meta Graph API calls, run on a schedule by `.github/workflows/fetch-social.yml` (needs `FB_PAGE_ACCESS_TOKEN`/`FB_PAGE_ID`/`IG_USER_ID` repo secrets — see README). The workflow commits the refreshed JSON to `main`, which triggers `deploy.yml` to rebuild/republish — this is still a fully static site, no live backend. Relative post ages (`formatRelativeTime` in `src/lib/relativeTime.ts`) are computed at render time from `publishedAt` rather than trusting baked `publishedAtRelative` strings, since the JSON only refreshes every few hours.
 
-- **Images** are centralized in the `IMAGES` object in `mockData.ts`. Real org photos are **bundled** from `src/assets/*.webp` via ES imports; the rest are external Unsplash URLs (one of which, `waterWell`, currently 404s — `BrochureShowcase` hides a failed image so the card degrades to a brand gradient instead of a broken icon). Components reference `IMAGES.*` (or `event.imageUrl` etc. which point at `IMAGES`). **Adding a bundled image:** drop the source `.jpg` in `src/assets/`, run `npm run optimize:images` to convert it to WebP, delete the `.jpg`, then `import` the `.webp` in `mockData.ts` and assign into `IMAGES`. This requires `src/vite-env.d.ts` (`/// <reference types="vite/client" />`) — without it, `tsc` fails on image imports.
+- **Adding a bundled image:** drop the source `.jpg` in `src/assets/`, run `npm run optimize:images` to convert it to WebP, delete the `.jpg`, then `import` the `.webp` in `mockData.ts` and assign it a key in `IMAGES`. Reference it from a database row by putting that key in `image_key`. This requires `src/vite-env.d.ts` (`/// <reference types="vite/client" />`) — without it, `tsc` fails on image imports.
 
-- **Image pipeline** — `scripts/optimize-images.mjs` (sharp, a devDependency) resizes `src/assets/*.jpg` to a 1000px long edge (1600 for the hero, 512 for the logo) and re-encodes to WebP, which took the bundled photos from 7.5 MB to 2.5 MB. Straight-from-camera photos are far larger than anything the UI renders, so never commit one unprocessed. Only the hero is eager (`fetchPriority="high"`); every other `<img>` is `loading="lazy"`, which keeps the initial home-page load to ~3 images instead of ~25.
+- **Image pipeline** — `scripts/optimize-images.mjs` (sharp, a devDependency) resizes `src/assets/*.jpg` to a 1000px long edge (1600 for the hero, 512 for the logo) and re-encodes to WebP, which took the bundled photos from 7.5 MB to 2.5 MB. Straight-from-camera photos are far larger than anything the UI renders, so never commit one unprocessed. That script only touches build-time assets — admin uploads are resized in the browser by `resizeImageFile()` in `src/lib/api/admin.ts` (canvas → WebP, 1600px long edge) before they reach Storage, for the same reason. Only the hero is eager (`fetchPriority="high"`); every other `<img>` is `loading="lazy"`, which keeps the initial home-page load to ~3 images instead of ~25.
+
+- **Dates** — the database stores real `timestamptz`; the human labels (`event.date`, `event.time`, `gallery.date`) are derived per-language in `src/lib/formatEventDate.ts` and pinned to `America/Chicago`, so "6:30 PM" always means 6:30 PM at the venue. `wallClockToInstant` / `instantToWallClock` convert for the admin panel's `datetime-local` inputs and handle DST correctly. Do not reintroduce human date strings in stored data.
 
 - **i18n (bilingual EN/ES)** — `src/i18n/config.ts` holds **all** translations inline in one `resources` object. Two patterns coexist: (1) keyed strings via `useTranslation()` `t('...')`; (2) inline `isEs`/`language === 'es'` ternaries reading parallel data fields (`titleEs`, `descriptionEs`, `captionEs`, `roleEs`). `BrochureShowcase` is fully pattern (2). The store's `setLanguage` calls `i18n.changeLanguage` and sets `language`; components read `language` from the store, not just from i18next. Any new user-facing string must be handled in both languages.
 
@@ -55,4 +76,6 @@ Pushing to `main` triggers `.github/workflows/deploy.yml`, which runs `npm run b
 - `@/*` path alias maps to the project root (`./*`) in both `tsconfig.json` and `vite.config.ts`.
 - Do not touch the `server.hmr` / `server.watch` logic in `vite.config.ts` — it is gated on `DISABLE_HMR` for the AI Studio agent environment.
 - `2.png`-style large source photos must go through `npm run optimize:images` before bundling — a bundled photo should be ~100-200 KB, not multiple MB.
-- All dates in seed data are human strings (e.g. `"Saturday, August 15, 2026"`); `EventCalendar` parses them by stripping the weekday prefix and `new Date(...)`, so keep that format.
+- **Never give a secret a `VITE_` prefix.** Vite inlines those into the public bundle. Only `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` belong there (both are public by design). Stripe, Resend and the service role key live in Edge Function secrets (`supabase secrets set`), and the same two `VITE_` vars must exist as GitHub Actions secrets or the deployed build has no backend.
+- Auth magic links and Stripe return URLs must include the GitHub Pages project path (`/peace-academy-of-west-texas/`) and be listed in Supabase → Authentication → URL Configuration → Redirect URLs. `getSiteUrl()` in `supabaseClient.ts` derives it from `import.meta.env.BASE_URL`; a mismatch fails silently at click time.
+- After changing a migration, run `npm run db:types` so `src/lib/database.types.ts` matches. It is currently hand-written and will drift otherwise.

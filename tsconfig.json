@@ -22,5 +22,13 @@
     },
     "allowImportingTsExtensions": true,
     "noEmit": true
-  }
+  },
+  // supabase/functions/* are Deno modules: they import from https:// URLs and
+  // use the `Deno` global, neither of which this Node/browser config can
+  // resolve. Deno type-checks them itself on `supabase functions deploy`.
+  "exclude": [
+    "node_modules",
+    "dist",
+    "supabase"
+  ]
 }

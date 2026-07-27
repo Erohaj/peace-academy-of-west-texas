@@ -25,25 +25,30 @@ const SRC_DIR = 'src/assets';
 const DEFAULT_MAX_EDGE = 1000;
 const RULES = {
   // Full-bleed hero behind the masthead — needs to stay sharp across the viewport.
-  'hero-parade.jpg': { maxEdge: 1600, quality: 70 },
+  'hero-parade': { maxEdge: 1600, quality: 70 },
   // Rendered at 48x48 in the navbar/footer; keep it crisp but small.
-  'logo.jpg': { maxEdge: 512, quality: 85 },
+  logo: { maxEdge: 512, quality: 85 },
 };
+
+const SOURCE_EXTENSIONS = ['.jpg', '.jpeg', '.png'];
 
 const outFlagIndex = process.argv.indexOf('--out');
 const OUT_DIR = outFlagIndex !== -1 ? process.argv[outFlagIndex + 1] : SRC_DIR;
 
 if (!existsSync(OUT_DIR)) mkdirSync(OUT_DIR, { recursive: true });
 
-const files = readdirSync(SRC_DIR).filter((f) => extname(f).toLowerCase() === '.jpg');
+const files = readdirSync(SRC_DIR).filter((f) =>
+  SOURCE_EXTENSIONS.includes(extname(f).toLowerCase())
+);
 
 let before = 0;
 let after = 0;
 
 for (const file of files) {
-  const { maxEdge = DEFAULT_MAX_EDGE, quality = 70 } = RULES[file] ?? {};
+  const name = basename(file, extname(file));
+  const { maxEdge = DEFAULT_MAX_EDGE, quality = 70 } = RULES[name] ?? {};
   const inPath = join(SRC_DIR, file);
-  const outPath = join(OUT_DIR, `${basename(file, '.jpg')}.webp`);
+  const outPath = join(OUT_DIR, `${name}.webp`);
 
   const info = await sharp(inPath)
     .rotate() // honour EXIF orientation before we strip metadata

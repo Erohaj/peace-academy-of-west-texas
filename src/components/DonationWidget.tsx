@@ -1,8 +1,14 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Heart, CheckCircle2, ShieldCheck, CreditCard, Sparkles, Lock, ArrowRight } from 'lucide-react';
-import { useAppStore } from '../store/useAppStore';
+import { Heart, CheckCircle2, ShieldCheck, Sparkles, Lock, ArrowRight, AlertCircle } from 'lucide-react';
 import { AnimatedSection } from './AnimatedSection';
+import {
+  DonationRow,
+  createCheckoutSession,
+  fetchDonationBySession
+} from '../lib/api/donations';
+import { clearDonationParams, readDonationReturn } from '../lib/donationReturn';
+import { CONTACT_EMAIL, donationsEnabled } from '../lib/features';
 
 // Shared by the preset buttons and the impact meter below so both stay in sync.
 const DONATION_TIERS = [
@@ -12,20 +18,76 @@ const DONATION_TIERS = [
   { amount: 250, label: 'Benefactor' },
 ] as const;
 
+/** How long to keep polling for the webhook to confirm a fresh donation. */
+const RECEIPT_POLL_ATTEMPTS = 6;
+const RECEIPT_POLL_INTERVAL_MS = 1500;
+
 export const DonationWidget: React.FC = () => {
   const { t } = useTranslation();
-  const { addDonation } = useAppStore();
 
   const [frequency, setFrequency] = useState<'one_time' | 'monthly'>('one_time');
   const [selectedPreset, setSelectedPreset] = useState<number | 'custom'>(50);
   const [customAmount, setCustomAmount] = useState<string>('50');
   const [donorName, setDonorName] = useState('');
   const [donorEmail, setDonorEmail] = useState('');
-  const [cardNumber, setCardNumber] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isSuccess, setIsSuccess] = useState(false);
+  const [checkoutError, setCheckoutError] = useState<string | null>(null);
+
+  // Populated when Stripe redirects back with ?donation=success|cancelled.
+  const [donationReturn] = useState(() => readDonationReturn());
+  const [confirmedDonation, setConfirmedDonation] = useState<DonationRow | null>(null);
+  const [isConfirming, setIsConfirming] = useState(donationReturn?.status === 'success');
+
+  const isSuccess = donationReturn?.status === 'success';
+  const isCancelled = donationReturn?.status === 'cancelled';
+
+  // Stripe redirects the browser and calls the webhook independently, and the
+  // redirect usually wins by a second or two. Poll briefly rather than showing
+  // "pending" to someone whose payment has in fact gone through.
+  useEffect(() => {
+    if (!donationReturn) return;
+
+    clearDonationParams();
+
+    if (donationReturn.status !== 'success' || !donationReturn.sessionId) {
+      setIsConfirming(false);
+      return;
+    }
+
+    let cancelled = false;
+    const sessionId = donationReturn.sessionId;
+
+    (async () => {
+      for (let attempt = 0; attempt < RECEIPT_POLL_ATTEMPTS && !cancelled; attempt++) {
+        try {
+          const donation = await fetchDonationBySession(sessionId);
+          if (cancelled) return;
+
+          if (donation) {
+            setConfirmedDonation(donation);
+            if (donation.status === 'paid') break;
+          }
+        } catch (error) {
+          console.error('[PAWTX] Could not confirm the donation', error);
+          break;
+        }
+
+        await new Promise((resolve) => setTimeout(resolve, RECEIPT_POLL_INTERVAL_MS));
+      }
+
+      if (!cancelled) setIsConfirming(false);
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [donationReturn]);
 
   const amountToDonate = selectedPreset === 'custom' ? Number(customAmount) || 0 : selectedPreset;
+
+  // Whole dollars for display; the database stores integer cents.
+  const confirmedAmount =
+    confirmedDonation !== null ? confirmedDonation.amount_cents / 100 : null;
 
   // Scale expands past $250 for large custom gifts so the fill bar and tier
   // ticks stay proportionally accurate instead of clipping at 100%. A sqrt
@@ -44,19 +106,31 @@ export const DonationWidget: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (amountToDonate <= 0) return;
+
+    if (amountToDonate < 1) {
+      setCheckoutError(t('donate.minAmountError'));
+      return;
+    }
 
     setIsSubmitting(true);
-    await addDonation({
-      amount: amountToDonate,
-      frequency,
-      donorName: donorName || 'Anonymous Friend of PAWTX',
-      donorEmail,
-      impactLabel: getImpactLabel(amountToDonate),
-      impactLabelEs: getImpactLabel(amountToDonate)
-    });
-    setIsSubmitting(false);
-    setIsSuccess(true);
+    setCheckoutError(null);
+
+    try {
+      const url = await createCheckoutSession({
+        amount: amountToDonate,
+        frequency,
+        donorName,
+        donorEmail
+      });
+
+      // Full navigation, not a new tab: Stripe's hosted page is the next step
+      // of this flow and it redirects back here when it finishes.
+      window.location.href = url;
+    } catch (error) {
+      console.error('[PAWTX] Could not start checkout', error);
+      setCheckoutError(t('donate.checkoutError'));
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -85,9 +159,50 @@ export const DonationWidget: React.FC = () => {
         <AnimatedSection direction="up" delayMs={150}>
           <div className="bg-[#F4F1ED] rounded-[32px] p-6 sm:p-10 border border-[#E5E0D8] shadow-lg relative overflow-hidden">
           
-          {!isSuccess ? (
+          {isCancelled && (
+            <div className="mb-8 flex items-start gap-2.5 bg-[#A64D32]/10 border border-[#A64D32]/25 rounded-2xl px-4 py-3">
+              <AlertCircle className="w-4 h-4 text-[#A64D32] shrink-0 mt-0.5" />
+              <div className="text-xs text-[#5A5A5A]">
+                <div className="font-bold text-[#A64D32] mb-0.5">{t('donate.cancelledTitle')}</div>
+                {t('donate.cancelledText')}
+              </div>
+            </div>
+          )}
+
+          {!donationsEnabled ? (
+            /* Online payment isn't wired up yet. Show the tax-deductible
+               framing and a real way to give, rather than a button that can
+               only produce an error. */
+            <div className="text-center py-8 space-y-5">
+              <div className="w-16 h-16 bg-[#5B6346]/15 text-[#5B6346] rounded-2xl flex items-center justify-center mx-auto">
+                <Heart className="w-8 h-8" />
+              </div>
+
+              <div className="space-y-2 max-w-md mx-auto">
+                <h3 className="text-2xl font-serif font-bold text-[#2A2A2A]">
+                  {t('donate.comingSoonTitle')}
+                </h3>
+                <p className="text-sm text-[#5A5A5A]">
+                  {t('donate.comingSoonText')}
+                </p>
+              </div>
+
+              <a
+                href={`mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent('Donation to Peace Academy of West Texas')}`}
+                className="inline-flex items-center gap-2 bg-[#A64D32] hover:bg-[#8b3f28] text-white px-8 py-3.5 rounded-full text-xs font-bold uppercase tracking-widest transition-colors shadow-md"
+              >
+                <span>{CONTACT_EMAIL}</span>
+                <ArrowRight className="w-4 h-4" />
+              </a>
+
+              <div className="flex items-center justify-center gap-2 text-xs text-[#5A5A5A] pt-2">
+                <ShieldCheck className="w-4 h-4 text-[#5B6346]" />
+                <span>{t('donate.taxNote')}</span>
+              </div>
+            </div>
+          ) : !isSuccess ? (
             <form onSubmit={handleSubmit} className="space-y-8">
-              
+
               {/* Frequency Selector Pills */}
               <div className="grid grid-cols-2 gap-3 p-1.5 bg-[#FDFBF7] rounded-2xl border border-[#E5E0D8]">
                 <button
@@ -250,33 +365,30 @@ export const DonationWidget: React.FC = () => {
                 </div>
               </div>
 
-              {/* Credit Card Mockup */}
-              <div className="space-y-2">
-                <label className="block text-xs font-bold uppercase tracking-[0.2em] text-[#5A5A5A]">
-                  {t('donate.cardInformation')}
-                </label>
-                <div className="relative">
-                  <CreditCard className="w-4 h-4 text-[#5A5A5A] absolute left-3.5 top-1/2 -translate-y-1/2" />
-                  <input
-                    type="text"
-                    value={cardNumber}
-                    onChange={(e) => setCardNumber(e.target.value)}
-                    placeholder={t('donate.cardNumberPlaceholder')}
-                    className="w-full bg-[#FDFBF7] border border-[#E5E0D8] rounded-xl pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:border-[#A64D32]"
-                  />
-                  <Lock className="w-4 h-4 text-[#5B6346] absolute right-3.5 top-1/2 -translate-y-1/2" />
-                </div>
+              {/* Payment is handled entirely on Stripe's hosted page. This
+                  form deliberately has no card field: collecting a card number
+                  here would put the site inside PCI scope. */}
+              <div className="flex items-start gap-2.5 bg-[#5B6346]/8 border border-[#5B6346]/20 rounded-2xl px-4 py-3">
+                <Lock className="w-4 h-4 text-[#5B6346] shrink-0 mt-0.5" />
+                <span className="text-xs text-[#5A5A5A] leading-relaxed">{t('donate.secureNote')}</span>
               </div>
+
+              {checkoutError && (
+                <div className="flex items-start gap-2 bg-[#A64D32]/10 border border-[#A64D32]/30 rounded-2xl px-4 py-3 text-xs text-[#A64D32]">
+                  <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                  <span>{checkoutError}</span>
+                </div>
+              )}
 
               {/* Submit Button */}
               <div>
                 <button
                   type="submit"
-                  disabled={isSubmitting || amountToDonate <= 0}
+                  disabled={isSubmitting || amountToDonate < 1}
                   className="w-full bg-[#A64D32] hover:bg-[#8b3f28] text-white py-4 rounded-full font-bold text-xs uppercase tracking-widest transition-all shadow-lg shadow-[#A64D32]/20 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
                 >
                   {isSubmitting ? (
-                    <span>Securing Donation...</span>
+                    <span>{t('donate.redirecting')}</span>
                   ) : (
                     <>
                       <span>
@@ -298,7 +410,9 @@ export const DonationWidget: React.FC = () => {
 
             </form>
           ) : (
-            /* Success Receipt Screen */
+            /* Confirmation screen, reached only by returning from Stripe.
+               Every figure below comes from the recorded donation, not from
+               the form state the visitor left behind. */
             <div className="text-center py-8 space-y-6 animate-fadeIn">
               <div className="w-20 h-20 bg-[#5B6346]/20 text-[#5B6346] rounded-full flex items-center justify-center mx-auto shadow-md">
                 <CheckCircle2 className="w-12 h-12" />
@@ -309,23 +423,40 @@ export const DonationWidget: React.FC = () => {
                   {t('donate.successTitle')}
                 </h3>
                 <p className="text-base text-[#5A5A5A] max-w-md mx-auto">
-                  {t('donate.successText', { amount: amountToDonate })}
+                  {confirmedAmount !== null
+                    ? t('donate.successText', { amount: confirmedAmount })
+                    : t('donate.receiptPending')}
                 </p>
               </div>
 
-              <div className="bg-[#FDFBF7] p-6 rounded-2xl border border-[#E5E0D8] text-left max-w-sm mx-auto space-y-2 text-xs text-[#2A2A2A]">
-                <div className="font-bold border-b border-[#E5E0D8] pb-2 text-sm font-serif">Official Donation Receipt</div>
-                <div>Donor: {donorName || 'Anonymous'}</div>
-                <div>Amount: ${amountToDonate} ({frequency})</div>
-                <div>Organization: Peace Academy of West Texas (501(c)(3))</div>
-                <div>Tax ID: XX-XXXXXXX</div>
-              </div>
+              {isConfirming && !confirmedDonation && (
+                <p className="text-xs text-[#5A5A5A]">{t('donate.confirming')}</p>
+              )}
+
+              {confirmedDonation && confirmedAmount !== null && (
+                <div className="bg-[#FDFBF7] p-6 rounded-2xl border border-[#E5E0D8] text-left max-w-sm mx-auto space-y-2 text-xs text-[#2A2A2A]">
+                  <div className="font-bold border-b border-[#E5E0D8] pb-2 text-sm font-serif">
+                    {t('donate.receiptTitle')}
+                  </div>
+                  <div>{t('donate.receiptDonor')}: {confirmedDonation.donor_name || '—'}</div>
+                  <div>
+                    {t('donate.receiptAmount')}: ${confirmedAmount}
+                    {confirmedDonation.frequency === 'monthly' ? ' / mo' : ''}
+                  </div>
+                  <div>{t('donate.receiptOrg')}: Peace Academy of West Texas (501(c)(3))</div>
+                  {/* The tax ID is deliberately absent here. It belongs on the
+                      emailed receipt, which the webhook renders from the real
+                      EIN; printing a placeholder would forge an official
+                      document. */}
+                  <div className="pt-1 text-[#5A5A5A]">{t('donate.receiptPending')}</div>
+                </div>
+              )}
 
               <button
-                onClick={() => setIsSuccess(false)}
+                onClick={() => window.location.reload()}
                 className="bg-[#2A2A2A] hover:bg-black text-white px-8 py-3 rounded-full text-xs font-bold uppercase tracking-widest transition-colors cursor-pointer"
               >
-                Make Another Gift
+                {t('donate.makeAnother')}
               </button>
             </div>
           )}

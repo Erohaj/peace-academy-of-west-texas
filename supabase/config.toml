@@ -1,0 +1,56 @@
+# Supabase local development config.
+# Docs: https://supabase.com/docs/guides/local-development/cli/config
+
+project_id = "peace-academy-of-west-texas"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public"]
+extra_search_path = ["public", "extensions"]
+# Caps rows returned by a single PostgREST request. The gallery is the largest
+# public collection (16 seed rows) — 1000 leaves plenty of headroom.
+max_rows = 1000
+
+[db]
+port = 54322
+shadow_port = 54320
+major_version = 15
+
+[studio]
+enabled = true
+port = 54323
+
+# Inbucket catches every outbound email locally (magic links, RSVP
+# confirmations, donation receipts) so nothing real gets sent during dev.
+[inbucket]
+enabled = true
+port = 54324
+
+[storage]
+enabled = true
+# Admin-uploaded event/gallery photos. Browser-side canvas resize keeps these
+# small, but the cap stops a straight-from-camera upload from landing here.
+file_size_limit = "5MiB"
+
+[auth]
+enabled = true
+# Overridden per-environment. Locally the app runs at the Vite root ("/"),
+# in production it lives under the GitHub Pages project path.
+site_url = "http://localhost:3000"
+additional_redirect_urls = [
+  "http://localhost:3000",
+  "http://localhost:4173/peace-academy-of-west-texas/",
+]
+jwt_expiry = 3600
+enable_refresh_token_rotation = true
+enable_signup = true
+
+[auth.email]
+enable_signup = true
+# Volunteers sign in with a magic link only — no passwords anywhere in this app.
+enable_confirmations = true
+double_confirm_changes = true
+
+[analytics]
+enabled = false

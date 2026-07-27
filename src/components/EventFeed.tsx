@@ -6,10 +6,12 @@ import { EventCard } from './EventCard';
 import { EventCalendar } from './EventCalendar';
 import { EventCategory } from '../types';
 import { AnimatedSection } from './AnimatedSection';
+import { CalendarSkeleton, EventGridSkeleton } from './Skeletons';
 
 export const EventFeed: React.FC = () => {
   const { t } = useTranslation();
-  const { events, language } = useAppStore();
+  const { events, language, dataStatus } = useAppStore();
+  const isLoadingEvents = dataStatus === 'idle' || (dataStatus === 'loading' && events.length === 0);
 
   const [selectedCategory, setSelectedCategory] = useState<EventCategory>('all');
   const [searchQuery, setSearchQuery] = useState('');
@@ -130,7 +132,12 @@ export const EventFeed: React.FC = () => {
           </div>
         </AnimatedSection>
 
-        {viewMode === 'calendar' ? (
+        {/* Events come from Supabase, so the first paint has none. Without a
+            placeholder the visitor briefly sees "no events match your filters",
+            which is not what is happening. */}
+        {isLoadingEvents ? (
+          viewMode === 'calendar' ? <CalendarSkeleton /> : <EventGridSkeleton count={3} />
+        ) : viewMode === 'calendar' ? (
           <AnimatedSection direction="fade" delayMs={50}>
             <EventCalendar
               events={events}

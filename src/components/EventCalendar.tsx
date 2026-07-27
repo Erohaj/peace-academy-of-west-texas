@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { 
   ChevronLeft, 
@@ -15,7 +15,7 @@ import {
 } from 'lucide-react';
 import { PAWTXEvent, EventCategory } from '../types';
 import { useAppStore } from '../store/useAppStore';
-import { parseEventDate, getGoogleCalendarUrl } from '../lib/eventDates';
+import { getEventDateParts, getGoogleCalendarUrl } from '../lib/eventDates';
 
 interface EventCalendarProps {
   events: PAWTXEvent[];
@@ -28,11 +28,31 @@ export const EventCalendar: React.FC<EventCalendarProps> = ({ events, selectedCa
   const { language, openRsvpModal } = useAppStore();
   const isSpanish = language === 'es';
 
-  // Default calendar month to August 2026 (where event schedule starts)
-  const [currentDate, setCurrentDate] = useState<Date>(() => new Date(2026, 7, 1)); // August 2026
-  
+  // Events arrive sorted by start time, so the first one is the soonest. The
+  // month used to be hardcoded to August 2026 to match the old seed data —
+  // with events now coming from the database, that would strand the calendar
+  // on an empty month as soon as the schedule moved on.
+  const firstEventParts = events.length > 0 ? getEventDateParts(events[0]) : null;
+
+  const [currentDate, setCurrentDate] = useState<Date>(() =>
+    firstEventParts ? new Date(firstEventParts.year, firstEventParts.month, 1) : new Date()
+  );
+
   // Selected day ISO string (e.g. "2026-08-15")
-  const [selectedDateIso, setSelectedDateIso] = useState<string | null>('2026-08-15');
+  const [selectedDateIso, setSelectedDateIso] = useState<string | null>(
+    firstEventParts?.isoDate ?? null
+  );
+
+  // The first render happens before the events request resolves, so the
+  // defaults above land on today. Re-centre once the real schedule arrives —
+  // but never after the visitor has started navigating months themselves.
+  const hasCentred = useRef(false);
+  useEffect(() => {
+    if (hasCentred.current || !firstEventParts) return;
+    hasCentred.current = true;
+    setCurrentDate(new Date(firstEventParts.year, firstEventParts.month, 1));
+    setSelectedDateIso(firstEventParts.isoDate);
+  }, [firstEventParts]);
 
   // Filter events based on active category & search query
   const filteredEvents = useMemo(() => {
@@ -55,7 +75,7 @@ export const EventCalendar: React.FC<EventCalendarProps> = ({ events, selectedCa
   const eventsByDate = useMemo(() => {
     const map: Record<string, PAWTXEvent[]> = {};
     filteredEvents.forEach((evt) => {
-      const parsed = parseEventDate(evt.date);
+      const parsed = getEventDateParts(evt);
       if (parsed) {
         if (!map[parsed.isoDate]) {
           map[parsed.isoDate] = [];
@@ -71,7 +91,7 @@ export const EventCalendar: React.FC<EventCalendarProps> = ({ events, selectedCa
     const monthMap = new Map<string, { year: number; month: number; label: string; count: number }>();
     
     events.forEach((evt) => {
-      const parsed = parseEventDate(evt.date);
+      const parsed = getEventDateParts(evt);
       if (parsed) {
         const key = `${parsed.year}-${parsed.month}`;
         const monthName = parsed.dateObj.toLocaleString(isSpanish ? 'es' : 'en-US', { month: 'short', year: 'numeric' });

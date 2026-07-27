@@ -1,20 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { X, CheckCircle2, Calendar, Heart, User, Mail, Phone, Users as UsersIcon, ArrowRight, ExternalLink } from 'lucide-react';
+import { X, CheckCircle2, Calendar, Heart, User, Mail, Phone, Users as UsersIcon, ArrowRight, ExternalLink, AlertCircle } from 'lucide-react';
 import { useAppStore } from '../store/useAppStore';
 import { getGoogleCalendarUrl } from '../lib/eventDates';
+import { ActionError } from '../types';
 
 export const RSVPModal: React.FC = () => {
   const { t } = useTranslation();
   const { selectedEventForRsvp, closeRsvpModal, submitRsvp, language } = useAppStore();
 
-  const [step, setStep] = useState<1 | 2 | 3>(1);
+  // Step 4 is the failure screen; the booking can be rejected by the database
+  // (the event filled up, this email already registered) and used to land on
+  // the success screen regardless.
+  const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [guestCount, setGuestCount] = useState(0);
   const [donationAmount, setDonationAmount] = useState<number | null>(10);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<ActionError | null>(null);
   const [errors, setErrors] = useState<{ fullName?: string; email?: string }>({});
 
   // The modal is mounted once at the App root and merely renders null while
@@ -31,6 +36,7 @@ export const RSVPModal: React.FC = () => {
     setGuestCount(0);
     setDonationAmount(10);
     setIsSubmitting(false);
+    setSubmitError(null);
     setErrors({});
   }, [activeEventId]);
 
@@ -55,7 +61,9 @@ export const RSVPModal: React.FC = () => {
 
   const handleFinalSubmit = async () => {
     setIsSubmitting(true);
-    await submitRsvp({
+    setSubmitError(null);
+
+    const result = await submitRsvp({
       eventId: selectedEventForRsvp.id,
       fullName,
       email,
@@ -63,9 +71,38 @@ export const RSVPModal: React.FC = () => {
       guestCount,
       optionalDonation: donationAmount || 0
     });
+
     setIsSubmitting(false);
-    setStep(3); // Success Screen
+
+    if (result.ok) {
+      setStep(3); // Success screen
+    } else {
+      setSubmitError(result.error ?? 'network');
+      setStep(4); // Failure screen
+    }
   };
+
+  // Maps the coarse failure code to a message the visitor can act on. "Event
+  // full" and "already registered" call for different next steps, so they must
+  // not collapse into one generic apology.
+  const errorCopy = (() => {
+    switch (submitError) {
+      case 'event_full':
+        return { title: t('rsvpModal.errorFullTitle'), text: t('rsvpModal.errorFullText'), retryable: false };
+      case 'already_registered':
+        return {
+          title: t('rsvpModal.errorDuplicateTitle'),
+          text: t('rsvpModal.errorDuplicateText'),
+          retryable: false
+        };
+      default:
+        return {
+          title: t('rsvpModal.errorGenericTitle'),
+          text: t('rsvpModal.errorGenericText'),
+          retryable: true
+        };
+    }
+  })();
 
   const googleCalendarUrl = getGoogleCalendarUrl(selectedEventForRsvp, language === 'es');
 
@@ -82,6 +119,7 @@ export const RSVPModal: React.FC = () => {
               {step === 1 && t('rsvpModal.step1Title')}
               {step === 2 && t('rsvpModal.step2Title')}
               {step === 3 && 'Confirmation'}
+              {step === 4 && errorCopy.title}
             </div>
             <h3 className="text-lg font-serif font-bold text-[#2A2A2A] truncate max-w-[300px]">
               {title}
@@ -248,7 +286,7 @@ export const RSVPModal: React.FC = () => {
                   className="w-2/3 bg-[#A64D32] hover:bg-[#8b3f28] text-white py-3 rounded-full font-bold text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-2 shadow-md cursor-pointer disabled:opacity-50"
                 >
                   {isSubmitting ? (
-                    <span>Processing...</span>
+                    <span>{t('rsvpModal.submitting')}</span>
                   ) : (
                     <>
                       <span>{t('rsvpModal.confirmRsvp')}</span>
@@ -299,6 +337,47 @@ export const RSVPModal: React.FC = () => {
                   <ExternalLink className="w-4 h-4" />
                   <span>{t('rsvpModal.addToCalendar')}</span>
                 </a>
+
+                <button
+                  onClick={closeRsvpModal}
+                  className="w-full border border-[#E5E0D8] hover:bg-[#F4F1ED] text-[#2A2A2A] py-2.5 rounded-full text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer"
+                >
+                  {t('rsvpModal.closeModal')}
+                </button>
+              </div>
+
+            </div>
+          )}
+
+          {/* STEP 4: Failure Screen */}
+          {step === 4 && (
+            <div className="text-center py-6 space-y-5 animate-fadeIn">
+
+              <div className="w-16 h-16 bg-[#A64D32]/15 text-[#A64D32] rounded-full flex items-center justify-center mx-auto shadow-sm">
+                <AlertCircle className="w-10 h-10" />
+              </div>
+
+              <div className="space-y-2">
+                <h4 className="text-2xl font-serif font-bold text-[#2A2A2A]">
+                  {errorCopy.title}
+                </h4>
+                <p className="text-sm text-[#5A5A5A] max-w-sm mx-auto">
+                  {errorCopy.text}
+                </p>
+              </div>
+
+              <div className="flex flex-col gap-2 pt-2">
+                {/* A full event or a duplicate registration will not resolve by
+                    retrying, so only offer the button when it can actually help. */}
+                {errorCopy.retryable && (
+                  <button
+                    onClick={handleFinalSubmit}
+                    disabled={isSubmitting}
+                    className="w-full bg-[#A64D32] hover:bg-[#8b3f28] text-white py-3 rounded-full text-xs font-bold uppercase tracking-widest transition-all shadow-sm cursor-pointer disabled:opacity-50"
+                  >
+                    {isSubmitting ? t('rsvpModal.submitting') : t('rsvpModal.tryAgain')}
+                  </button>
+                )}
 
                 <button
                   onClick={closeRsvpModal}
