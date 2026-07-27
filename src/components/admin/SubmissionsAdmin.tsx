@@ -1,9 +1,15 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { Download, AlertCircle, MailOpen, Mail } from 'lucide-react';
+import { Download, AlertCircle, MailOpen, Mail, Trash2 } from 'lucide-react';
 import type { Tables } from '../../lib/database.types';
 import { fetchAllRsvps } from '../../lib/api/rsvps';
 import { fetchDonations } from '../../lib/api/donations';
-import { downloadCsv, fetchContactMessages, markContactHandled, toCsv } from '../../lib/api/admin';
+import {
+  deleteContactMessage,
+  downloadCsv,
+  fetchContactMessages,
+  markContactHandled,
+  toCsv
+} from '../../lib/api/admin';
 import { useAppStore } from '../../store/useAppStore';
 import { EVENT_TIME_ZONE } from '../../lib/formatEventDate';
 
@@ -121,6 +127,28 @@ export const SubmissionsAdmin: React.FC<SubmissionsAdminProps> = ({ view }) => {
     } catch (toggleError) {
       console.error('[PAWTX] Failed to update message', toggleError);
       setError('Could not update that message.');
+    }
+  };
+
+  const handleDeleteMessage = async (message: MessageRow) => {
+    // Deletion is permanent and there is no undo, so the prompt quotes the
+    // message itself — enough to notice you are about to remove a real
+    // enquiry rather than the spam you meant to clear.
+    const preview = message.message.length > 120
+      ? `${message.message.slice(0, 120)}…`
+      : message.message;
+
+    const confirmed = window.confirm(
+      `Delete this message permanently?\n\nFrom: ${message.full_name} <${message.email}>\n\n"${preview}"`
+    );
+    if (!confirmed) return;
+
+    try {
+      await deleteContactMessage(message.id);
+      setMessages((current) => current.filter((row) => row.id !== message.id));
+    } catch (deleteError) {
+      console.error('[PAWTX] Failed to delete message', deleteError);
+      setError('Could not delete that message.');
     }
   };
 
@@ -262,13 +290,22 @@ export const SubmissionsAdmin: React.FC<SubmissionsAdminProps> = ({ view }) => {
                           {formatDateTime(message.created_at)}
                         </div>
                       </div>
-                      <button
-                        onClick={() => toggleHandled(message)}
-                        title={message.handled ? 'Mark as unread' : 'Mark as handled'}
-                        className="shrink-0 p-2 rounded-lg hover:bg-[#FDFBF7] text-[#5A5A5A] cursor-pointer"
-                      >
-                        {message.handled ? <MailOpen className="w-4 h-4" /> : <Mail className="w-4 h-4" />}
-                      </button>
+                      <div className="shrink-0 flex items-center gap-1">
+                        <button
+                          onClick={() => toggleHandled(message)}
+                          title={message.handled ? 'Mark as unread' : 'Mark as handled'}
+                          className="p-2 rounded-lg hover:bg-[#FDFBF7] text-[#5A5A5A] cursor-pointer"
+                        >
+                          {message.handled ? <MailOpen className="w-4 h-4" /> : <Mail className="w-4 h-4" />}
+                        </button>
+                        <button
+                          onClick={() => handleDeleteMessage(message)}
+                          title="Delete permanently"
+                          className="p-2 rounded-lg hover:bg-[#A64D32]/10 text-[#A64D32] cursor-pointer"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
                     </div>
                     <p className="text-sm text-[#2A2A2A] mt-3 whitespace-pre-wrap break-words">
                       {message.message}

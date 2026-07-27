@@ -95,6 +95,19 @@ export async function markContactHandled(id: string, handled: boolean): Promise<
   if (error) throw error;
 }
 
+/**
+ * Permanently removes one contact message.
+ *
+ * Allowed only for admins, by the RLS policy added in
+ * *_admin_delete_messages.sql. RSVPs and donations remain undeletable: an
+ * RSVP deletion would leave the event's seat counter overstated, and
+ * donations are a financial record.
+ */
+export async function deleteContactMessage(id: string): Promise<void> {
+  const { error } = await requireSupabase().from('contact_messages').delete().eq('id', id);
+  if (error) throw error;
+}
+
 // ---------------------------------------------------------------------------
 // Media uploads
 // ---------------------------------------------------------------------------
