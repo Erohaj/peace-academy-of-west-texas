@@ -74,6 +74,33 @@ export function getSiteUrl(): string {
   return new URL(base, window.location.origin).toString();
 }
 
+/**
+ * Warns, in development only, about the one auth failure that gives no sign of
+ * itself.
+ *
+ * When the requested return address is not on the Redirect URLs allowlist,
+ * Supabase does not reject the call — it quietly substitutes the project's
+ * Site URL. Nothing fails, no error is returned, and the sign-in link simply
+ * arrives pointing at production. Someone testing against a local dev server
+ * clicks it, lands on the deployed site, and reasonably concludes their
+ * changes never took effect.
+ *
+ * Note the trailing slash below: `http://localhost:3000` and
+ * `http://localhost:3000/` are different entries as far as the allowlist is
+ * concerned, which is why the wildcard form is the one to add.
+ */
+export function warnIfRedirectLikelyUnlisted(redirectTo: string): void {
+  if (!import.meta.env.DEV) return;
+
+  console.info(
+    `[PAWTX] Sign-in link will return to ${redirectTo}\n` +
+      'If you land on the deployed GitHub Pages site instead, that address is ' +
+      'missing from Supabase → Authentication → URL Configuration → Redirect ' +
+      `URLs, and Supabase fell back to the project's Site URL. Add ` +
+      `${new URL(redirectTo).origin}/** there.`
+  );
+}
+
 /** URL of a deployed Edge Function, e.g. `create-checkout-session`. */
 export function functionUrl(name: string): string {
   if (!supabaseUrl) throw new SupabaseNotConfiguredError();

@@ -61,11 +61,20 @@ Supabase → Authentication → URL Configuration → **Redirect URLs** must inc
 the deployed path, including the GitHub Pages sub-path:
 
 ```
-https://<user>.github.io/peace-academy-of-west-texas/
-http://localhost:3000
+https://<user>.github.io/peace-academy-of-west-texas/**
+http://localhost:3000/**
 ```
 
-Magic links silently fail to return if this does not match.
+Use the `/**` wildcard form. An entry without it has to match the requested
+address character for character, and the app asks to return to
+`http://localhost:3000/` — with a trailing slash — so a bare
+`http://localhost:3000` does not match it.
+
+A missing entry does not produce an error. Supabase substitutes the project's
+**Site URL** and sends the link there instead, so a sign-in link generated
+while testing locally arrives pointing at the deployed site, and the changes
+being tested appear to have had no effect. In development the app logs the
+address it asked for, to make that visible.
 
 ### 3. Make yourself an admin
 

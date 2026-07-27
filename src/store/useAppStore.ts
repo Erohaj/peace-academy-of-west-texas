@@ -10,7 +10,12 @@ import {
   VolunteerProfile
 } from '../types';
 import i18n from '../i18n/config';
-import { getSiteUrl, isSupabaseConfigured, supabase } from '../lib/supabaseClient';
+import {
+  getSiteUrl,
+  isSupabaseConfigured,
+  supabase,
+  warnIfRedirectLikelyUnlisted
+} from '../lib/supabaseClient';
 import { reportError } from '../lib/api/errors';
 import { EventRow, fetchEvents, mapEventRow } from '../lib/api/events';
 import { GalleryRow, fetchGallery, mapGalleryRow } from '../lib/api/gallery';
@@ -293,13 +298,17 @@ export const useAppStore = create<AppState>((set, get) => ({
   loginWithMagicLink: async (email) => {
     if (!supabase) return { ok: false, error: 'not_configured' };
 
+    // Must exactly match an entry in Supabase → Authentication → URL
+    // Configuration → Redirect URLs, including the GitHub Pages project path
+    // in production. A mismatch does not fail — Supabase substitutes the Site
+    // URL and the link arrives pointing somewhere else entirely.
+    const redirectTo = getSiteUrl();
+    warnIfRedirectLikelyUnlisted(redirectTo);
+
     const { error } = await supabase.auth.signInWithOtp({
       email: email.trim(),
       options: {
-        // Must exactly match an entry in Supabase → Authentication → URL
-        // Configuration → Redirect URLs, including the GitHub Pages project
-        // path in production. A mismatch fails silently at click time.
-        emailRedirectTo: getSiteUrl()
+        emailRedirectTo: redirectTo
       }
     });
 
@@ -310,14 +319,17 @@ export const useAppStore = create<AppState>((set, get) => ({
   loginWithGoogle: async () => {
     if (!supabase) return { ok: false, error: 'not_configured' };
 
+    // Same allowlist as the magic link, and the same silent substitution when
+    // the address is missing from it.
+    const redirectTo = getSiteUrl();
+    warnIfRedirectLikelyUnlisted(redirectTo);
+
     // Sends no email at all, so it is unaffected by the Supabase Auth email
     // throttle that blocks magic links once a couple have gone out in an hour.
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        // Same allowlist as the magic link: this must appear in Supabase →
-        // Authentication → URL Configuration → Redirect URLs.
-        redirectTo: getSiteUrl()
+        redirectTo
       }
     });
 
