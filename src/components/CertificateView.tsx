@@ -23,10 +23,25 @@ const formatDate = (value: string) =>
  * "save as PDF" option in its print dialog, and print.css below hides
  * everything but the certificate card, so that dialog produces exactly this
  * document — no extra dependency to render what the browser can already do.
+ *
+ * Print targets this instance by a ref, not the shared `certificate-print`
+ * class alone. CertificatesAdmin's "Previously issued" list can have several
+ * of these expanded at once, and a `@media print` rule keyed only on a class
+ * name would make every expanded certificate visible and `position: fixed`
+ * at the same spot the moment any one of them printed — see the identical
+ * fix in SignedDocumentView.tsx. Setting `data-printing` on this node right
+ * before `window.print()`, and clearing it right after, keeps the print
+ * stylesheet matching only the certificate actually being printed.
  */
 export const CertificateView: React.FC<Props> = ({ certificate }) => {
   const [qrSvg, setQrSvg] = useState<string | null>(null);
   const printRef = useRef<HTMLDivElement>(null);
+
+  const handlePrint = () => {
+    printRef.current?.setAttribute('data-printing', 'true');
+    window.print();
+    printRef.current?.removeAttribute('data-printing');
+  };
 
   const entries = Array.isArray(certificate.entries)
     ? (certificate.entries as unknown as CertificateEntry[])
@@ -49,7 +64,7 @@ export const CertificateView: React.FC<Props> = ({ certificate }) => {
       {!isRevoked && (
         <div className="flex justify-end print:hidden">
           <button
-            onClick={() => window.print()}
+            onClick={handlePrint}
             className="flex items-center gap-2 bg-[#A64D32] hover:bg-[#8b3f28] text-white px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider cursor-pointer"
           >
             <Printer className="w-4 h-4" />
@@ -71,7 +86,7 @@ export const CertificateView: React.FC<Props> = ({ certificate }) => {
 
       <div
         ref={printRef}
-        className={`certificate-print bg-white border-2 rounded-2xl p-10 max-w-2xl mx-auto space-y-8 ${
+        className={`bg-white border-2 rounded-2xl p-10 max-w-2xl mx-auto space-y-8 ${
           isRevoked ? 'border-red-300 opacity-60' : 'border-[#E5E0D8]'
         }`}
       >
@@ -154,8 +169,8 @@ export const CertificateView: React.FC<Props> = ({ certificate }) => {
       <style>{`
         @media print {
           body * { visibility: hidden; }
-          .certificate-print, .certificate-print * { visibility: visible; }
-          .certificate-print {
+          [data-printing], [data-printing] * { visibility: visible; }
+          [data-printing] {
             position: fixed; inset: 0; margin: 0; border: none !important;
             box-shadow: none;
           }
