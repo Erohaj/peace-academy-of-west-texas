@@ -10,13 +10,36 @@
 -- staff observed on the day. `service_log` records credited hours, and a row
 -- exists only because an admin put it there — which is why the table has no
 -- "pending" state to filter on and a certificate can read all of it.
+--
+-- Every statement below is safe to run twice. `supabase db push` tracks what
+-- it has applied and would not need that, but this file also gets pasted into
+-- the SQL editor by hand — and there, a run that fails part way through leaves
+-- a database the original all-or-nothing version could never be applied to
+-- again.
 
 -- ---------------------------------------------------------------------------
 -- Attendance, on the roster row that already exists per volunteer per shift.
 -- ---------------------------------------------------------------------------
 
 alter table public.shift_signups
-  add column attendance text check (attendance in ('attended', 'no_show'));
+  add column if not exists attendance text;
+
+-- Added separately from the column: `add column if not exists` skips the whole
+-- clause when the column is already there, so folding the CHECK into it would
+-- leave the values unconstrained on any database where an earlier attempt got
+-- this far.
+do $$
+begin
+  if not exists (
+    select 1 from pg_constraint
+     where conrelid = 'public.shift_signups'::regclass
+       and conname = 'shift_signups_attendance_check'
+  ) then
+    alter table public.shift_signups
+      add constraint shift_signups_attendance_check
+      check (attendance in ('attended', 'no_show'));
+  end if;
+end $$;
 
 comment on column public.shift_signups.attendance is
   'Null means the roster has not been closed yet — which is how staff find the shifts still waiting to be processed. Only admins can set it: volunteers have select, insert and delete policies on this table but no update policy, so an UPDATE from one is refused by RLS.';
@@ -25,7 +48,7 @@ comment on column public.shift_signups.attendance is
 -- service_log — the single source of credited hours.
 -- ---------------------------------------------------------------------------
 
-create table public.service_log (
+create table if not exists public.service_log (
   id          uuid primary key default gen_random_uuid(),
   user_id     uuid not null references public.profiles (id) on delete cascade,
   -- Null for hours worked outside the shift system, and on purpose when a
@@ -45,17 +68,17 @@ create table public.service_log (
 
 -- One credit per volunteer per shift, so re-closing a roster corrects the
 -- existing row instead of paying the hours twice.
-create unique index service_log_one_per_shift_idx
+create unique index if not exists service_log_one_per_shift_idx
   on public.service_log (user_id, shift_id)
   where shift_id is not null;
 
-create index service_log_user_served_idx
+create index if not exists service_log_user_served_idx
   on public.service_log (user_id, served_on desc);
 
 -- A CHECK constraint cannot call current_date — it has to be immutable — so
 -- the "not in the future" rule lives in a trigger. Without it a mistyped year
 -- silently credits hours nobody has served yet.
-create function public.service_log_reject_future()
+create or replace function public.service_log_reject_future()
 returns trigger
 language plpgsql
 as $$
@@ -68,6 +91,7 @@ begin
 end;
 $$;
 
+drop trigger if exists service_log_no_future_dates on public.service_log;
 create trigger service_log_no_future_dates
   before insert or update on public.service_log
   for each row execute function public.service_log_reject_future();
@@ -77,6 +101,11 @@ create trigger service_log_no_future_dates
 -- ---------------------------------------------------------------------------
 
 alter table public.service_log enable row level security;
+
+-- Postgres has no `create policy if not exists`, so each is dropped first.
+drop policy if exists "service_log: read own"        on public.service_log;
+drop policy if exists "service_log: admins read all" on public.service_log;
+drop policy if exists "service_log: admins write"    on public.service_log;
 
 create policy "service_log: read own"
   on public.service_log for select
