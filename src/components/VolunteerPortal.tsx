@@ -11,6 +11,7 @@ export const VolunteerPortal: React.FC = () => {
     volunteer,
     shifts,
     loginWithMagicLink,
+    loginWithGoogle,
     logout,
     toggleShiftBooking,
     // Aliased: this component already has its own `activeTab` for the
@@ -49,6 +50,14 @@ export const VolunteerPortal: React.FC = () => {
     }
   };
 
+  const handleGoogleSignIn = async () => {
+    setLoginError(null);
+    const result = await loginWithGoogle();
+    // A successful call has already navigated to Google, so only failures
+    // ever get to render — the provider not being enabled, most likely.
+    if (!result.ok) setLoginError(t('volunteer.googleError'));
+  };
+
   const handleToggleShift = async (shiftId: string) => {
     setShiftError(null);
     const result = await toggleShiftBooking(shiftId);
@@ -60,6 +69,15 @@ export const VolunteerPortal: React.FC = () => {
   };
 
   const myBookedShifts = shifts.filter((s) => s.isTakenByMe);
+
+  // Up to two letters from the display name, falling back to the email when a
+  // magic-link user has no name recorded yet.
+  const initials = (volunteer?.fullName || volunteer?.email || '?')
+    .split(/[\s@._-]+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase() ?? '')
+    .join('');
 
   // Next hours milestone shown as a locked badge on the Hours tab — computed
   // from the volunteer's real totalHours so it updates as shifts are booked,
@@ -96,6 +114,33 @@ export const VolunteerPortal: React.FC = () => {
             </div>
 
             {!loginSent ? (
+              <>
+              {/* Offered above the email form on purpose: it is one click, and
+                  unlike the magic link it sends no email, so it keeps working
+                  when Supabase Auth's outbound mail is throttled. */}
+              <button
+                type="button"
+                onClick={handleGoogleSignIn}
+                disabled={isSendingLink}
+                className="w-full bg-white hover:bg-[#F4F1ED] border border-[#E5E0D8] text-[#2A2A2A] py-3 rounded-full font-bold text-xs uppercase tracking-wider transition-colors shadow-sm cursor-pointer flex items-center justify-center gap-2.5 disabled:opacity-50"
+              >
+                <svg className="w-4 h-4" viewBox="0 0 48 48" aria-hidden="true">
+                  <path fill="#4285F4" d="M45.1 24.5c0-1.6-.1-3.1-.4-4.5H24v8.5h11.8c-.5 2.7-2 5-4.4 6.6v5.500h7.1c4.2-3.8 6.6-9.5 6.6-16.1z"/>
+                  <path fill="#34A853" d="M24 46c6 0 11-2 14.6-5.4l-7.1-5.5c-2 1.3-4.5 2.1-7.5 2.1-5.8 0-10.6-3.9-12.4-9.1H4.3v5.7C7.9 41.1 15.4 46 24 46z"/>
+                  <path fill="#FBBC05" d="M11.6 28.1c-.5-1.4-.7-2.8-.7-4.1s.3-2.8.7-4.1v-5.7H4.3C2.8 17.1 2 20.4 2 24s.8 6.9 2.3 9.8l7.3-5.7z"/>
+                  <path fill="#EA4335" d="M24 10.8c3.3 0 6.2 1.1 8.5 3.3l6.3-6.3C34.9 4.1 30 2 24 2 15.4 2 7.9 6.9 4.3 14.2l7.3 5.7c1.8-5.2 6.6-9.1 12.4-9.1z"/>
+                </svg>
+                <span>{t('volunteer.continueWithGoogle')}</span>
+              </button>
+
+              <div className="flex items-center gap-3 py-4">
+                <span className="h-px flex-1 bg-[#E5E0D8]" />
+                <span className="text-[10px] uppercase tracking-[0.2em] text-[#5A5A5A]">
+                  {t('volunteer.orDivider')}
+                </span>
+                <span className="h-px flex-1 bg-[#E5E0D8]" />
+              </div>
+
               <form onSubmit={handleMagicLinkSubmit} className="space-y-4">
                 <div>
                   <label className="block text-xs font-bold uppercase tracking-[0.2em] text-[#5A5A5A] mb-1">
@@ -133,6 +178,7 @@ export const VolunteerPortal: React.FC = () => {
                   {!isSendingLink && <ArrowRight className="w-4 h-4" />}
                 </button>
               </form>
+              </>
             ) : (
               <div className="text-center py-4 space-y-3">
                 <CheckCircle2 className="w-10 h-10 text-[#5B6346] mx-auto" />
@@ -159,13 +205,26 @@ export const VolunteerPortal: React.FC = () => {
         {/* Dashboard Header Bar */}
         <div className="bg-[#F4F1ED] rounded-2xl p-6 border border-[#E5E0D8] shadow-sm flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-4">
-            <img
-              src={volunteer?.avatarUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80'}
-              alt={volunteer?.fullName}
-              loading="lazy"
-              decoding="async"
-              className="w-14 h-14 rounded-full object-cover border-2 border-[#A64D32]"
-            />
+            {/* Google sign-in supplies a real picture. Everyone else gets
+                their initials — the previous fallback was a stock photo of a
+                stranger standing in for whoever was signed in. */}
+            {volunteer?.avatarUrl ? (
+              <img
+                src={volunteer.avatarUrl}
+                alt={volunteer.fullName}
+                loading="lazy"
+                decoding="async"
+                referrerPolicy="no-referrer"
+                className="w-14 h-14 rounded-full object-cover border-2 border-[#A64D32]"
+              />
+            ) : (
+              <div
+                aria-hidden="true"
+                className="w-14 h-14 rounded-full border-2 border-[#A64D32] bg-[#A64D32]/10 text-[#A64D32] flex items-center justify-center font-serif font-bold text-xl"
+              >
+                {initials}
+              </div>
+            )}
             <div>
               <h2 className="text-2xl font-serif font-bold text-[#2A2A2A]">
                 {t('volunteer.welcomeBack', { name: volunteer?.fullName })}

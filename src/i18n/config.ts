@@ -165,6 +165,9 @@ const resources = {
       volunteer: {
         portalTitle: "Volunteer Portal",
         portalSubtitle: "Join our team of dedicated community volunteers. Book shifts, log your service hours, and track your impact.",
+        continueWithGoogle: "Continue with Google",
+        orDivider: "or",
+        googleError: "Google sign-in isn't available right now. Use the email link below instead.",
         magicLinkTitle: "Volunteer Sign In",
         magicLinkDesc: "Enter your email to receive a passwordless magic login link.",
         emailPlaceholder: "volunteer@pawtx.org",
@@ -414,6 +417,9 @@ const resources = {
       volunteer: {
         portalTitle: "Portal de Voluntarios",
         portalSubtitle: "Únete a nuestro equipo de voluntarios. Reserva turnos, registra tus horas de servicio y mira tu impacto.",
+        continueWithGoogle: "Continuar con Google",
+        orDivider: "o",
+        googleError: "El acceso con Google no está disponible ahora. Usa el enlace por correo de abajo.",
         magicLinkTitle: "Inicio de Sesión de Voluntario",
         magicLinkDesc: "Ingresa tu correo para recibir un enlace mágico de acceso sin contraseña.",
         emailPlaceholder: "voluntario@pawtx.org",

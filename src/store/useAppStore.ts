@@ -118,6 +118,7 @@ interface AppState {
   authStatus: DataStatus;
   shifts: Shift[];
   loginWithMagicLink: (email: string) => Promise<ActionResult>;
+  loginWithGoogle: () => Promise<ActionResult>;
   logout: () => Promise<void>;
   toggleShiftBooking: (shiftId: string) => Promise<ActionResult>;
 }
@@ -303,6 +304,26 @@ export const useAppStore = create<AppState>((set, get) => ({
     });
 
     if (error) return { ok: false, error: reportError('Magic link request failed', error) };
+    return { ok: true };
+  },
+
+  loginWithGoogle: async () => {
+    if (!supabase) return { ok: false, error: 'not_configured' };
+
+    // Sends no email at all, so it is unaffected by the Supabase Auth email
+    // throttle that blocks magic links once a couple have gone out in an hour.
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        // Same allowlist as the magic link: this must appear in Supabase →
+        // Authentication → URL Configuration → Redirect URLs.
+        redirectTo: getSiteUrl()
+      }
+    });
+
+    // On success the browser has already been sent to Google; an error here
+    // means the provider is not enabled or is misconfigured.
+    if (error) return { ok: false, error: reportError('Google sign-in failed', error) };
     return { ok: true };
   },
 
