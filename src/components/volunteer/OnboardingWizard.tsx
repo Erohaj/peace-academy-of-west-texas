@@ -13,8 +13,10 @@ import {
   fetchCurrentDocuments,
   fetchMySignatures,
   signDocument,
-  type LegalDocument
+  type LegalDocument,
+  type SignatureRow
 } from '../../lib/api/legalDocuments';
+import { SignedDocumentView } from './SignedDocumentView';
 import {
   ageOn,
   fetchMyApplication,
@@ -82,23 +84,31 @@ export const OnboardingWizard: React.FC = () => {
 
   const [documents, setDocuments] = useState<LegalDocument[]>([]);
   const [application, setApplication] = useState<ApplicationRow | null>(null);
-  const [signedVersionIds, setSignedVersionIds] = useState<Set<string>>(new Set());
+  const [signatures, setSignatures] = useState<SignatureRow[]>([]);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+
+  // Derived, not stored separately: the step logic only ever needs "is this
+  // version id signed", and keeping one Set in sync with `signatures` by hand
+  // is one more way for the two to quietly drift apart.
+  const signedVersionIds = useMemo(
+    () => new Set(signatures.map((s) => s.version_id)),
+    [signatures]
+  );
 
   const load = useCallback(async () => {
     if (!userId) return;
     setIsLoading(true);
     setLoadError(null);
     try {
-      const [docs, app, signatures] = await Promise.all([
+      const [docs, app, sigs] = await Promise.all([
         fetchCurrentDocuments(),
         fetchMyApplication(userId),
         fetchMySignatures(userId)
       ]);
       setDocuments(docs);
       setApplication(app);
-      setSignedVersionIds(new Set(signatures.map((s) => s.version_id)));
+      setSignatures(sigs);
     } catch (error) {
       console.error('[PAWTX] Failed to load onboarding paperwork', error);
       setLoadError('Could not load the volunteer paperwork. Please try again.');
@@ -211,16 +221,65 @@ export const OnboardingWizard: React.FC = () => {
     );
   }
 
+  return <CompletedPaperwork documents={documents} signatures={signatures} />;
+};
+
+/**
+ * The done state — and a record of exactly what was agreed to, not just a
+ * congratulatory message. Fetched on demand per document rather than all at
+ * once: most volunteers never reopen these once signed.
+ */
+const CompletedPaperwork: React.FC<{
+  documents: LegalDocument[];
+  signatures: SignatureRow[];
+}> = ({ documents, signatures }) => {
+  const [expandedSignatureId, setExpandedSignatureId] = useState<string | null>(null);
+  const titleFor = (versionId: string) =>
+    documents.find((d) => d.versionId === versionId)?.title ?? 'Document';
+
   return (
-    <div className="bg-[#5B6346]/10 border border-[#5B6346]/30 rounded-2xl p-6 flex items-start gap-3">
-      <CheckCircle2 className="w-6 h-6 text-[#5B6346] shrink-0" />
-      <div>
-        <div className="font-bold text-[#2A2A2A]">All paperwork is on file</div>
-        <p className="text-xs text-[#5A5A5A] mt-1">
-          Your application, agreement, release, code of conduct and media consent are all
-          signed and dated. You're clear to take a shift.
-        </p>
+    <div className="space-y-4">
+      <div className="bg-[#5B6346]/10 border border-[#5B6346]/30 rounded-2xl p-6 flex items-start gap-3">
+        <CheckCircle2 className="w-6 h-6 text-[#5B6346] shrink-0" />
+        <div>
+          <div className="font-bold text-[#2A2A2A]">All paperwork is on file</div>
+          <p className="text-xs text-[#5A5A5A] mt-1">
+            Your application, agreement, release, code of conduct and media consent are all
+            signed and dated. You're clear to take a shift.
+          </p>
+        </div>
       </div>
+
+      {signatures.length > 0 && (
+        <div className="space-y-2">
+          <h4 className="text-xs font-bold uppercase tracking-[0.2em] text-[#5A5A5A]">
+            What you signed
+          </h4>
+          {signatures.map((sig) => (
+            <div key={sig.id} className="bg-white border border-[#E5E0D8] rounded-xl">
+              <button
+                onClick={() =>
+                  setExpandedSignatureId(expandedSignatureId === sig.id ? null : sig.id)
+                }
+                className="w-full flex items-center justify-between text-xs px-4 py-3 cursor-pointer text-left"
+              >
+                <span className="font-bold text-[#2A2A2A]">{titleFor(sig.version_id)}</span>
+                <span className="flex items-center gap-3 text-[#5A5A5A]">
+                  {new Date(sig.signed_at).toLocaleDateString('en-US', { dateStyle: 'medium' })}
+                  <span className="font-bold uppercase tracking-wider text-[#A64D32]">
+                    {expandedSignatureId === sig.id ? 'Hide' : 'View / print'}
+                  </span>
+                </span>
+              </button>
+              {expandedSignatureId === sig.id && (
+                <div className="border-t border-[#E5E0D8] p-4">
+                  <SignedDocumentView title={titleFor(sig.version_id)} signature={sig} />
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };

@@ -20,6 +20,7 @@ import {
   type SignatureRow
 } from '../../lib/api/legalDocuments';
 import { useAppStore } from '../../store/useAppStore';
+import { SignedDocumentView } from '../volunteer/SignedDocumentView';
 
 const STATUS_STYLES: Record<ApplicationRow['status'], string> = {
   submitted: 'bg-[#5A5A5A]/15 text-[#5A5A5A]',
@@ -49,6 +50,7 @@ export const ApplicationsAdmin: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState<ApplicationRow['status'] | 'all'>('submitted');
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [signaturesByApp, setSignaturesByApp] = useState<Record<string, SignatureRow[]>>({});
+  const [expandedSignatureId, setExpandedSignatureId] = useState<string | null>(null);
   const [reviewNote, setReviewNote] = useState('');
   const [isSaving, setIsSaving] = useState(false);
 
@@ -85,6 +87,7 @@ export const ApplicationsAdmin: React.FC = () => {
       return;
     }
     setExpandedId(row.id);
+    setExpandedSignatureId(null);
     setReviewNote(row.review_note ?? '');
     if (!signaturesByApp[row.id]) {
       try {
@@ -234,23 +237,42 @@ export const ApplicationsAdmin: React.FC = () => {
                       ) : (
                         <ul className="space-y-1.5">
                           {signatures.map((sig) => (
-                            <li
-                              key={sig.id}
-                              className="flex items-center justify-between text-xs bg-white border border-[#E5E0D8] rounded-lg px-3 py-2"
-                            >
-                              <span>
-                                <strong>{titleForVersion(sig.version_id)}</strong>
-                                {' — '}
-                                {sig.signer_role === 'guardian'
-                                  ? `${sig.signer_name} (guardian of ${sig.minor_name})`
-                                  : sig.signer_name}
-                                {sig.choice && ` — chose "${sig.choice.replace('_', ' ')}"`}
-                              </span>
-                              <span className="text-[#5A5A5A] whitespace-nowrap ml-3">
-                                {new Date(sig.signed_at).toLocaleDateString('en-US', {
-                                  dateStyle: 'medium'
-                                })}
-                              </span>
+                            <li key={sig.id} className="bg-white border border-[#E5E0D8] rounded-lg">
+                              <button
+                                onClick={() =>
+                                  setExpandedSignatureId(
+                                    expandedSignatureId === sig.id ? null : sig.id
+                                  )
+                                }
+                                className="w-full flex items-center justify-between text-xs px-3 py-2 cursor-pointer text-left"
+                              >
+                                <span>
+                                  <strong>{titleForVersion(sig.version_id)}</strong>
+                                  {' — '}
+                                  {sig.signer_role === 'guardian'
+                                    ? `${sig.signer_name} (guardian of ${sig.minor_name})`
+                                    : sig.signer_name}
+                                  {sig.choice && ` — chose "${sig.choice.replace('_', ' ')}"`}
+                                </span>
+                                <span className="flex items-center gap-2 shrink-0 ml-3">
+                                  <span className="text-[#5A5A5A] whitespace-nowrap">
+                                    {new Date(sig.signed_at).toLocaleDateString('en-US', {
+                                      dateStyle: 'medium'
+                                    })}
+                                  </span>
+                                  <span className="text-[10px] font-bold uppercase tracking-wider text-[#A64D32]">
+                                    {expandedSignatureId === sig.id ? 'Hide' : 'View'}
+                                  </span>
+                                </span>
+                              </button>
+                              {expandedSignatureId === sig.id && (
+                                <div className="border-t border-[#E5E0D8] p-3">
+                                  <SignedDocumentView
+                                    title={titleForVersion(sig.version_id)}
+                                    signature={sig}
+                                  />
+                                </div>
+                              )}
                             </li>
                           ))}
                         </ul>

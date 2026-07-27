@@ -90,6 +90,30 @@ export async function fetchCurrentDocuments(): Promise<LegalDocument[]> {
     .filter((doc): doc is LegalDocument => doc !== null);
 }
 
+/**
+ * The exact text of one version, for viewing a document after it has been
+ * signed.
+ *
+ * Deliberately not the same code path as `fetchCurrentDocuments()`, which
+ * only ever returns the *current* version of each document. A signature can
+ * point at an older one once a document is revised, and
+ * "document_versions: read own signed" is what lets the signer (or an admin)
+ * read that specific row regardless of whether it is still current.
+ */
+export async function fetchDocumentVersionBody(
+  versionId: string
+): Promise<{ bodyMd: string; bodyMdEs: string; version: string } | null> {
+  const { data, error } = await requireSupabase()
+    .from('legal_document_versions')
+    .select('body_md, body_md_es, version')
+    .eq('id', versionId)
+    .maybeSingle();
+
+  if (error) throw error;
+  if (!data) return null;
+  return { bodyMd: data.body_md, bodyMdEs: data.body_md_es, version: data.version };
+}
+
 export type SignatureRow = Tables<'document_signatures'>;
 
 export interface SignInput {
