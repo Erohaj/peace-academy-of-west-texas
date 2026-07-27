@@ -99,6 +99,34 @@ Add `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` as **repository secrets**
 (Settings → Secrets and variables → Actions). `deploy.yml` passes them to the
 build; without them the published site has no backend.
 
+## Search engines and shared links
+
+What a crawler sees is baked into `index.html` at build time from
+[src/lib/seo.ts](src/lib/seo.ts) — page description, the Open Graph and Twitter
+card tags that render the preview when someone posts the link, the canonical
+URL, the favicons, and `Organization` structured data (address, founding year,
+501(c)(3) status, and the official social accounts).
+
+The share card and favicons are committed under `public/`. Regenerate them from
+the bundled photos after changing the hero or the logo:
+
+```bash
+npm run seo:assets
+```
+
+**If the site moves to its own domain,** change `SITE_ORIGIN` and `SITE_PATH`
+in `src/lib/seo.ts` — everything else, including `robots.txt` and
+`sitemap.xml`, is derived from them. Note that `robots.txt` only takes effect
+once the site is at the root of a domain: crawlers read it at the origin root,
+and GitHub Pages serves this project under `/peace-academy-of-west-texas/`.
+
+After deploying a change to the preview card, ask each platform to re-read the
+page — they cache the old one for days:
+[Facebook Sharing Debugger](https://developers.facebook.com/tools/debug/),
+[X Post Inspector](https://cards-dev.twitter.com/validator),
+[LinkedIn Post Inspector](https://www.linkedin.com/post-inspector/),
+[Google Rich Results Test](https://search.google.com/test/rich-results).
+
 ## Live Social Feed (Instagram + Facebook)
 
 The "Social Feed" section shows curated mock posts until you connect real accounts.

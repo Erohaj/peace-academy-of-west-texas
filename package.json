@@ -10,6 +10,7 @@
     "clean": "rm -rf dist server.js",
     "lint": "tsc --noEmit",
     "optimize:images": "node scripts/optimize-images.mjs",
+    "seo:assets": "node scripts/generate-seo-assets.mjs",
     "db:start": "supabase start",
     "db:stop": "supabase stop",
     "db:reset": "supabase db reset",
@@ -30,7 +31,6 @@
     "motion": "^12.23.24",
     "react": "^19.0.1",
     "react-dom": "^19.0.1",
-    "react-helmet-async": "^3.0.0",
     "react-i18next": "^17.0.11",
     "vite": "^6.2.3",
     "zustand": "^5.0.14"
@@ -40,7 +40,6 @@
     "@types/node": "^22.14.0",
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
-    "@types/react-helmet": "^6.1.11",
     "autoprefixer": "^10.4.21",
     "esbuild": "^0.25.0",
     "sharp": "^0.35.3",

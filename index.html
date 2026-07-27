@@ -3,7 +3,61 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Peace Academy of West Texas | PAWTX</title>
+
+    <!--
+      Everything below, to the end of the head, is what a crawler sees. The
+      %TOKENS% are filled in at build time by the pawtx-seo plugin in
+      vite.config.ts, from src/lib/seo.ts — edit the values there, not here.
+
+      Do not write a literal closing head tag anywhere in this comment: Vite
+      injects the bundle before the first one it finds, which puts the whole
+      application inside the comment and ships a blank page.
+
+      This has to be static HTML: no link-preview crawler runs JavaScript, so
+      the <Helmet> block in App.tsx never reaches Facebook, X, WhatsApp,
+      LinkedIn, iMessage or Slack.
+
+      Do not repeat any of these tags in that Helmet block. On React 19 the
+      library hoists tags natively instead of taking over matching ones, so
+      the page would carry two of each and the crawlers would pick whichever
+      they saw first.
+
+      Per-tab variants are pointless here anyway: navigation is a tab in a
+      Zustand store rather than a route, so every tab shares this one URL and
+      a shared link always opens the home page.
+    -->
+    <title>%SITE_TITLE%</title>
+    <meta name="description" content="%SITE_DESCRIPTION%" />
+    <link rel="canonical" href="%CANONICAL_URL%" />
+    <meta name="theme-color" content="%THEME_COLOR%" />
+
+    <!-- Open Graph — Facebook, LinkedIn, WhatsApp, iMessage, Slack, Signal. -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="%SITE_NAME%" />
+    <meta property="og:title" content="%SITE_TITLE%" />
+    <meta property="og:description" content="%SITE_DESCRIPTION%" />
+    <meta property="og:url" content="%CANONICAL_URL%" />
+    <meta property="og:image" content="%OG_IMAGE_URL%" />
+    <!-- Stating the dimensions lets the card render on first share, before the
+         crawler has fetched and measured the image. -->
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="%OG_IMAGE_ALT%" />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:locale:alternate" content="es_US" />
+
+    <!-- X falls back to the og: tags for title, description and image; these
+         are the two that have no Open Graph equivalent. -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="%X_HANDLE%" />
+
+    <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png" />
+    <link rel="icon" href="/favicon-96.png" sizes="96x96" type="image/png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+
+    <script type="application/ld+json">%ORG_JSONLD%</script>
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&display=swap" rel="stylesheet">
@@ -13,4 +67,3 @@
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
-

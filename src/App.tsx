@@ -1,5 +1,4 @@
 import React, { Suspense, lazy, useEffect, useState } from 'react';
-import { Helmet } from 'react-helmet-async';
 import { useTranslation } from 'react-i18next';
 import { AlertCircle, RefreshCw } from 'lucide-react';
 import { useAppStore } from './store/useAppStore';
@@ -18,6 +17,7 @@ import { SearchModal } from './components/SearchModal';
 import { Footer } from './components/Footer';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { readDonationReturn } from './lib/donationReturn';
+import { SITE_NAME, SITE_TITLE } from './lib/seo';
 import { ActiveTab } from './types';
 
 // Staff-only, and a sizeable chunk of forms and tables. Loading it lazily
@@ -38,7 +38,7 @@ const LINKABLE_TABS: ActiveTab[] = [
 ];
 
 export const App: React.FC = () => {
-  const { activeTab, setActiveTab, initialize, dataStatus, dataError, refreshContent } =
+  const { activeTab, setActiveTab, initialize, dataStatus, dataError, refreshContent, language } =
     useAppStore();
   const [isContactOpen, setIsContactOpen] = useState(false);
   const { t } = useTranslation();
@@ -67,68 +67,50 @@ export const App: React.FC = () => {
     if (requested && LINKABLE_TABS.includes(requested)) setActiveTab(requested);
   }, [setActiveTab]);
 
-  const getMetaData = (tab: string) => {
+  /**
+   * The browser tab caption, which is the one piece of head metadata that
+   * genuinely varies per tab: it is what the visitor reads in their tab strip
+   * and what their history and bookmarks record.
+   *
+   * Descriptions and og: tags used to vary here too. They were removed
+   * because they could not work: there is one URL for the whole site, so a
+   * search engine has one page to index and a shared link always resolves to
+   * the home page. The static tags in index.html describe it — and unlike
+   * these, they are visible to crawlers, which do not run the bundle.
+   */
+  const getTabTitle = (tab: string) => {
     switch (tab) {
       case 'events':
-        return {
-          title: `${t('nav.events')} | Peace Academy of West Texas`,
-          description: 'Discover upcoming cultural workshops, interfaith dinners, community service projects, and youth educational programs in West Texas.',
-          keywords: 'events, Peace Academy, West Texas, Odessa, Midland, interfaith, community workshops',
-        };
+        return `${t('nav.events')} | ${SITE_NAME}`;
       case 'social':
-        return {
-          title: `${t('nav.social')} | Peace Academy of West Texas`,
-          description: 'Stay connected with official live updates, event highlights, and community stories from Peace Academy of West Texas across Instagram, Facebook, YouTube, and X.',
-          keywords: 'social media, feed, Peace Academy, West Texas, Odessa TX, Midland TX, community updates',
-        };
+        return `${t('nav.social')} | ${SITE_NAME}`;
       case 'gallery':
-        return {
-          title: `${t('nav.gallery')} | Peace Academy of West Texas`,
-          description: 'Explore photos and videos from past Peace Academy events, cultural celebrations, food drives, and interfaith dialogue forums.',
-          keywords: 'gallery, photos, community events, West Texas, Odessa TX, Peace Academy',
-        };
+        return `${t('nav.gallery')} | ${SITE_NAME}`;
       case 'volunteer':
-        return {
-          title: `${t('nav.volunteer')} | Peace Academy of West Texas`,
-          description: 'Join our volunteer team in Ector and Midland Counties. Help with food pantry distribution, event coordination, and educational programs.',
-          keywords: 'volunteer, Odessa TX, Midland TX, community service, food pantry, volunteer portal',
-        };
+        return `${t('nav.volunteer')} | ${SITE_NAME}`;
       case 'donate':
-        return {
-          title: `${t('nav.donate')} | Peace Academy of West Texas`,
-          description: 'Support Peace Academy of West Texas food security initiatives, youth workshops, and cross-cultural community outreach.',
-          keywords: 'donate, support, non-profit, West Texas, Peace Academy, community aid',
-        };
+        return `${t('nav.donate')} | ${SITE_NAME}`;
       case 'admin':
-        return {
-          title: `${t('footer.adminPanel')} | Peace Academy of West Texas`,
-          description: 'Staff-only administration for Peace Academy of West Texas.',
-          keywords: 'admin, staff, Peace Academy',
-        };
+        return `${t('footer.adminPanel')} | ${SITE_NAME}`;
       case 'home':
       default:
-        return {
-          title: 'Peace Academy of West Texas | Engaging Minds, Building Community',
-          description: 'Promoting cross-cultural education, interfaith dialogue, and food security in Midland & Odessa, Texas.',
-          keywords: 'Peace Academy, West Texas, Odessa TX, Midland TX, non-profit, community organization',
-        };
+        return SITE_TITLE;
     }
   };
 
-  const currentMeta = getMetaData(activeTab);
+  // Written straight onto the document rather than rendered as head elements.
+  // React 19 hoists a rendered <title> into the head *alongside* the static
+  // one in index.html, which has to stay there for crawlers — assigning to
+  // document.title updates that one tag instead of adding a second.
+  useEffect(() => {
+    document.title = getTabTitle(activeTab);
+    // Screen readers switch pronunciation on this, and it is otherwise stuck
+    // at the "en" index.html was served with.
+    document.documentElement.lang = language;
+  }, [activeTab, language, t]);
 
   return (
     <div className="min-h-screen bg-[#fef9ef] font-sans antialiased text-[#292930] flex flex-col selection:bg-[#b05a36] selection:text-white">
-      {/* Dynamic SEO Meta Header */}
-      <Helmet>
-        <title>{currentMeta.title}</title>
-        <meta name="description" content={currentMeta.description} />
-        <meta name="keywords" content={currentMeta.keywords} />
-        <meta property="og:title" content={currentMeta.title} />
-        <meta property="og:description" content={currentMeta.description} />
-        <meta property="og:type" content="website" />
-      </Helmet>
-
       {/* Sticky Top Navigation */}
       <Navbar onOpenContact={() => setIsContactOpen(true)} />
 

@@ -27,4 +27,4 @@ export const donationsEnabled = import.meta.env.VITE_DONATIONS_ENABLED === 'true
 export const emailEnabled = import.meta.env.VITE_EMAIL_ENABLED === 'true';
 
 /** Address shown when a visitor wants to give but online payment is disabled. */
-export const CONTACT_EMAIL = 'paowtx@gmail.com';
+export { ORG_EMAIL as CONTACT_EMAIL } from '../data/orgLinks';

@@ -14,6 +14,7 @@ npm run dev        # dev server on http://localhost:3000 (host 0.0.0.0)
 npm run build      # production build to dist/
 npm run preview    # serve the built dist/
 npm run lint       # tsc --noEmit — TYPE CHECK ONLY, the sole automated gate
+npm run seo:assets # regenerate public/og-image.jpg and the favicons
 
 npm run db:start   # local Supabase stack (needs Docker Desktop running)
 npm run db:reset   # re-run migrations + supabase/seed.sql
@@ -63,6 +64,10 @@ Pushing to `main` triggers `.github/workflows/deploy.yml`, which runs `npm run b
 
 - **Styling** — Tailwind v4 via the `@tailwindcss/vite` plugin. **There is no `tailwind.config.js`**: the theme (brand colors, fonts, radii) is declared in `src/index.css` inside `@theme`. Brand palette: terracotta `#A64D32`, olive `#5B6346`, parchment `#FDFBF7`, aged-paper `#F4F1ED`, graphite `#2A2A2A`; fonts Playfair Display (serif/headings) + Inter (sans). The custom classes `animate-fadeIn`, `animate-scaleUp`, `animate-shimmer`, and `scrollbar-none`/`no-scrollbar` are **hand-written plain CSS** at the bottom of `index.css` — they are NOT Tailwind built-ins. If you use a new `animate-*` class, define its `@keyframes` in `index.css` or it silently does nothing.
 
+- **Head metadata is static, and has to be.** No link-preview crawler (Facebook, X, WhatsApp, LinkedIn, iMessage, Slack) runs JavaScript, so anything the bundle adds to `<head>` is invisible to them. `index.html` therefore carries the whole crawler-facing set — description, Open Graph, Twitter card, canonical, icons, and the `Organization` JSON-LD — with `%TOKEN%` placeholders filled in at build time by the `pawtxSeo()` plugin in `vite.config.ts` from **`src/lib/seo.ts`**, which is the single source of truth (and where `CANONICAL_URL` lives; changing domain means editing it and `SITE_PATH`, which is also the Vite `base`). The same plugin emits `robots.txt` and `sitemap.xml`; `site.webmanifest` cannot be emitted that way because `index.html` links to it and Vite resolves link hrefs against `public/` before anything is emitted. Its icon paths are relative on purpose so they survive the Pages sub-path. Never write a literal `</head>` inside an `index.html` comment — Vite injects the bundle before the first one it finds and will bury the whole app in the comment.
+
+- **Do not render head tags from React.** `react-helmet-async` was removed: on React 19 it hoists tags natively rather than adopting the ones already in the document, so every `<meta>` it repeated from `index.html` appeared in the page twice. `App.tsx` sets `document.title` and `document.documentElement.lang` in a plain effect instead. Per-tab descriptions and `og:` tags were dropped rather than fixed — with no router the whole site is one URL, so there is nothing for a second description to be indexed as, and a shared link always resolves to the home page.
+
 - **Scroll reveal** — wrap sections in `AnimatedSection` (IntersectionObserver toggles transition classes on visibility). Used pervasively on the home page.
 
 - **Modals** are mounted once at the `App` root and toggled by store flags: `RSVPModal` (`selectedEventForRsvp`), `SearchModal` (`isSearchOpen`, global ⌘K/Ctrl+K listener; indexes events + gallery + shifts), `ContactModal` (local `App` state). Gallery uses a lightbox driven by `lightboxItemIndex` in the store.
@@ -76,6 +81,7 @@ Pushing to `main` triggers `.github/workflows/deploy.yml`, which runs `npm run b
 - `@/*` path alias maps to the project root (`./*`) in both `tsconfig.json` and `vite.config.ts`.
 - Do not touch the `server.hmr` / `server.watch` logic in `vite.config.ts` — it is gated on `DISABLE_HMR` for the AI Studio agent environment.
 - `2.png`-style large source photos must go through `npm run optimize:images` before bundling — a bundled photo should be ~100-200 KB, not multiple MB.
+- The files in `public/` are served under fixed names on purpose — a crawler asking for `og-image.jpg` and a browser asking for the favicon both need a URL that does not change, which content-hashed `src/assets/` imports cannot give them. Regenerate with `npm run seo:assets` and commit the result; the build does not run it.
 - **Never give a secret a `VITE_` prefix.** Vite inlines those into the public bundle. Only `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` belong there (both are public by design). Stripe, Resend and the service role key live in Edge Function secrets (`supabase secrets set`), and the same two `VITE_` vars must exist as GitHub Actions secrets or the deployed build has no backend.
 - Auth magic links and Stripe return URLs must include the GitHub Pages project path (`/peace-academy-of-west-texas/`) and be listed in Supabase → Authentication → URL Configuration → Redirect URLs. `getSiteUrl()` in `supabaseClient.ts` derives it from `import.meta.env.BASE_URL`; a mismatch fails silently at click time.
 - After changing a migration, run `npm run db:types` so `src/lib/database.types.ts` matches. It is currently hand-written and will drift otherwise.

@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Heart, Globe, Mail, MapPin, ShieldCheck, Instagram, Facebook, Twitter, Youtube } from 'lucide-react';
 import { useAppStore } from '../store/useAppStore';
 import { PAWTXLogo } from './PAWTXLogo';
-import { ORG_ADDRESS, ORG_LINKS } from '../data/orgLinks';
+import { ORG_ADDRESS, ORG_EMAIL, ORG_LINKS } from '../data/orgLinks';
 
 interface FooterProps {
   onOpenContact: () => void;
@@ -84,11 +84,11 @@ export const Footer: React.FC<FooterProps> = ({ onOpenContact }) => {
                 <span>{ORG_ADDRESS}</span>
               </a>
               <a
-                href="mailto:paowtx@gmail.com"
+                href={`mailto:${ORG_EMAIL}`}
                 className="flex items-center gap-2 hover:text-white transition-colors"
               >
                 <Mail className="w-3.5 h-3.5 text-[#A64D32] shrink-0" />
-                <span>paowtx@gmail.com</span>
+                <span>{ORG_EMAIL}</span>
               </a>
               <p className="pt-2 text-[11px] text-white/50">
                 Serving Ector & Midland Counties with cultural education and food security programs.

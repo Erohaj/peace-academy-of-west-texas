@@ -23,4 +23,26 @@ export const ORG_LINKS = {
   map: 'https://maps.app.goo.gl/nv8kZ8gfHZnmALD38'
 } as const;
 
-export const ORG_ADDRESS = '3411 Brentwood Dr, Odessa, TX 79762';
+/**
+ * Kept in parts because search engines want the components separately in the
+ * `PostalAddress` of the site's structured data, while the footer wants one
+ * line. Deriving the line from the parts means the two cannot drift.
+ */
+export const ORG_POSTAL_ADDRESS = {
+  streetAddress: '3411 Brentwood Dr',
+  addressLocality: 'Odessa',
+  addressRegion: 'TX',
+  postalCode: '79762',
+  addressCountry: 'US'
+} as const;
+
+export const ORG_ADDRESS =
+  `${ORG_POSTAL_ADDRESS.streetAddress}, ${ORG_POSTAL_ADDRESS.addressLocality}, ` +
+  `${ORG_POSTAL_ADDRESS.addressRegion} ${ORG_POSTAL_ADDRESS.postalCode}`;
+
+/**
+ * The address the public writes to. Note it is a gmail account rather than
+ * anything at pawtx.org — the organisation's domain does not currently accept
+ * mail, so this is the one that actually reaches someone.
+ */
+export const ORG_EMAIL = 'paowtx@gmail.com';
