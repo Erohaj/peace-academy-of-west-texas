@@ -118,6 +118,20 @@ export const OnboardingWizard: React.FC = () => {
     if (loadError) return { kind: 'error', message: loadError };
     if (!application) return { kind: 'application' };
 
+    // Zero documents loaded is indistinguishable, further down, from every
+    // required one already being signed — the loop below simply never finds
+    // anything to require. That is the one case worth telling apart from a
+    // real "complete": it means the document catalogue itself is missing or
+    // unreachable, and declaring paperwork done under that condition would
+    // let someone volunteer having agreed to nothing at all.
+    if (documents.length === 0) {
+      return {
+        kind: 'error',
+        message:
+          'No volunteer documents are on file to sign. This is a setup problem, not something wrong with your application — please tell a staff member before scheduling a shift.'
+      };
+    }
+
     const requiredSlugOrder = [
       'volunteer-agreement',
       'release-and-waiver',

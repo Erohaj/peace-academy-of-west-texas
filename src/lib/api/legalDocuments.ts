@@ -37,40 +37,57 @@ export interface LegalDocument {
  * way the other five are.
  */
 export async function fetchCurrentDocuments(): Promise<LegalDocument[]> {
-  const { data, error } = await requireSupabase()
-    .from('legal_documents')
-    .select(
-      `id, slug, title, title_es, kind, required, minors_only, sort_order,
-       legal_document_versions!inner ( id, version, body_md, body_md_es, body_hash, is_current )`
-    )
-    .eq('legal_document_versions.is_current', true)
-    .order('sort_order', { ascending: true });
+  const supabase = requireSupabase();
 
-  if (error) throw error;
+  // Two plain queries joined in JS, rather than one query embedding
+  // legal_document_versions with a dot-filter on `is_current` — the same
+  // choice fetchRoster() in serviceLog.ts makes for a similar shape, and for
+  // the same reason: a filter on an embedded resource is easy to get wrong in
+  // a way that fails silently (zero rows, no error) rather than loudly, and
+  // silent here means the onboarding wizard finds nothing to sign and
+  // declares a volunteer done before they have agreed to anything.
+  const [documents, versions] = await Promise.all([
+    supabase
+      .from('legal_documents')
+      .select('id, slug, title, title_es, kind, required, minors_only, sort_order')
+      .order('sort_order', { ascending: true }),
+    supabase
+      .from('legal_document_versions')
+      .select('id, document_id, version, body_md, body_md_es, body_hash')
+      .eq('is_current', true)
+  ]);
 
-  return (data ?? []).map((row) => {
-    // PostgREST types a to-many embed as an array even though the `is_current`
-    // filter and the partial unique index together guarantee at most one row.
-    const version = Array.isArray(row.legal_document_versions)
-      ? row.legal_document_versions[0]
-      : row.legal_document_versions;
+  if (documents.error) throw documents.error;
+  if (versions.error) throw versions.error;
 
-    return {
-      documentId: row.id,
-      versionId: version.id,
-      slug: row.slug,
-      title: row.title,
-      titleEs: row.title_es,
-      kind: row.kind as LegalDocumentKind,
-      required: row.required,
-      minorsOnly: row.minors_only,
-      sortOrder: row.sort_order,
-      version: version.version,
-      bodyMd: version.body_md,
-      bodyMdEs: version.body_md_es,
-      bodyHash: version.body_hash
-    };
-  });
+  const versionByDocumentId = new Map(versions.data?.map((v) => [v.document_id, v]));
+
+  return (documents.data ?? [])
+    .map((doc) => {
+      const version = versionByDocumentId.get(doc.id);
+      // A document with no current version cannot be signed and should not
+      // silently vanish from the count either — but this only happens if the
+      // seed migration was only partly applied, so surfacing it as "not
+      // found" rather than crashing the whole list is the safer default.
+      if (!version) return null;
+
+      return {
+        documentId: doc.id,
+        versionId: version.id,
+        slug: doc.slug,
+        title: doc.title,
+        titleEs: doc.title_es,
+        kind: doc.kind as LegalDocumentKind,
+        required: doc.required,
+        minorsOnly: doc.minors_only,
+        sortOrder: doc.sort_order,
+        version: version.version,
+        bodyMd: version.body_md,
+        bodyMdEs: version.body_md_es,
+        bodyHash: version.body_hash
+      };
+    })
+    .filter((doc): doc is LegalDocument => doc !== null);
 }
 
 export type SignatureRow = Tables<'document_signatures'>;
