@@ -149,7 +149,10 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenContact }) => {
             >
               <Globe className="w-3.5 h-3.5 text-[#A64D32]" />
               <span>{language.toUpperCase()}</span>
-              <span className="text-[10px] opacity-60">| {language === 'en' ? 'ES' : 'EN'}</span>
+              {/* An explicit grey rather than opacity: at 60% this resolved to
+                  #7E7E7C on parchment, which is 3.9:1 and fails AA for text
+                  this small. #6B6B69 still reads as the inactive option. */}
+              <span className="text-[10px] text-[#6B6B69]">| {language === 'en' ? 'ES' : 'EN'}</span>
             </button>
 
             {/* Quick Donate Button */}

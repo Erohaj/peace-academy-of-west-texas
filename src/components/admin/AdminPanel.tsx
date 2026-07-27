@@ -58,7 +58,7 @@ export const AdminPanel: React.FC = () => {
           <div className="w-14 h-14 bg-[#A64D32]/10 text-[#A64D32] rounded-2xl flex items-center justify-center mx-auto">
             <ShieldAlert className="w-7 h-7" />
           </div>
-          <h2 className="text-2xl font-serif font-bold">Staff access only</h2>
+          <h1 className="text-2xl font-serif font-bold">Staff access only</h1>
           <p className="text-sm text-[#5A5A5A]">
             This area is limited to Peace Academy staff accounts. If you manage content for
             PAWTX, ask an administrator to grant your account access.

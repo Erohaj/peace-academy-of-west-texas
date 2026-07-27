@@ -41,9 +41,9 @@ export const Footer: React.FC<FooterProps> = ({ onOpenContact }) => {
 
           {/* Quick Links */}
           <div className="space-y-3">
-            <h4 className="text-xs font-bold uppercase tracking-[0.2em] text-[#A64D32]">
+            <h2 className="text-xs font-bold uppercase tracking-[0.2em] text-[#DE8A6B]">
               Navigation
-            </h4>
+            </h2>
             <ul className="space-y-2 text-xs text-[#E5E0D8]/80">
               <li>
                 <button onClick={() => setActiveTab('home')} className="hover:text-white transition-colors cursor-pointer">
@@ -70,9 +70,9 @@ export const Footer: React.FC<FooterProps> = ({ onOpenContact }) => {
 
           {/* Regional Reach */}
           <div className="space-y-3">
-            <h4 className="text-xs font-bold uppercase tracking-[0.2em] text-[#A64D32]">
+            <h2 className="text-xs font-bold uppercase tracking-[0.2em] text-[#DE8A6B]">
               Community Outreach
-            </h4>
+            </h2>
             <div className="space-y-2 text-xs text-[#E5E0D8]/80">
               <a
                 href={ORG_LINKS.map}
@@ -98,9 +98,9 @@ export const Footer: React.FC<FooterProps> = ({ onOpenContact }) => {
 
           {/* Language & Contact */}
           <div className="space-y-4">
-            <h4 className="text-xs font-bold uppercase tracking-[0.2em] text-[#A64D32]">
+            <h2 className="text-xs font-bold uppercase tracking-[0.2em] text-[#DE8A6B]">
               Language / Idioma
-            </h4>
+            </h2>
 
             <div className="flex items-center gap-2">
               <button

@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
+import { PageTitleProps, titleTag } from './pageTitle';
 import { Search, Filter, Sparkles, LayoutGrid, Calendar as CalendarIcon } from 'lucide-react';
 import { useAppStore } from '../store/useAppStore';
 import { EventCard } from './EventCard';
@@ -8,7 +9,8 @@ import { EventCategory } from '../types';
 import { AnimatedSection } from './AnimatedSection';
 import { CalendarSkeleton, EventGridSkeleton } from './Skeletons';
 
-export const EventFeed: React.FC = () => {
+export const EventFeed: React.FC<PageTitleProps> = ({ asPageTitle }) => {
+  const Title = titleTag(asPageTitle);
   const { t } = useTranslation();
   const { events, language, dataStatus } = useAppStore();
   const isLoadingEvents = dataStatus === 'idle' || (dataStatus === 'loading' && events.length === 0);
@@ -52,9 +54,9 @@ export const EventFeed: React.FC = () => {
               <span>Community Gatherings & Workshops</span>
             </div>
 
-            <h2 className="text-3xl sm:text-5xl font-serif font-bold text-[#2A2A2A]">
+            <Title className="text-3xl sm:text-5xl font-serif font-bold text-[#2A2A2A]">
               {t('events.sectionTitle')}
-            </h2>
+            </Title>
 
             <p className="text-base sm:text-lg text-[#5A5A5A]">
               {t('events.subtitle')}
@@ -149,7 +151,7 @@ export const EventFeed: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {filteredEvents.map((event, idx) => (
               <AnimatedSection key={event.id} direction="up" delayMs={50 + (idx % 3) * 60}>
-                <EventCard event={event} />
+                <EventCard event={event} asPageTitle={asPageTitle} />
               </AnimatedSection>
             ))}
           </div>

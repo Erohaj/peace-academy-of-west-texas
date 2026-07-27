@@ -1,14 +1,16 @@
 import React, { useState } from 'react';
+import { PageTitleProps, subTitleTag } from './pageTitle';
 import { useTranslation } from 'react-i18next';
 import { Calendar, MapPin, Clock, Users, ArrowRight, AlertCircle } from 'lucide-react';
 import { PAWTXEvent } from '../types';
 import { useAppStore } from '../store/useAppStore';
 
-interface EventCardProps {
+interface EventCardProps extends PageTitleProps {
   event: PAWTXEvent;
 }
 
-export const EventCard: React.FC<EventCardProps> = ({ event }) => {
+export const EventCard: React.FC<EventCardProps> = ({ event, asPageTitle }) => {
+  const CardTitle = subTitleTag(asPageTitle);
   const { t } = useTranslation();
   const { openRsvpModal, language } = useAppStore();
   const [isImageLoaded, setIsImageLoaded] = useState(false);
@@ -68,9 +70,9 @@ export const EventCard: React.FC<EventCardProps> = ({ event }) => {
       <div className="p-6 flex-1 flex flex-col justify-between space-y-4">
         
         <div className="space-y-3">
-          <h3 className="text-2xl font-serif font-bold text-[#2A2A2A] leading-snug group-hover:text-[#A64D32] transition-colors">
+          <CardTitle className="text-2xl font-serif font-bold text-[#2A2A2A] leading-snug group-hover:text-[#A64D32] transition-colors">
             {title}
-          </h3>
+          </CardTitle>
 
           <p className="text-[#5A5A5A] text-sm leading-relaxed line-clamp-3">
             {description}

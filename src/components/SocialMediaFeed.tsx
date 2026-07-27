@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { PageTitleProps, subTitleTag, titleTag } from './pageTitle';
 import { ORG_LINKS } from '../data/orgLinks';
 import {
   Instagram,
@@ -27,7 +28,9 @@ import { useAppStore } from '../store/useAppStore';
 import { AnimatedSection } from './AnimatedSection';
 import { formatRelativeTime } from '../lib/relativeTime';
 
-export const SocialMediaFeed: React.FC = () => {
+export const SocialMediaFeed: React.FC<PageTitleProps> = ({ asPageTitle }) => {
+  const Title = titleTag(asPageTitle);
+  const CardTitle = subTitleTag(asPageTitle);
   const { t } = useTranslation();
   const { language } = useAppStore();
 
@@ -234,13 +237,13 @@ export const SocialMediaFeed: React.FC = () => {
         return {
           icon: <Facebook className="w-3.5 h-3.5 text-white" />,
           label: 'Facebook',
-          bgClass: 'bg-[#1877F2] text-white'
+          bgClass: 'bg-[#1461C7] text-white'
         };
       case 'youtube':
         return {
           icon: <Youtube className="w-3.5 h-3.5 text-white" />,
           label: 'YouTube',
-          bgClass: 'bg-[#FF0000] text-white'
+          bgClass: 'bg-[#CC0000] text-white'
         };
       case 'x':
         return {
@@ -291,9 +294,9 @@ export const SocialMediaFeed: React.FC = () => {
                 </span>
               </div>
 
-              <h2 className="text-3xl sm:text-4xl font-extrabold text-[#2A2A2A] font-serif tracking-tight">
+              <Title className="text-3xl sm:text-4xl font-extrabold text-[#2A2A2A] font-serif tracking-tight">
                 {t('social.sectionTitle')}
-              </h2>
+              </Title>
               <p className="text-sm text-[#5A5A5A] leading-relaxed">
                 {t('social.subtitle')}
               </p>
@@ -411,7 +414,7 @@ export const SocialMediaFeed: React.FC = () => {
                             <CheckCircle2 className="w-3.5 h-3.5 text-sky-500 fill-sky-500/20 shrink-0" />
                           )}
                         </div>
-                        <div className="flex items-center gap-2 text-[11px] text-[#7A7A7A]">
+                        <div className="flex items-center gap-2 text-[11px] text-[#6B6B69]">
                           <span>{post.author.handle}</span>
                           <span>•</span>
                           <span>{timeAgo}</span>
@@ -463,7 +466,7 @@ export const SocialMediaFeed: React.FC = () => {
                     {post.tags && post.tags.length > 0 && (
                       <div className="flex flex-wrap gap-1.5 pt-1">
                         {post.tags.map((tag) => (
-                          <span key={tag} className="text-[10px] font-semibold text-[#A64D32] bg-[#A64D32]/10 px-2 py-0.5 rounded-md">
+                          <span key={tag} className="text-[10px] font-semibold text-[#8B3F28] bg-[#A64D32]/10 px-2 py-0.5 rounded-md">
                             #{tag}
                           </span>
                         ))}
@@ -478,10 +481,10 @@ export const SocialMediaFeed: React.FC = () => {
                         <button
                           onClick={() => handleToggleLike(post.id)}
                           className={`flex items-center gap-1.5 text-xs font-bold transition-all cursor-pointer ${
-                            post.isLiked ? 'text-red-600' : 'hover:text-red-500'
+                            post.isLiked ? 'text-[#C10008]' : 'hover:text-[#C10008]'
                           }`}
                         >
-                          <Heart className={`w-4 h-4 ${post.isLiked ? 'fill-red-600 text-red-600' : ''}`} />
+                          <Heart className={`w-4 h-4 ${post.isLiked ? 'fill-[#C10008] text-[#C10008]' : ''}`} />
                           <span>{post.likesCount}</span>
                         </button>
 
@@ -614,7 +617,7 @@ export const SocialMediaFeed: React.FC = () => {
                     />
                     <div>
                       <div className="font-bold text-sm text-[#2A2A2A]">{previewMediaPost.author.name}</div>
-                      <div className="text-xs text-[#7A7A7A]">{previewMediaPost.author.handle}</div>
+                      <div className="text-xs text-[#6B6B69]">{previewMediaPost.author.handle}</div>
                     </div>
                   </div>
 
@@ -646,9 +649,9 @@ export const SocialMediaFeed: React.FC = () => {
                 <Radio className="w-4 h-4" />
                 <span>{t('social.followerCount')}</span>
               </div>
-              <h3 className="text-2xl font-extrabold text-[#2A2A2A] font-serif">
+              <CardTitle className="text-2xl font-extrabold text-[#2A2A2A] font-serif">
                 {t('social.followUs')}
-              </h3>
+              </CardTitle>
             </div>
 
             {/* Platform Follow Quick Buttons */}
@@ -667,7 +670,7 @@ export const SocialMediaFeed: React.FC = () => {
                 href={ORG_LINKS.facebook}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="px-4 py-2.5 rounded-full bg-[#1877F2] text-white text-xs font-bold flex items-center gap-2 shadow-sm hover:opacity-90 transition-opacity"
+                className="px-4 py-2.5 rounded-full bg-[#1461C7] text-white text-xs font-bold flex items-center gap-2 shadow-sm hover:opacity-90 transition-opacity"
               >
                 <Facebook className="w-4 h-4" />
                 <span>Facebook</span>
@@ -677,7 +680,7 @@ export const SocialMediaFeed: React.FC = () => {
                 href={ORG_LINKS.youtube}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="px-4 py-2.5 rounded-full bg-[#FF0000] text-white text-xs font-bold flex items-center gap-2 shadow-sm hover:opacity-90 transition-opacity"
+                className="px-4 py-2.5 rounded-full bg-[#CC0000] text-white text-xs font-bold flex items-center gap-2 shadow-sm hover:opacity-90 transition-opacity"
               >
                 <Youtube className="w-4 h-4" />
                 <span>YouTube</span>

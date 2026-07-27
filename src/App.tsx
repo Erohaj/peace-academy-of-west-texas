@@ -205,15 +205,18 @@ export const App: React.FC = () => {
             </>
           )}
 
-          {activeTab === 'events' && <EventFeed />}
+          {/* asPageTitle: on their own tab these sections are the whole page,
+              so their title is the h1. Stacked on home above, the hero owns
+              it and they stay at h2. */}
+          {activeTab === 'events' && <EventFeed asPageTitle />}
 
-          {activeTab === 'social' && <SocialMediaFeed />}
+          {activeTab === 'social' && <SocialMediaFeed asPageTitle />}
 
-          {activeTab === 'gallery' && <Gallery />}
+          {activeTab === 'gallery' && <Gallery asPageTitle />}
 
           {activeTab === 'volunteer' && <VolunteerPortal />}
 
-          {activeTab === 'donate' && <DonationWidget />}
+          {activeTab === 'donate' && <DonationWidget asPageTitle />}
 
           {activeTab === 'admin' && (
             <Suspense

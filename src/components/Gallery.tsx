@@ -1,12 +1,15 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
+import { PageTitleProps, subTitleTag, titleTag } from './pageTitle';
 import { Search, X, ChevronLeft, ChevronRight, MapPin, Calendar, Camera } from 'lucide-react';
 import { useAppStore } from '../store/useAppStore';
 import { GalleryCategory } from '../types';
 import { AnimatedSection } from './AnimatedSection';
 import { GalleryGridSkeleton } from './Skeletons';
 
-export const Gallery: React.FC = () => {
+export const Gallery: React.FC<PageTitleProps> = ({ asPageTitle }) => {
+  const Title = titleTag(asPageTitle);
+  const CardTitle = subTitleTag(asPageTitle);
   const { t } = useTranslation();
   const {
     gallery,
@@ -80,9 +83,9 @@ export const Gallery: React.FC = () => {
               <span>PAWTX Visual History</span>
             </div>
 
-            <h2 className="text-3xl sm:text-5xl font-serif font-bold text-[#2A2A2A]">
+            <Title className="text-3xl sm:text-5xl font-serif font-bold text-[#2A2A2A]">
               {t('gallery.title')}
-            </h2>
+            </Title>
 
             <p className="text-base sm:text-lg text-[#5A5A5A]">
               {t('gallery.subtitle')}
@@ -168,9 +171,9 @@ export const Gallery: React.FC = () => {
                     <span className="text-[10px] font-bold uppercase tracking-[0.2em] bg-[#5B6346] text-white px-2.5 py-0.5 rounded-md inline-block mb-1">
                       {item.category}
                     </span>
-                    <h3 className="text-lg font-serif font-bold leading-tight text-white group-hover:text-amber-200 transition-colors">
+                    <CardTitle className="text-lg font-serif font-bold leading-tight text-white group-hover:text-amber-200 transition-colors">
                       {title}
-                    </h3>
+                    </CardTitle>
                     <p className="text-xs text-stone-200 line-clamp-2">
                       {caption}
                     </p>

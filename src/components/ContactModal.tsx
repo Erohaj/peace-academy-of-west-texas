@@ -59,9 +59,12 @@ export const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose }) =
 
         <button
           onClick={onClose}
+          // Icon-only, so it reached a screen reader as an unlabelled
+          // "button" with nothing to say what it does.
+          aria-label={t('contact.close')}
           className="absolute top-5 right-5 p-2 rounded-full hover:bg-black/5 text-[#5A5A5A] transition-colors cursor-pointer"
         >
-          <X className="w-5 h-5" />
+          <X className="w-5 h-5" aria-hidden="true" />
         </button>
 
         {!isSubmitted ? (

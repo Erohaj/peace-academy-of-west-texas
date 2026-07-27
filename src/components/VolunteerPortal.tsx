@@ -112,9 +112,9 @@ export const VolunteerPortal: React.FC = () => {
               <div className="w-12 h-12 bg-[#5B6346]/10 text-[#5B6346] rounded-2xl flex items-center justify-center mx-auto">
                 <ShieldCheck className="w-6 h-6" />
               </div>
-              <h2 className="text-2xl font-serif font-bold text-[#2A2A2A]">
+              <h1 className="text-2xl font-serif font-bold text-[#2A2A2A]">
                 {t('volunteer.portalTitle')}
-              </h2>
+              </h1>
               <p className="text-xs text-[#5A5A5A]">
                 {t('volunteer.portalSubtitle')}
               </p>
@@ -233,9 +233,9 @@ export const VolunteerPortal: React.FC = () => {
               </div>
             )}
             <div>
-              <h2 className="text-2xl font-serif font-bold text-[#2A2A2A]">
+              <h1 className="text-2xl font-serif font-bold text-[#2A2A2A]">
                 {t('volunteer.welcomeBack', { name: volunteer?.fullName })}
-              </h2>
+              </h1>
               <p className="text-xs text-[#5A5A5A]">
                 Active Volunteer • Joined {volunteer?.joinedDate}
               </p>

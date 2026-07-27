@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { PageTitleProps, subTitleTag, titleTag } from './pageTitle';
 import { Heart, CheckCircle2, ShieldCheck, Sparkles, Lock, ArrowRight, AlertCircle } from 'lucide-react';
 import { AnimatedSection } from './AnimatedSection';
 import {
@@ -22,7 +23,9 @@ const DONATION_TIERS = [
 const RECEIPT_POLL_ATTEMPTS = 6;
 const RECEIPT_POLL_INTERVAL_MS = 1500;
 
-export const DonationWidget: React.FC = () => {
+export const DonationWidget: React.FC<PageTitleProps> = ({ asPageTitle }) => {
+  const Title = titleTag(asPageTitle);
+  const CardTitle = subTitleTag(asPageTitle);
   const { t } = useTranslation();
 
   const [frequency, setFrequency] = useState<'one_time' | 'monthly'>('one_time');
@@ -145,9 +148,9 @@ export const DonationWidget: React.FC = () => {
               <span>501(c)(3) Tax Deductible</span>
             </div>
 
-            <h2 className="text-3xl sm:text-5xl font-serif font-bold text-[#2A2A2A]">
+            <Title className="text-3xl sm:text-5xl font-serif font-bold text-[#2A2A2A]">
               {t('donate.title')}
-            </h2>
+            </Title>
 
             <p className="text-base sm:text-lg text-[#5A5A5A] max-w-2xl mx-auto">
               {t('donate.subtitle')}
@@ -179,9 +182,9 @@ export const DonationWidget: React.FC = () => {
               </div>
 
               <div className="space-y-2 max-w-md mx-auto">
-                <h3 className="text-2xl font-serif font-bold text-[#2A2A2A]">
+                <CardTitle className="text-2xl font-serif font-bold text-[#2A2A2A]">
                   {t('donate.comingSoonTitle')}
-                </h3>
+                </CardTitle>
                 <p className="text-sm text-[#5A5A5A]">
                   {t('donate.comingSoonText')}
                 </p>
