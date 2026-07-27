@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { Plus, Trash2, Pencil, AlertCircle, Eye, EyeOff, Users } from 'lucide-react';
+import { Plus, Trash2, Pencil, AlertCircle, Eye, EyeOff, Users, ClipboardCheck } from 'lucide-react';
+import { ShiftRoster } from './ShiftRoster';
 import type { Tables, VolunteerRoleRow } from '../../lib/database.types';
 import { fetchAllShiftsForAdmin } from '../../lib/api/shifts';
 import { fetchAllEventsForAdmin } from '../../lib/api/events';
@@ -57,6 +58,7 @@ export const ShiftsAdmin: React.FC = () => {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState<ShiftForm>(BLANK_FORM);
   const [isSaving, setIsSaving] = useState(false);
+  const [rosterShiftId, setRosterShiftId] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setIsLoading(true);
@@ -83,6 +85,7 @@ export const ShiftsAdmin: React.FC = () => {
   }, [load]);
 
   const editingRow = editingId && editingId !== 'new' ? rows.find((r) => r.id === editingId) : null;
+  const rosterShift = rosterShiftId ? rows.find((r) => r.id === rosterShiftId) : null;
 
   /**
    * What the volunteer will see as the shift length. The database computes it
@@ -353,6 +356,16 @@ export const ShiftsAdmin: React.FC = () => {
         </form>
       )}
 
+      {rosterShift && (
+        <ShiftRoster
+          shift={rosterShift}
+          onClose={() => setRosterShiftId(null)}
+          // Credited hours change nothing in this table, but the volunteer
+          // portal reads its totals from the same ledger.
+          onSaved={() => void refreshContent()}
+        />
+      )}
+
       {isLoading ? (
         <p className="text-sm text-[#5A5A5A]">Loading shifts...</p>
       ) : rows.length === 0 ? (
@@ -400,6 +413,13 @@ export const ShiftsAdmin: React.FC = () => {
                     </td>
                     <td className="p-4">
                       <div className="flex items-center justify-end gap-2">
+                        <button
+                          onClick={() => setRosterShiftId(rosterShiftId === row.id ? null : row.id)}
+                          title="Roster and hours"
+                          className="p-2 rounded-lg hover:bg-[#FDFBF7] text-[#5A5A5A] cursor-pointer"
+                        >
+                          <ClipboardCheck className="w-4 h-4" />
+                        </button>
                         <button
                           onClick={() => togglePublished(row)}
                           title={row.published ? 'Unpublish' : 'Publish'}

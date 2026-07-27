@@ -1,7 +1,8 @@
-import { Shift, VolunteerProfile } from '../../types';
+import { VolunteerProfile } from '../../types';
 import type { Tables } from '../database.types';
 import { requireSupabase } from '../supabaseClient';
 import { formatJoinedLabel, parseTimestamp } from '../formatEventDate';
+import { sumHours, type ServiceLogRow } from './serviceLog';
 
 export type ProfileRow = Tables<'profiles'>;
 
@@ -36,41 +37,32 @@ export async function updateMyProfile(
 }
 
 /**
- * Service statistics, derived from the shifts already loaded for the portal
- * rather than re-queried.
+ * Service statistics, read from the verified ledger.
  *
- * Only shifts that have actually finished count. The labels on these figures
- * are "Service Hours Logged" and "Shifts Completed", and the previous mock
- * credited both the moment a volunteer clicked a future shift — which read as
- * hours served that nobody had served yet.
+ * These used to be derived in the browser from the shifts the volunteer had
+ * claimed whose end time had passed — which credited anyone who signed up and
+ * never turned up. Now a row exists in `service_log` only because an admin
+ * closed a roster and put it there, so "hours served" means hours somebody
+ * watched being served. See supabase/migrations/*_service_log.sql.
  */
 export function computeVolunteerStats(
-  shifts: readonly Shift[],
-  now: Date = new Date()
+  log: readonly ServiceLogRow[]
 ): { totalHours: number; shiftsCompleted: number } {
-  const completed = shifts.filter((shift) => {
-    if (!shift.isTakenByMe) return false;
-    const end = parseTimestamp(shift.endsAt);
-    return end !== null && end.getTime() <= now.getTime();
-  });
-
-  const totalHours = completed.reduce((sum, shift) => sum + shift.durationHours, 0);
-
   return {
-    // Durations are stored to 2dp; rounding keeps "7.5 hrs" from rendering as
-    // 7.500000000000001 after a few additions.
-    totalHours: Math.round(totalHours * 10) / 10,
-    shiftsCompleted: completed.length
+    totalHours: sumHours(log),
+    // One credited row per shift, guaranteed by the unique index on
+    // (user_id, shift_id), so counting rows counts shifts.
+    shiftsCompleted: log.length
   };
 }
 
 export function mapProfileRow(
   row: ProfileRow,
-  shifts: readonly Shift[],
+  log: readonly ServiceLogRow[],
   language: 'en' | 'es'
 ): VolunteerProfile {
   const joined = parseTimestamp(row.joined_at);
-  const stats = computeVolunteerStats(shifts);
+  const stats = computeVolunteerStats(log);
 
   return {
     id: row.id,

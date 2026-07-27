@@ -18,8 +18,11 @@ export const VolunteerPortal: React.FC = () => {
     // Aliased: this component already has its own `activeTab` for the
     // dashboard's inner tabs, which is unrelated to the site-wide one.
     setActiveTab: setSiteTab,
-    language
+    language,
+    raw
   } = useAppStore();
+
+  const serviceLog = raw.serviceLog;
 
   const [emailInput, setEmailInput] = useState('');
   const [activeTab, setActiveTab] = useState<'overview' | 'shifts' | 'mySchedule' | 'hours'>('overview');
@@ -592,6 +595,41 @@ export const VolunteerPortal: React.FC = () => {
                     <span className="font-bold text-sm text-[#2A2A2A]">Total Verified Hours:</span>
                     <span className="text-2xl font-bold font-serif text-[#A64D32]">{currentHours} Hours</span>
                   </div>
+
+                  {/* The ledger itself. Booking a shift no longer moves this
+                      number — staff credit the hours after the shift, which is
+                      what makes the figure something PAWTX can vouch for. */}
+                  {serviceLog.length > 0 ? (
+                    <ul className="divide-y divide-[#E5E0D8] border-t border-[#E5E0D8] pt-2">
+                      {serviceLog.map((entry) => {
+                        const shift = shifts.find((s) => s.id === entry.shift_id);
+                        return (
+                          <li key={entry.id} className="flex items-center justify-between py-2.5 gap-4">
+                            <div className="min-w-0">
+                              <div className="text-sm font-bold text-[#2A2A2A] truncate">
+                                {shift
+                                  ? language === 'es' ? shift.titleEs : shift.title
+                                  : entry.note || t('volunteer.serviceEntryFallback')}
+                              </div>
+                              <div className="text-[11px] text-[#5A5A5A]">
+                                {new Date(`${entry.served_on}T12:00:00`).toLocaleDateString(
+                                  language === 'es' ? 'es-US' : 'en-US',
+                                  { dateStyle: 'medium' }
+                                )}
+                              </div>
+                            </div>
+                            <span className="text-sm font-bold text-[#5B6346] whitespace-nowrap">
+                              {Number(entry.hours)} hrs
+                            </span>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  ) : (
+                    <p className="text-xs text-[#5A5A5A] border-t border-[#E5E0D8] pt-4">
+                      {t('volunteer.noVerifiedHours')}
+                    </p>
+                  )}
 
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4 border-t border-[#E5E0D8]">
                     {volunteer?.badges.map((badge) => (

@@ -28,6 +28,7 @@ import {
   releaseShift
 } from '../lib/api/shifts';
 import { ProfileRow, fetchMyProfile, mapProfileRow } from '../lib/api/profile';
+import { ServiceLogRow, fetchMyServiceLog } from '../lib/api/serviceLog';
 import { createRsvp } from '../lib/api/rsvps';
 
 /**
@@ -44,6 +45,8 @@ interface RawData {
   shifts: ShiftRow[];
   takenShiftIds: string[];
   profile: ProfileRow | null;
+  /** Verified hours. Only ever non-empty for a signed-in volunteer. */
+  serviceLog: ServiceLogRow[];
 }
 
 const EMPTY_RAW: RawData = {
@@ -51,7 +54,8 @@ const EMPTY_RAW: RawData = {
   gallery: [],
   shifts: [],
   takenShiftIds: [],
-  profile: null
+  profile: null,
+  serviceLog: []
 };
 
 interface DerivedData {
@@ -69,9 +73,9 @@ function derive(raw: RawData, language: 'en' | 'es'): DerivedData {
     events: raw.events.map((row) => mapEventRow(row, language)),
     gallery: raw.gallery.map((row) => mapGalleryRow(row, language)),
     shifts,
-    // Volunteer stats are computed from the mapped shifts, so this must run
-    // after them.
-    volunteer: raw.profile ? mapProfileRow(raw.profile, shifts, language) : null
+    // Hours come from the verified ledger, not from the shifts above — signing
+    // up for one is not the same as having served it.
+    volunteer: raw.profile ? mapProfileRow(raw.profile, raw.serviceLog, language) : null
   };
 }
 
@@ -184,7 +188,9 @@ export const useAppStore = create<AppState>((set, get) => ({
 
       if (!session?.user) {
         set((state) => {
-          const raw = { ...state.raw, profile: null, takenShiftIds: [] };
+          // The ledger goes with the profile: leaving it behind would show the
+          // previous volunteer's hours to whoever signs in next.
+          const raw = { ...state.raw, profile: null, takenShiftIds: [], serviceLog: [] };
           return { isLoggedIn: false, authStatus: 'ready', raw, ...derive(raw, state.language) };
         });
         return;
@@ -193,13 +199,14 @@ export const useAppStore = create<AppState>((set, get) => ({
       const userId = session.user.id;
 
       try {
-        const [profile, takenShiftIds] = await Promise.all([
+        const [profile, takenShiftIds, serviceLog] = await Promise.all([
           fetchMyProfile(userId),
-          fetchMyShiftSignups(userId)
+          fetchMyShiftSignups(userId),
+          fetchMyServiceLog(userId)
         ]);
 
         set((state) => {
-          const raw = { ...state.raw, profile, takenShiftIds };
+          const raw = { ...state.raw, profile, takenShiftIds, serviceLog };
           return {
             isLoggedIn: true,
             authStatus: 'ready',

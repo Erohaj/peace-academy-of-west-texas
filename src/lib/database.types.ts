@@ -24,6 +24,8 @@ export type VolunteerRoleRow =
 export type DonationFrequencyRow = 'one_time' | 'monthly';
 export type DonationStatusRow = 'pending' | 'paid' | 'failed' | 'refunded';
 export type ProfileRoleRow = 'volunteer' | 'admin';
+export type AttendanceRow = 'attended' | 'no_show';
+export type ServiceSourceRow = 'shift' | 'manual';
 
 export interface Database {
   public: {
@@ -249,6 +251,7 @@ export interface Database {
           id: string;
           shift_id: string;
           user_id: string;
+          attendance: AttendanceRow | null;
           created_at: string;
         };
         Insert: {
@@ -256,7 +259,11 @@ export interface Database {
           shift_id: string;
           user_id: string;
         };
-        Update: never;
+        // Admins only — closing a roster. Volunteers have no update policy on
+        // this table, so an update from one is refused by RLS.
+        Update: {
+          attendance?: AttendanceRow | null;
+        };
         Relationships: [
           {
             foreignKeyName: 'shift_signups_shift_id_fkey';
@@ -268,6 +275,54 @@ export interface Database {
             foreignKeyName: 'shift_signups_user_id_fkey';
             columns: ['user_id'];
             referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          }
+        ];
+      };
+
+      service_log: {
+        Row: {
+          id: string;
+          user_id: string;
+          shift_id: string | null;
+          source: ServiceSourceRow;
+          hours: number;
+          served_on: string;
+          note: string | null;
+          verified_by: string;
+          verified_at: string;
+          created_at: string;
+        };
+        // Admins only. `verified_by` is required by the WITH CHECK, which also
+        // demands it equal auth.uid() — an admin credits anyone, but only ever
+        // under their own name.
+        Insert: {
+          id?: string;
+          user_id: string;
+          shift_id?: string | null;
+          source: ServiceSourceRow;
+          hours: number;
+          served_on: string;
+          note?: string | null;
+          verified_by: string;
+        };
+        Update: {
+          hours?: number;
+          served_on?: string;
+          note?: string | null;
+          verified_by?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'service_log_user_id_fkey';
+            columns: ['user_id'];
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'service_log_shift_id_fkey';
+            columns: ['shift_id'];
+            referencedRelation: 'shifts';
             referencedColumns: ['id'];
           }
         ];

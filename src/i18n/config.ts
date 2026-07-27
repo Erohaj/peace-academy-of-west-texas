@@ -183,6 +183,9 @@ const resources = {
         totalHours: "Service Hours Logged",
         shiftsCompleted: "Shifts Completed",
         badgesEarned: "Impact Badges",
+        noVerifiedHours:
+          "No hours confirmed yet. Staff add them after a shift, once they have checked who was there — booking a shift on its own does not count towards your total.",
+        serviceEntryFallback: "Community service",
         tabOverview: "Overview",
         tabShifts: "Available Shifts",
         tabMySchedule: "My Schedule",
@@ -435,6 +438,9 @@ const resources = {
         totalHours: "Horas de Servicio Registradas",
         shiftsCompleted: "Turnos Completados",
         badgesEarned: "Insignias de Impacto",
+        noVerifiedHours:
+          "Aún no hay horas confirmadas. El personal las registra después del turno, una vez verificado quiénes asistieron — reservar un turno por sí solo no cuenta para tu total.",
+        serviceEntryFallback: "Servicio comunitario",
         tabOverview: "Resumen",
         tabShifts: "Turnos Disponibles",
         tabMySchedule: "Mi Horario",
