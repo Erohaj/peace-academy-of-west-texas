@@ -212,49 +212,15 @@ export const OnboardingWizard: React.FC = () => {
   }
 
   return (
-    <div className="space-y-4">
-      <div className="bg-[#5B6346]/10 border border-[#5B6346]/30 rounded-2xl p-6 flex items-start gap-3">
-        <CheckCircle2 className="w-6 h-6 text-[#5B6346] shrink-0" />
-        <div>
-          <div className="font-bold text-[#2A2A2A]">All paperwork is on file</div>
-          <p className="text-xs text-[#5A5A5A] mt-1">
-            Your application, agreement, release, code of conduct and media consent are all
-            signed and dated. You're clear to take a shift.
-          </p>
-        </div>
+    <div className="bg-[#5B6346]/10 border border-[#5B6346]/30 rounded-2xl p-6 flex items-start gap-3">
+      <CheckCircle2 className="w-6 h-6 text-[#5B6346] shrink-0" />
+      <div>
+        <div className="font-bold text-[#2A2A2A]">All paperwork is on file</div>
+        <p className="text-xs text-[#5A5A5A] mt-1">
+          Your application, agreement, release, code of conduct and media consent are all
+          signed and dated. You're clear to take a shift.
+        </p>
       </div>
-
-      {/* TEMPORARY — diagnosing why this state was reached without any
-          signing step appearing. Remove once resolved. */}
-      <details className="bg-[#F4F1ED] border border-[#E5E0D8] rounded-xl p-4 text-[11px] font-mono whitespace-pre-wrap text-[#5A5A5A]">
-        <summary className="cursor-pointer font-bold text-[#2A2A2A]">Debug info (temporary)</summary>
-        {JSON.stringify(
-          {
-            applicationId: application?.id,
-            applicationStatus: application?.status,
-            isMinor,
-            documentSlugs: documents.map((d) => `${d.slug} (v${d.versionId.slice(0, 8)})`),
-            signedVersionIds: [...signedVersionIds].map((id) => id.slice(0, 8)),
-            requiredSlugsResolved: [
-              'volunteer-agreement',
-              'release-and-waiver',
-              'code-of-conduct',
-              'media-consent',
-              ...(isMinor ? ['guardian-consent'] : [])
-            ].map((slug) => {
-              const doc = documents.find((d) => d.slug === slug);
-              return {
-                slug,
-                found: Boolean(doc),
-                versionId: doc?.versionId.slice(0, 8),
-                alreadySigned: doc ? signedVersionIds.has(doc.versionId) : null
-              };
-            })
-          },
-          null,
-          2
-        )}
-      </details>
     </div>
   );
 };
