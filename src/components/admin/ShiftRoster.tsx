@@ -1,7 +1,12 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { AlertCircle, Check, X, ClipboardCheck } from 'lucide-react';
 import type { AttendanceRow, Tables } from '../../lib/database.types';
-import { closeRoster, fetchRoster, type RosterEntry } from '../../lib/api/serviceLog';
+import {
+  closeRoster,
+  fetchRoster,
+  type RosterDecision,
+  type RosterEntry
+} from '../../lib/api/serviceLog';
 import { useAppStore } from '../../store/useAppStore';
 import { instantToWallClock } from '../../lib/formatEventDate';
 
@@ -29,6 +34,9 @@ interface Decision {
  */
 export const ShiftRoster: React.FC<Props> = ({ shift, onClose, onSaved }) => {
   const adminId = useAppStore((state) => state.volunteer?.id);
+  // Named on the confirmation step: verified_by is stamped with this account,
+  // so whoever is about to sign the hours off should see whose name it is.
+  const volunteerName = useAppStore((state) => state.volunteer?.fullName ?? 'you');
 
   const [entries, setEntries] = useState<RosterEntry[]>([]);
   const [decisions, setDecisions] = useState<Record<string, Decision>>({});
@@ -36,6 +44,9 @@ export const ShiftRoster: React.FC<Props> = ({ shift, onClose, onSaved }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  /** Set once the roster passes validation, cleared when anything changes. */
+  const [pending, setPending] = useState<RosterDecision[] | null>(null);
+  const [justSaved, setJustSaved] = useState<string | null>(null);
 
   const shiftHasEnded = new Date(shift.ends_at).getTime() <= Date.now();
 
@@ -70,19 +81,39 @@ export const ShiftRoster: React.FC<Props> = ({ shift, onClose, onSaved }) => {
     void load();
   }, [load]);
 
-  const setAttendance = (userId: string, attendance: AttendanceRow) =>
+  // Any edit invalidates a pending confirmation — otherwise the summary could
+  // describe one roster while a different one is what gets written.
+  const discardReview = () => {
+    setPending(null);
+    setJustSaved(null);
+  };
+
+  const setAttendance = (userId: string, attendance: AttendanceRow) => {
+    discardReview();
     setDecisions((current) => ({
       ...current,
       [userId]: { ...current[userId], attendance }
     }));
+  };
 
-  const setHours = (userId: string, hours: string) =>
+  const setHours = (userId: string, hours: string) => {
+    discardReview();
     setDecisions((current) => ({
       ...current,
       [userId]: { ...current[userId], hours }
     }));
+  };
 
-  const handleSave = async () => {
+  /**
+   * First step: check the roster and show what is about to happen.
+   *
+   * Crediting hours is what a service letter is later built from, and a
+   * no-show removes hours already credited. Neither should follow from a
+   * single click on a screen where the buttons sit next to a number field.
+   */
+  const handleReview = () => {
+    setJustSaved(null);
+
     if (!adminId) {
       setError('Your session expired. Sign in again before crediting hours.');
       return;
@@ -107,26 +138,44 @@ export const ShiftRoster: React.FC<Props> = ({ shift, onClose, onSaved }) => {
       return;
     }
 
+    setError(null);
+    setPending(
+      marked.map((row) => ({
+        userId: row.entry.userId,
+        attendance: row.decision.attendance as AttendanceRow,
+        hours: Number(row.decision.hours)
+      }))
+    );
+  };
+
+  const handleConfirm = async () => {
+    if (!pending || !adminId) return;
+
     setIsSaving(true);
     setError(null);
     try {
-      await closeRoster(
-        shift.id,
-        servedOn,
-        marked.map((row) => ({
-          userId: row.entry.userId,
-          attendance: row.decision.attendance as AttendanceRow,
-          hours: Number(row.decision.hours)
-        })),
-        adminId
+      await closeRoster(shift.id, servedOn, pending, adminId);
+      const credited = pending.filter((d) => d.attendance === 'attended');
+      const hours = credited.reduce((sum, d) => sum + d.hours, 0);
+      setPending(null);
+      setJustSaved(
+        credited.length === 0
+          ? 'Saved. No hours credited — everyone was marked as a no-show.'
+          : `Credited ${Math.round(hours * 10) / 10} hours to ${credited.length} volunteer(s).`
       );
       await load();
       onSaved();
     } catch (saveError) {
       console.error('[PAWTX] Failed to close roster', saveError);
-      setError(
-        'Could not save the roster. If the date is in the future, the database rejects it — hours cannot be credited before they are served.'
-      );
+      // Show what the database actually said. The previous version asserted a
+      // cause it had not checked — "the date must be in the future" — which
+      // sent staff looking at a correct date while the real fault was an
+      // unusable index.
+      const detail =
+        saveError && typeof saveError === 'object' && 'message' in saveError
+          ? String((saveError as { message?: unknown }).message ?? '')
+          : '';
+      setError(detail ? `Could not save the roster: ${detail}` : 'Could not save the roster.');
     } finally {
       setIsSaving(false);
     }
@@ -247,19 +296,90 @@ export const ShiftRoster: React.FC<Props> = ({ shift, onClose, onSaved }) => {
               <input
                 type="date"
                 value={servedOn}
-                onChange={(e) => setServedOn(e.target.value)}
+                onChange={(e) => {
+                  discardReview();
+                  setServedOn(e.target.value);
+                }}
                 className="bg-[#FDFBF7] border border-[#E5E0D8] rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#A64D32]"
               />
             </div>
-            <button
-              type="button"
-              onClick={handleSave}
-              disabled={isSaving}
-              className="bg-[#A64D32] hover:bg-[#8b3f28] text-white px-6 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider cursor-pointer disabled:opacity-50"
-            >
-              {isSaving ? 'Saving...' : 'Credit hours'}
-            </button>
+
+            {!pending && (
+              <button
+                type="button"
+                onClick={handleReview}
+                className="bg-[#A64D32] hover:bg-[#8b3f28] text-white px-6 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider cursor-pointer"
+              >
+                Review and credit
+              </button>
+            )}
           </div>
+
+          {justSaved && (
+            <div className="flex items-start gap-2 bg-[#5B6346]/10 border border-[#5B6346]/30 rounded-xl px-4 py-3 text-xs text-[#5B6346]">
+              <Check className="w-4 h-4 shrink-0 mt-0.5" />
+              <span>
+                {justSaved} Volunteers see this on the Hours Log &amp; Badges tab of their
+                portal.
+              </span>
+            </div>
+          )}
+
+          {/* The confirmation step. It spells out the totals rather than
+              asking "are you sure?", because the thing worth checking is
+              whether these are the right people and the right hours. */}
+          {pending && (
+            <div className="bg-[#FDFBF7] border border-[#A64D32]/40 rounded-2xl p-5 space-y-3">
+              <div className="text-sm font-bold text-[#2A2A2A]">Confirm before crediting</div>
+
+              <ul className="text-xs text-[#5A5A5A] space-y-1">
+                {pending.map((decision) => {
+                  const name =
+                    entries.find((e) => e.userId === decision.userId)?.fullName ?? decision.userId;
+                  const previously = entries.find((e) => e.userId === decision.userId)?.loggedHours;
+                  return (
+                    <li key={decision.userId} className="flex items-center justify-between gap-4">
+                      <span className="truncate">{name}</span>
+                      <span className="font-bold whitespace-nowrap">
+                        {decision.attendance === 'attended'
+                          ? `${decision.hours} hrs`
+                          : previously === null || previously === undefined
+                            ? 'no-show'
+                            : `no-show — removes ${previously} hrs`}
+                      </span>
+                    </li>
+                  );
+                })}
+              </ul>
+
+              <p className="text-[11px] text-[#5A5A5A]">
+                Dated{' '}
+                {new Date(`${servedOn}T12:00:00`).toLocaleDateString('en-US', {
+                  dateStyle: 'long'
+                })}
+                , signed off as {volunteerName}.
+              </p>
+
+              <div className="flex gap-3">
+                <button
+                  type="button"
+                  onClick={handleConfirm}
+                  disabled={isSaving}
+                  className="bg-[#A64D32] hover:bg-[#8b3f28] text-white px-6 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider cursor-pointer disabled:opacity-50"
+                >
+                  {isSaving ? 'Saving...' : 'Confirm and credit'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPending(null)}
+                  disabled={isSaving}
+                  className="border border-[#E5E0D8] hover:bg-white px-6 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider cursor-pointer disabled:opacity-50"
+                >
+                  Back
+                </button>
+              </div>
+            </div>
+          )}
         </>
       )}
     </div>
