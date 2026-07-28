@@ -112,4 +112,23 @@
   }
 }
 
+/*
+ * Printing one signed document or one certificate — see SignedDocumentView
+ * and CertificateView.
+ *
+ * The printable content is mounted into #print-root, a plain sibling of
+ * #root, via a React portal — not styled with `position: fixed` inside the
+ * normal page flow. Fixed-position elements are re-anchored to the SAME spot
+ * on EVERY printed page, so a document longer than one page (the code of
+ * conduct, easily two) rendered its later sections re-stamped over its own
+ * earlier ones on page 2 rather than continuing below them. #print-root has
+ * no such constraint: hiding #root instead leaves it as the only visible
+ * content, in normal flow, free to paginate across as many pages as it needs.
+ */
+@media print {
+  #root {
+    display: none !important;
+  }
+}
+
 

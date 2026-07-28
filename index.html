@@ -64,6 +64,10 @@
   </head>
   <body>
     <div id="root"></div>
+    <!-- Print portal target — see src/index.css for why printable content
+         (a signed document, a certificate) is mounted here instead of inline
+         inside #root. -->
+    <div id="print-root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

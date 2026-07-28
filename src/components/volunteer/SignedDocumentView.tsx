@@ -1,8 +1,10 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { AlertCircle, Loader2, Printer } from 'lucide-react';
 import { MarkdownDocument } from './MarkdownDocument';
 import { fetchDocumentVersionBody } from '../../lib/api/legalDocuments';
 import type { SignatureRow } from '../../lib/api/legalDocuments';
+import { usePrintPortal } from '../../lib/usePrintPortal';
 
 interface Props {
   title: string;
@@ -24,28 +26,15 @@ const formatSignedAt = (iso: string) =>
  * even after that document is later revised — see the RLS policy
  * "document_versions: read own signed".
  *
- * Printing targets this one instance by a ref, not a shared CSS class. Both
- * the admin's application review and the volunteer's "What you signed" list
- * can have several of these expanded at once, each with its own Print
- * button — a class-based `@media print` rule matches every element sharing
- * that class, so clicking Print on one made every other expanded document
- * visible and `position: fixed` at the same spot simultaneously, stacked
- * illegibly on top of each other. Setting a `data-printing` attribute
- * directly on this instance's own node right before calling `window.print()`
- * (and clearing it right after) means the print stylesheet only ever matches
- * the one document actually being printed.
+ * Printing goes through usePrintPortal() rather than a `position: fixed`
+ * class on this element — see that file for why a document longer than one
+ * page needs a portal, not a fixed position, to print correctly.
  */
 export const SignedDocumentView: React.FC<Props> = ({ title, signature }) => {
   const [body, setBody] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const printRef = useRef<HTMLDivElement>(null);
-
-  const handlePrint = () => {
-    printRef.current?.setAttribute('data-printing', 'true');
-    window.print();
-    printRef.current?.removeAttribute('data-printing');
-  };
+  const { isPrinting, print, printRoot } = usePrintPortal();
 
   useEffect(() => {
     let cancelled = false;
@@ -72,9 +61,22 @@ export const SignedDocumentView: React.FC<Props> = ({ title, signature }) => {
     };
   }, [signature.version_id]);
 
+  // The two renders of this differ only in their outer wrapper (a bordered
+  // card on screen, a bare page for print) — see the two usages below.
+  const documentBody = body && (
+    <>
+      <h4 className="font-serif font-bold text-lg text-[#2A2A2A] mb-1">{title}</h4>
+      <p className="text-[11px] text-[#5A5A5A] mb-4">
+        Signed by {signature.signer_name} on {formatSignedAt(signature.signed_at)}
+        {signature.choice && ` — chose "${signature.choice.replace('_', ' ')}"`}
+      </p>
+      <MarkdownDocument markdown={body} />
+    </>
+  );
+
   return (
     <div className="space-y-3">
-      <div className="flex items-center justify-between print:hidden">
+      <div className="flex items-center justify-between">
         <div className="text-xs text-[#5A5A5A]">
           Signed by <strong className="text-[#2A2A2A]">{signature.signer_name}</strong>
           {signature.signer_role === 'guardian' &&
@@ -86,7 +88,7 @@ export const SignedDocumentView: React.FC<Props> = ({ title, signature }) => {
         </div>
         {body && (
           <button
-            onClick={handlePrint}
+            onClick={print}
             className="flex items-center gap-1.5 bg-white border border-[#E5E0D8] hover:bg-[#F4F1ED] text-[#2A2A2A] px-3 py-1.5 rounded-full text-[11px] font-bold uppercase tracking-wider cursor-pointer"
           >
             <Printer className="w-3.5 h-3.5" />
@@ -109,26 +111,15 @@ export const SignedDocumentView: React.FC<Props> = ({ title, signature }) => {
         </div>
       )}
 
-      {body && (
-        <div ref={printRef} className="bg-white border border-[#E5E0D8] rounded-2xl p-5">
-          <h4 className="font-serif font-bold text-lg text-[#2A2A2A] mb-1">{title}</h4>
-          <p className="text-[11px] text-[#5A5A5A] mb-4">
-            Signed by {signature.signer_name} on {formatSignedAt(signature.signed_at)}
-            {signature.choice && ` — chose "${signature.choice.replace('_', ' ')}"`}
-          </p>
-          <MarkdownDocument markdown={body} />
-        </div>
-      )}
+      {/* On-screen preview — always here while expanded, regardless of printing. */}
+      {body && <div className="bg-white border border-[#E5E0D8] rounded-2xl p-5">{documentBody}</div>}
 
-      <style>{`
-        @media print {
-          body * { visibility: hidden; }
-          [data-printing], [data-printing] * { visibility: visible; }
-          [data-printing] {
-            position: fixed; inset: 0; margin: 0; border: none !important;
-          }
-        }
-      `}</style>
+      {/* The print copy: a separate instance of the same content, portalled
+          out to #print-root, which exists only for the moment window.print()
+          is open. See usePrintPortal for why this can't just be the div above. */}
+      {isPrinting &&
+        printRoot &&
+        createPortal(<div className="bg-white p-8 max-w-2xl mx-auto">{documentBody}</div>, printRoot)}
     </div>
   );
 };
