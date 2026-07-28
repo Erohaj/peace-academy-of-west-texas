@@ -18,8 +18,14 @@ export const Hero: React.FC = () => {
     }, 50);
   };
 
+  // `-mt-16` cancels the `pt-16` that <main> gives every tab, so the photo
+  // starts at the very top of the viewport and fills the area behind the fixed
+  // header. Without it the header's upper 64px sat over the cream page
+  // background while still rendering its white, transparent-mode text — white
+  // on cream, effectively invisible. The section's own pt-24 already clears the
+  // 80px bar, so no content moves underneath it.
   return (
-    <section className="relative min-h-[90vh] flex items-center justify-center pt-24 pb-16 overflow-hidden">
+    <section className="relative min-h-[90vh] -mt-16 flex items-center justify-center pt-24 pb-16 overflow-hidden">
       {/* Background Image with Warm Overlay */}
       <div className="absolute inset-0 z-0">
         <img
