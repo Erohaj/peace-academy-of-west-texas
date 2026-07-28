@@ -66,8 +66,12 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenContact }) => {
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-20">
-          
+        {/* `gap-2` is a floor, not decoration: justify-between only spaces the
+            groups apart while there is slack, and at the tightest width (Spanish,
+            1280px) there are barely 50px of it. Without the gap the logo ends up
+            touching the first link. */}
+        <div className="flex items-center justify-between h-20 gap-2">
+
           {/* Logo & Brand */}
           <button
             onClick={() => handleNavClick('home')}
@@ -80,18 +84,28 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenContact }) => {
           </button>
 
           {/* Desktop Navigation Links.
-              Shown from 1100px, not md (768px): the six labels plus the search,
-              language and donate controls need ~1060px, so between those two
-              widths the row overflowed and pushed the whole menu off the right
-              edge of the screen while the hamburger was still hidden. */}
-          <nav className="hidden min-[1100px]:flex items-center gap-1 lg:gap-2">
+              Two constraints set the shape of this row. The container is capped
+              at max-w-7xl, so the content box never exceeds 1216px however wide
+              the screen gets; and the labels are longest in Spanish ("Portal de
+              Voluntarios", "Galería de Fotos"). Measured with single-line
+              labels, the Spanish row wanted 1364px — it could not fit at any
+              window size, which is why the labels used to break onto two lines
+              and the logo ended up flush against the first link.
+
+              Dropping the per-link icons here buys back ~130px and is what makes
+              a single line possible; the drawer below keeps them, since it has
+              a full row per item. `whitespace-nowrap` then guarantees the fix
+              rather than relying on the measurement staying true. Spanish now
+              needs ~1162px, so the row switches on at xl (1280px) with ~50px to
+              spare and the hamburger carries everything below that. */}
+          <nav className="hidden xl:flex items-center gap-1 lg:gap-2">
             {navItems.map((item) => {
               const isActive = activeTab === item.id;
               return (
                 <button
                   key={item.id}
                   onClick={() => handleNavClick(item.id)}
-                  className={`px-3.5 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer ${
+                  className={`px-3 py-2 rounded-full text-xs font-bold uppercase tracking-wider whitespace-nowrap transition-all cursor-pointer ${
                     isActive
                       ? 'bg-[#A64D32] text-white shadow-sm'
                       : isSolid
@@ -99,7 +113,6 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenContact }) => {
                       : 'text-white/90 hover:text-white hover:bg-white/10'
                   }`}
                 >
-                  {item.icon}
                   {item.label}
                 </button>
               );
@@ -108,20 +121,25 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenContact }) => {
             {onOpenContact && (
               <button
                 onClick={onOpenContact}
-                className={`px-3.5 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer ${
+                className={`px-3 py-2 rounded-full text-xs font-bold uppercase tracking-wider whitespace-nowrap transition-all cursor-pointer ${
                   isSolid
                     ? 'text-[#2A2A2A] hover:bg-[#F4F1ED] hover:text-[#A64D32]'
                     : 'text-white/90 hover:text-white hover:bg-white/10'
                 }`}
               >
-                <Mail className="w-4 h-4 text-[#A64D32]" />
                 {t('nav.contactUs')}
               </button>
             )}
           </nav>
 
-          {/* Right Actions: Search, Language Switcher & Quick CTA */}
-          <div className="hidden sm:flex items-center gap-2.5">
+          {/* Right Actions: Search, Language Switcher & Quick CTA.
+              Below xl the nav collapses and justify-between has only three
+              groups left to spread, which stranded this cluster in the middle
+              of the bar with the hamburger far off to its right. `ml-auto`
+              takes the slack so it sits next to the hamburger instead; above xl
+              the nav is back and the even spacing is what we want, so it is
+              switched off again. */}
+          <div className="hidden sm:flex items-center gap-2.5 ml-auto xl:ml-0">
             {/* Global Search Trigger Button */}
             <button
               onClick={openSearch}
@@ -131,9 +149,14 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenContact }) => {
                   : 'border-white/40 bg-black/30 text-white hover:bg-black/50 hover:border-white'
               }`}
               title="Search (Cmd+K)"
+              // The "Search..."/"Buscar..." label used to sit here. It is the
+              // one control in the row whose width depends on the language, and
+              // the ~70px it took were exactly what pushed the Spanish row past
+              // the container. The magnifier and the ⌘K badge already say what
+              // the button does; the accessible name is on aria-label.
+              aria-label={language === 'es' ? 'Buscar' : 'Search'}
             >
               <Search className="w-3.5 h-3.5 text-[#A64D32]" />
-              <span className="hidden lg:inline">{language === 'es' ? 'Buscar...' : 'Search...'}</span>
               <kbd className={`px-1.5 py-0.5 rounded text-[10px] font-mono font-bold ${
                 isSolid ? 'bg-[#E5E0D8] text-[#5A5A5A]' : 'bg-white/20 text-white'
               }`}>
@@ -180,10 +203,10 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenContact }) => {
             )}
           </div>
 
-          {/* Compact controls. The hamburger carries the nav below 1100px;
-              search and language duplicate the row above, so they drop away
-              once that row appears at sm. */}
-          <div className="flex items-center gap-2 min-[1100px]:hidden">
+          {/* Compact controls. The hamburger carries the nav below xl; search
+              and language duplicate the row above, so they drop away once that
+              row appears at sm. */}
+          <div className="flex items-center gap-2 xl:hidden">
             <button
               onClick={openSearch}
               className={`p-2 rounded-full border transition-colors sm:hidden ${
@@ -219,7 +242,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenContact }) => {
 
       {/* Mobile Drawer Menu */}
       {mobileMenuOpen && (
-        <div className="min-[1100px]:hidden bg-[#FDFBF7] border-b border-[#E5E0D8] shadow-xl px-4 pt-3 pb-6 space-y-2 animate-fadeIn">
+        <div className="xl:hidden bg-[#FDFBF7] border-b border-[#E5E0D8] shadow-xl px-4 pt-3 pb-6 space-y-2 animate-fadeIn">
           {navItems.map((item) => {
             const isActive = activeTab === item.id;
             return (
