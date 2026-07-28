@@ -148,24 +148,20 @@ export const CertificatesAdmin: React.FC = () => {
       )
     : [];
 
-  const field =
-    'w-full bg-parchment border border-warm-taupe rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-terracotta';
-  const label = 'block text-xs font-bold uppercase tracking-[0.2em] text-charcoal mb-1';
-
   return (
     <div className="space-y-6">
       <h2 className="text-xl font-serif font-bold">Certificates of service</h2>
 
       {error && (
-        <div className="flex items-start gap-2 bg-terracotta/10 border border-terracotta/30 rounded-2xl px-4 py-3 text-xs text-terracotta">
+        <div className="pawtx-callout">
           <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
           <span>{error}</span>
         </div>
       )}
 
-      <div className="bg-aged-paper border border-warm-taupe rounded-2xl p-6 space-y-4">
+      <div className="pawtx-card">
         <div className="relative">
-          <label className={label}>Volunteer</label>
+          <label className="pawtx-label">Volunteer</label>
           {selected ? (
             <div className="flex items-center justify-between bg-white border border-warm-taupe rounded-xl px-4 py-2.5">
               <span className="text-sm font-bold">
@@ -191,7 +187,7 @@ export const CertificatesAdmin: React.FC = () => {
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   placeholder="Search by name or email..."
-                  className={`${field} pl-10`}
+                  className={`pawtx-field pl-10`}
                 />
               </div>
               {filteredVolunteers.length > 0 && (
@@ -216,7 +212,7 @@ export const CertificatesAdmin: React.FC = () => {
           <>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div>
-                <label className={label}>Period start</label>
+                <label className="pawtx-label">Period start</label>
                 <input
                   type="date"
                   value={periodStart}
@@ -224,11 +220,11 @@ export const CertificatesAdmin: React.FC = () => {
                     setPeriodStart(e.target.value);
                     setEntries(null);
                   }}
-                  className={field}
+                  className="pawtx-field"
                 />
               </div>
               <div>
-                <label className={label}>Period end</label>
+                <label className="pawtx-label">Period end</label>
                 <input
                   type="date"
                   max={today}
@@ -237,7 +233,7 @@ export const CertificatesAdmin: React.FC = () => {
                     setPeriodEnd(e.target.value);
                     setEntries(null);
                   }}
-                  className={field}
+                  className="pawtx-field"
                 />
               </div>
               <div className="flex items-end">
@@ -280,9 +276,9 @@ export const CertificatesAdmin: React.FC = () => {
                     </div>
 
                     <div>
-                      <label className={label}>Your title (optional, printed on the certificate)</label>
+                      <label className="pawtx-label">Your title (optional, printed on the certificate)</label>
                       <input
-                        className={field}
+                        className="pawtx-field"
                         placeholder="Volunteer Coordinator"
                         value={issuerTitle}
                         onChange={(e) => setIssuerTitle(e.target.value)}
@@ -292,7 +288,7 @@ export const CertificatesAdmin: React.FC = () => {
                     <button
                       onClick={() => void handleIssue()}
                       disabled={isIssuing}
-                      className="flex items-center gap-2 bg-terracotta hover:bg-terracotta-deep text-white px-6 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider cursor-pointer disabled:opacity-50"
+                      className="flex items-center gap-2 pawtx-cta"
                     >
                       <Award className="w-4 h-4" />
                       {isIssuing ? 'Issuing...' : `Issue certificate for ${totalHours} hours`}

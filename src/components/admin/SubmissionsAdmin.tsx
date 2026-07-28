@@ -201,7 +201,7 @@ export const SubmissionsAdmin: React.FC<SubmissionsAdminProps> = ({ view }) => {
     <div className="space-y-8">
 
       {error && (
-        <div className="flex items-start gap-2 bg-terracotta/10 border border-terracotta/30 rounded-2xl px-4 py-3 text-xs text-terracotta">
+        <div className="pawtx-callout">
           <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
           <span>{error}</span>
         </div>
@@ -339,14 +339,14 @@ export const SubmissionsAdmin: React.FC<SubmissionsAdminProps> = ({ view }) => {
                         <button
                           onClick={() => toggleHandled(message)}
                           title={message.handled ? 'Mark as unread' : 'Mark as handled'}
-                          className="p-2 rounded-lg hover:bg-parchment text-charcoal cursor-pointer"
+                          className="pawtx-icon-btn"
                         >
                           {message.handled ? <MailOpen className="w-4 h-4" /> : <Mail className="w-4 h-4" />}
                         </button>
                         <button
                           onClick={() => handleDeleteMessage(message)}
                           title="Delete permanently"
-                          className="p-2 rounded-lg hover:bg-terracotta/10 text-terracotta cursor-pointer"
+                          className="pawtx-icon-btn-accent"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>

@@ -198,9 +198,6 @@ export const EventsAdmin: React.FC = () => {
     }
   };
 
-  const field = 'w-full bg-parchment border border-warm-taupe rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-terracotta';
-  const label = 'block text-xs font-bold uppercase tracking-[0.2em] text-charcoal mb-1';
-
   return (
     <div className="space-y-6">
 
@@ -216,67 +213,67 @@ export const EventsAdmin: React.FC = () => {
       </div>
 
       {error && (
-        <div className="flex items-start gap-2 bg-terracotta/10 border border-terracotta/30 rounded-2xl px-4 py-3 text-xs text-terracotta">
+        <div className="pawtx-callout">
           <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
           <span>{error}</span>
         </div>
       )}
 
       {editingId && (
-        <form onSubmit={handleSave} className="bg-aged-paper border border-warm-taupe rounded-2xl p-6 space-y-4">
+        <form onSubmit={handleSave} className="pawtx-card">
           <h3 className="font-serif font-bold text-lg">
             {editingId === 'new' ? 'New event' : 'Edit event'}
           </h3>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className={label}>Title (English) *</label>
-              <input required className={field} value={form.title}
+              <label className="pawtx-label">Title (English) *</label>
+              <input required className="pawtx-field" value={form.title}
                 onChange={(e) => setForm({ ...form, title: e.target.value })} />
             </div>
             <div>
-              <label className={label}>Título (Español) *</label>
-              <input required className={field} value={form.title_es}
+              <label className="pawtx-label">Título (Español) *</label>
+              <input required className="pawtx-field" value={form.title_es}
                 onChange={(e) => setForm({ ...form, title_es: e.target.value })} />
             </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className={label}>Description (English) *</label>
-              <textarea required rows={3} className={field} value={form.description}
+              <label className="pawtx-label">Description (English) *</label>
+              <textarea required rows={3} className="pawtx-field" value={form.description}
                 onChange={(e) => setForm({ ...form, description: e.target.value })} />
             </div>
             <div>
-              <label className={label}>Descripción (Español) *</label>
-              <textarea required rows={3} className={field} value={form.description_es}
+              <label className="pawtx-label">Descripción (Español) *</label>
+              <textarea required rows={3} className="pawtx-field" value={form.description_es}
                 onChange={(e) => setForm({ ...form, description_es: e.target.value })} />
             </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className={label}>Starts (Central Time) *</label>
-              <input required type="datetime-local" className={field} value={form.starts_at}
+              <label className="pawtx-label">Starts (Central Time) *</label>
+              <input required type="datetime-local" className="pawtx-field" value={form.starts_at}
                 onChange={(e) => setForm({ ...form, starts_at: e.target.value })} />
             </div>
             <div>
-              <label className={label}>Ends (Central Time)</label>
-              <input type="datetime-local" className={field} value={form.ends_at}
+              <label className="pawtx-label">Ends (Central Time)</label>
+              <input type="datetime-local" className="pawtx-field" value={form.ends_at}
                 onChange={(e) => setForm({ ...form, ends_at: e.target.value })} />
             </div>
           </div>
 
           <div>
-            <label className={label}>Location *</label>
-            <input required className={field} value={form.location}
+            <label className="pawtx-label">Location *</label>
+            <input required className="pawtx-field" value={form.location}
               onChange={(e) => setForm({ ...form, location: e.target.value })} />
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
-              <label className={label}>Category</label>
-              <select className={field} value={form.category}
+              <label className="pawtx-label">Category</label>
+              <select className="pawtx-field" value={form.category}
                 onChange={(e) => setForm({ ...form, category: e.target.value as EventRow['category'] })}>
                 <option value="cooking">Cooking</option>
                 <option value="cultural">Cultural</option>
@@ -285,8 +282,8 @@ export const EventsAdmin: React.FC = () => {
               </select>
             </div>
             <div>
-              <label className={label}>Total spots *</label>
-              <input required type="number" min={0} className={field} value={form.total_spots}
+              <label className="pawtx-label">Total spots *</label>
+              <input required type="number" min={0} className="pawtx-field" value={form.total_spots}
                 onChange={(e) => setForm({ ...form, total_spots: Number(e.target.value) })} />
             </div>
             <div className="flex items-end gap-4 pb-2.5">
@@ -329,7 +326,7 @@ export const EventsAdmin: React.FC = () => {
           </div>
 
           <div>
-            <label className={label}>Photo</label>
+            <label className="pawtx-label">Photo</label>
             <div className="flex items-center gap-4">
               {(form.image_url || form.image_key) && (
                 <img
@@ -362,14 +359,14 @@ export const EventsAdmin: React.FC = () => {
             <button
               type="submit"
               disabled={isSaving || isUploading}
-              className="bg-terracotta hover:bg-terracotta-deep text-white px-6 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider cursor-pointer disabled:opacity-50"
+              className="pawtx-cta"
             >
               {isSaving ? 'Saving...' : 'Save event'}
             </button>
             <button
               type="button"
               onClick={() => setEditingId(null)}
-              className="border border-warm-taupe hover:bg-parchment px-6 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider cursor-pointer"
+              className="pawtx-cta-outline"
             >
               Cancel
             </button>
@@ -420,21 +417,21 @@ export const EventsAdmin: React.FC = () => {
                         <button
                           onClick={() => togglePublished(row)}
                           title={row.published ? 'Unpublish' : 'Publish'}
-                          className="p-2 rounded-lg hover:bg-parchment text-charcoal cursor-pointer"
+                          className="pawtx-icon-btn"
                         >
                           {row.published ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
                         </button>
                         <button
                           onClick={() => startEdit(row)}
                           title="Edit"
-                          className="p-2 rounded-lg hover:bg-parchment text-charcoal cursor-pointer"
+                          className="pawtx-icon-btn"
                         >
                           <Pencil className="w-4 h-4" />
                         </button>
                         <button
                           onClick={() => handleDelete(row)}
                           title="Delete"
-                          className="p-2 rounded-lg hover:bg-terracotta/10 text-terracotta cursor-pointer"
+                          className="pawtx-icon-btn-accent"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>

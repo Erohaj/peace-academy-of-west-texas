@@ -70,7 +70,7 @@ export const EventCard: React.FC<EventCardProps> = ({ event, asPageTitle }) => {
       <div className="p-6 flex-1 flex flex-col justify-between space-y-4">
         
         <div className="space-y-3">
-          <CardTitle className="text-2xl font-serif font-bold text-graphite leading-snug group-hover:text-terracotta transition-colors">
+          <CardTitle className="pawtx-card-heading leading-snug group-hover:text-terracotta transition-colors">
             {title}
           </CardTitle>
 

@@ -184,7 +184,7 @@ export const ShiftRoster: React.FC<Props> = ({ shift, onClose, onSaved }) => {
   const pill = 'px-3 py-1.5 rounded-full text-[11px] font-bold uppercase tracking-wider cursor-pointer transition-colors flex items-center gap-1.5';
 
   return (
-    <div className="bg-aged-paper border border-warm-taupe rounded-2xl p-6 space-y-4">
+    <div className="pawtx-card">
       <div className="flex items-start justify-between gap-4">
         <div>
           <h3 className="font-serif font-bold text-lg flex items-center gap-2">
@@ -205,14 +205,14 @@ export const ShiftRoster: React.FC<Props> = ({ shift, onClose, onSaved }) => {
       </div>
 
       {!shiftHasEnded && (
-        <div className="flex items-start gap-2 bg-olive/10 border border-olive/30 rounded-xl px-4 py-3 text-xs text-olive">
+        <div className="pawtx-callout-olive">
           <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
           <span>This shift has not finished yet. Hours dated in the future are refused.</span>
         </div>
       )}
 
       {error && (
-        <div className="flex items-start gap-2 bg-terracotta/10 border border-terracotta/30 rounded-xl px-4 py-3 text-xs text-terracotta">
+        <div className="pawtx-callout">
           <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
           <span>{error}</span>
         </div>
@@ -279,7 +279,7 @@ export const ShiftRoster: React.FC<Props> = ({ shift, onClose, onSaved }) => {
                       disabled={decision?.attendance !== 'attended'}
                       value={decision?.hours ?? ''}
                       onChange={(e) => setHours(entry.userId, e.target.value)}
-                      className="w-20 bg-white border border-warm-taupe rounded-xl px-3 py-1.5 text-sm disabled:opacity-40 focus:outline-none focus:border-terracotta"
+                      className="w-20 bg-white border border-warm-taupe rounded-xl px-3 py-1.5 text-sm disabled:opacity-40 pawtx-focus focus:border-terracotta"
                     />
                     <span className="text-[11px] text-charcoal">hrs</span>
                   </div>
@@ -290,7 +290,7 @@ export const ShiftRoster: React.FC<Props> = ({ shift, onClose, onSaved }) => {
 
           <div className="flex flex-wrap items-end gap-4 pt-2">
             <div>
-              <label className="block text-xs font-bold uppercase tracking-[0.2em] text-charcoal mb-1">
+              <label className="pawtx-label">
                 Served on
               </label>
               <input
@@ -300,7 +300,7 @@ export const ShiftRoster: React.FC<Props> = ({ shift, onClose, onSaved }) => {
                   discardReview();
                   setServedOn(e.target.value);
                 }}
-                className="bg-parchment border border-warm-taupe rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-terracotta"
+                className="bg-parchment border border-warm-taupe rounded-xl px-4 py-2.5 text-sm pawtx-focus focus:border-terracotta"
               />
             </div>
 
@@ -316,7 +316,7 @@ export const ShiftRoster: React.FC<Props> = ({ shift, onClose, onSaved }) => {
           </div>
 
           {justSaved && (
-            <div className="flex items-start gap-2 bg-olive/10 border border-olive/30 rounded-xl px-4 py-3 text-xs text-olive">
+            <div className="pawtx-callout-olive">
               <Check className="w-4 h-4 shrink-0 mt-0.5" />
               <span>
                 {justSaved} Volunteers see this on the Hours Log &amp; Badges tab of their
@@ -365,7 +365,7 @@ export const ShiftRoster: React.FC<Props> = ({ shift, onClose, onSaved }) => {
                   type="button"
                   onClick={handleConfirm}
                   disabled={isSaving}
-                  className="bg-terracotta hover:bg-terracotta-deep text-white px-6 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider cursor-pointer disabled:opacity-50"
+                  className="pawtx-cta"
                 >
                   {isSaving ? 'Saving...' : 'Confirm and credit'}
                 </button>

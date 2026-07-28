@@ -44,10 +44,6 @@ const BLANK_APPLICATION: SubmitApplicationInput = {
   motivation: ''
 };
 
-const field =
-  'w-full bg-white border border-warm-taupe rounded-xl px-4 py-2.5 text-sm pawtx-focus focus:border-terracotta';
-const label = 'block text-xs font-bold uppercase tracking-[0.2em] text-charcoal mb-1';
-
 /**
  * The order these are signed in. `application` is deliberately absent — it is
  * a form to fill in, not a page to read and sign, and step 1 below handles it
@@ -176,7 +172,7 @@ export const OnboardingWizard: React.FC = () => {
 
   if (step.kind === 'error') {
     return (
-      <div className="flex items-start gap-2 bg-terracotta/10 border border-terracotta/30 rounded-2xl px-4 py-3 text-xs text-terracotta">
+      <div className="pawtx-callout">
         <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
         <span>{step.message}</span>
       </div>
@@ -327,7 +323,7 @@ const ApplicationForm: React.FC<{
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6 max-w-2xl">
-      <div className="flex items-start gap-2 bg-olive/10 border border-olive/30 rounded-xl px-4 py-3 text-xs text-olive">
+      <div className="pawtx-callout-olive">
         <ShieldCheck className="w-4 h-4 shrink-0 mt-0.5" />
         <span>
           We ask for this to place you in a role that suits you and to reach someone on your
@@ -338,7 +334,7 @@ const ApplicationForm: React.FC<{
       </div>
 
       {error && (
-        <div className="flex items-start gap-2 bg-terracotta/10 border border-terracotta/30 rounded-xl px-4 py-3 text-xs text-terracotta">
+        <div className="pawtx-callout">
           <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
           <span>{error}</span>
         </div>
@@ -348,40 +344,40 @@ const ApplicationForm: React.FC<{
         <h3 className="text-sm font-bold uppercase tracking-[0.2em] text-charcoal">About you</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className={label}>Full legal name *</label>
+            <label className="pawtx-label">Full legal name *</label>
             <input
               required
-              className={field}
+              className="pawtx-field"
               value={form.fullName}
               onChange={(e) => setForm({ ...form, fullName: e.target.value })}
             />
           </div>
           <div>
-            <label className={label}>Email *</label>
+            <label className="pawtx-label">Email *</label>
             <input
               required
               type="email"
-              className={field}
+              className="pawtx-field"
               value={form.email}
               onChange={(e) => setForm({ ...form, email: e.target.value })}
             />
           </div>
           <div>
-            <label className={label}>Phone</label>
+            <label className="pawtx-label">Phone</label>
             <input
               type="tel"
-              className={field}
+              className="pawtx-field"
               value={form.phone}
               onChange={(e) => setForm({ ...form, phone: e.target.value })}
             />
           </div>
           <div>
-            <label className={label}>Date of birth *</label>
+            <label className="pawtx-label">Date of birth *</label>
             <input
               required
               type="date"
               max={new Date().toISOString().slice(0, 10)}
-              className={field}
+              className="pawtx-field"
               value={form.dateOfBirth}
               onChange={(e) => setForm({ ...form, dateOfBirth: e.target.value })}
             />
@@ -389,7 +385,7 @@ const ApplicationForm: React.FC<{
         </div>
 
         {age !== null && age < 18 && (
-          <div className="flex items-start gap-2 bg-terracotta/10 border border-terracotta/30 rounded-xl px-4 py-3 text-xs text-terracotta">
+          <div className="pawtx-callout">
             <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
             <span>
               Because this application is for someone under 18, a parent or legal guardian will
@@ -422,34 +418,34 @@ const ApplicationForm: React.FC<{
         )}
 
         <div>
-          <label className={label}>Street address</label>
+          <label className="pawtx-label">Street address</label>
           <input
-            className={field}
+            className="pawtx-field"
             value={form.addressLine}
             onChange={(e) => setForm({ ...form, addressLine: e.target.value })}
           />
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
-            <label className={label}>City</label>
+            <label className="pawtx-label">City</label>
             <input
-              className={field}
+              className="pawtx-field"
               value={form.city}
               onChange={(e) => setForm({ ...form, city: e.target.value })}
             />
           </div>
           <div>
-            <label className={label}>State</label>
+            <label className="pawtx-label">State</label>
             <input
-              className={field}
+              className="pawtx-field"
               value={form.state}
               onChange={(e) => setForm({ ...form, state: e.target.value })}
             />
           </div>
           <div>
-            <label className={label}>ZIP</label>
+            <label className="pawtx-label">ZIP</label>
             <input
-              className={field}
+              className="pawtx-field"
               value={form.postalCode}
               onChange={(e) => setForm({ ...form, postalCode: e.target.value })}
             />
@@ -467,28 +463,28 @@ const ApplicationForm: React.FC<{
         </p>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
-            <label className={label}>Name *</label>
+            <label className="pawtx-label">Name *</label>
             <input
               required
-              className={field}
+              className="pawtx-field"
               value={form.emergencyName}
               onChange={(e) => setForm({ ...form, emergencyName: e.target.value })}
             />
           </div>
           <div>
-            <label className={label}>Phone *</label>
+            <label className="pawtx-label">Phone *</label>
             <input
               required
               type="tel"
-              className={field}
+              className="pawtx-field"
               value={form.emergencyPhone}
               onChange={(e) => setForm({ ...form, emergencyPhone: e.target.value })}
             />
           </div>
           <div>
-            <label className={label}>Relationship</label>
+            <label className="pawtx-label">Relationship</label>
             <input
-              className={field}
+              className="pawtx-field"
               value={form.emergencyRelation}
               onChange={(e) => setForm({ ...form, emergencyRelation: e.target.value })}
             />
@@ -501,19 +497,19 @@ const ApplicationForm: React.FC<{
           What would you like to do?
         </h3>
         <div>
-          <label className={label}>Skills and experience</label>
+          <label className="pawtx-label">Skills and experience</label>
           <textarea
             rows={2}
-            className={field}
+            className="pawtx-field"
             placeholder="Languages spoken, food handling, first aid, driving, trades..."
             value={form.skills}
             onChange={(e) => setForm({ ...form, skills: e.target.value })}
           />
         </div>
         <div>
-          <label className={label}>Availability</label>
+          <label className="pawtx-label">Availability</label>
           <input
-            className={field}
+            className="pawtx-field"
             placeholder="Weekday evenings, Saturday mornings..."
             value={form.availability}
             onChange={(e) => setForm({ ...form, availability: e.target.value })}
@@ -614,7 +610,7 @@ const SignStep: React.FC<{
 
       {isMediaConsent ? (
         <div className="space-y-2">
-          <label className={label}>Your choice</label>
+          <label className="pawtx-label">Your choice</label>
           {(
             [
               ['yes', 'Yes — I consent as described above'],
@@ -654,20 +650,20 @@ const SignStep: React.FC<{
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <label className={label}>Your full legal name (typed) *</label>
+          <label className="pawtx-label">Your full legal name (typed) *</label>
           <input
             required
-            className={field}
+            className="pawtx-field"
             value={name}
             onChange={(e) => setName(e.target.value)}
           />
         </div>
         <div>
-          <label className={label}>Email *</label>
+          <label className="pawtx-label">Email *</label>
           <input
             required
             type="email"
-            className={field}
+            className="pawtx-field"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
@@ -675,7 +671,7 @@ const SignStep: React.FC<{
       </div>
 
       {error && (
-        <div className="flex items-start gap-2 bg-terracotta/10 border border-terracotta/30 rounded-xl px-4 py-3 text-xs text-terracotta">
+        <div className="pawtx-callout">
           <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
           <span>{error}</span>
         </div>
@@ -757,29 +753,29 @@ const GuardianConsentStep: React.FC<{
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <label className={label}>Parent/guardian's full legal name (typed) *</label>
+          <label className="pawtx-label">Parent/guardian's full legal name (typed) *</label>
           <input
             required
-            className={field}
+            className="pawtx-field"
             value={guardianName}
             onChange={(e) => setGuardianName(e.target.value)}
           />
         </div>
         <div>
-          <label className={label}>Parent/guardian's email *</label>
+          <label className="pawtx-label">Parent/guardian's email *</label>
           <input
             required
             type="email"
-            className={field}
+            className="pawtx-field"
             value={guardianEmail}
             onChange={(e) => setGuardianEmail(e.target.value)}
           />
         </div>
         <div className="sm:col-span-2">
-          <label className={label}>Relationship to {minorName} *</label>
+          <label className="pawtx-label">Relationship to {minorName} *</label>
           <input
             required
-            className={field}
+            className="pawtx-field"
             placeholder="Mother, father, legal guardian..."
             value={relationship}
             onChange={(e) => setRelationship(e.target.value)}
@@ -801,7 +797,7 @@ const GuardianConsentStep: React.FC<{
       </label>
 
       {error && (
-        <div className="flex items-start gap-2 bg-terracotta/10 border border-terracotta/30 rounded-xl px-4 py-3 text-xs text-terracotta">
+        <div className="pawtx-callout">
           <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
           <span>{error}</span>
         </div>

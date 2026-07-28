@@ -190,7 +190,7 @@ export const RSVPModal: React.FC = () => {
             <form onSubmit={handleNextStep} className="space-y-4">
               
               <div>
-                <label className="block text-xs font-bold uppercase tracking-[0.2em] text-charcoal mb-1">
+                <label className="pawtx-label">
                   {t('rsvpModal.fullName')} *
                 </label>
                 <div className="relative">
@@ -207,7 +207,7 @@ export const RSVPModal: React.FC = () => {
                     aria-required="true"
                     aria-invalid={Boolean(errors.fullName)}
                     aria-describedby={errors.fullName ? 'rsvp-error-name' : undefined}
-                    className="w-full bg-parchment border border-warm-taupe rounded-xl pl-10 pr-4 py-2.5 text-sm pawtx-focus focus:border-terracotta focus:ring-1 focus:ring-terracotta"
+                    className="pawtx-field-icon"
                   />
                 </div>
                 {errors.fullName && (
@@ -218,7 +218,7 @@ export const RSVPModal: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-xs font-bold uppercase tracking-[0.2em] text-charcoal mb-1">
+                <label className="pawtx-label">
                   {t('rsvpModal.email')} *
                 </label>
                 <div className="relative">
@@ -231,7 +231,7 @@ export const RSVPModal: React.FC = () => {
                     aria-required="true"
                     aria-invalid={Boolean(errors.email)}
                     aria-describedby={errors.email ? 'rsvp-error-email' : undefined}
-                    className="w-full bg-parchment border border-warm-taupe rounded-xl pl-10 pr-4 py-2.5 text-sm pawtx-focus focus:border-terracotta focus:ring-1 focus:ring-terracotta"
+                    className="pawtx-field-icon"
                   />
                 </div>
                 {errors.email && (
@@ -243,7 +243,7 @@ export const RSVPModal: React.FC = () => {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-bold uppercase tracking-[0.2em] text-charcoal mb-1">
+                  <label className="pawtx-label">
                     {t('rsvpModal.phone')}
                   </label>
                   <div className="relative">
@@ -253,13 +253,13 @@ export const RSVPModal: React.FC = () => {
                       value={phone}
                       onChange={(e) => setPhone(e.target.value)}
                       placeholder={t('rsvpModal.phonePlaceholder')}
-                      className="w-full bg-parchment border border-warm-taupe rounded-xl pl-10 pr-4 py-2.5 text-sm pawtx-focus focus:border-terracotta focus:ring-1 focus:ring-terracotta"
+                      className="pawtx-field-icon"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold uppercase tracking-[0.2em] text-charcoal mb-1">
+                  <label className="pawtx-label">
                     {t('rsvpModal.guests')}
                   </label>
                   <div className="relative">
@@ -267,7 +267,7 @@ export const RSVPModal: React.FC = () => {
                     <select
                       value={guestCount}
                       onChange={(e) => setGuestCount(Number(e.target.value))}
-                      className="w-full bg-parchment border border-warm-taupe rounded-xl pl-10 pr-4 py-2.5 text-sm pawtx-focus focus:border-terracotta focus:ring-1 focus:ring-terracotta"
+                      className="pawtx-field-icon"
                     >
                       {[0, 1, 2, 3].map((count) => (
                         <option key={count} value={count}>
@@ -433,7 +433,7 @@ export const RSVPModal: React.FC = () => {
               </div>
 
               <div className="space-y-2">
-                <h4 className="text-2xl font-serif font-bold text-graphite">
+                <h4 className="pawtx-card-heading">
                   {t('rsvpModal.successTitle')}
                 </h4>
                 <p className="text-sm text-charcoal max-w-sm mx-auto">
@@ -495,7 +495,7 @@ export const RSVPModal: React.FC = () => {
               </div>
 
               <div className="space-y-2">
-                <h4 className="text-2xl font-serif font-bold text-graphite">
+                <h4 className="pawtx-card-heading">
                   {errorCopy.title}
                 </h4>
                 <p className="text-sm text-charcoal max-w-sm mx-auto">

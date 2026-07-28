@@ -77,7 +77,7 @@ export const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose }) =
               <span className="text-xs font-bold uppercase tracking-[0.2em] text-terracotta">
                 {t('contact.eyebrow')}
               </span>
-              <h3 id={TITLE_ID} className="text-2xl font-serif font-bold text-graphite">
+              <h3 id={TITLE_ID} className="pawtx-card-heading">
                 {t('contact.title')}
               </h3>
               <p className="text-xs text-charcoal">
@@ -87,7 +87,7 @@ export const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose }) =
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-xs font-bold uppercase tracking-[0.2em] text-charcoal mb-1">
+                <label className="pawtx-label">
                   {t('contact.fullName')}
                 </label>
                 <input
@@ -96,12 +96,12 @@ export const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose }) =
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder={t('contact.fullNamePlaceholder')}
-                  className="w-full bg-parchment border border-warm-taupe rounded-xl px-4 py-2.5 text-sm pawtx-focus focus:border-terracotta"
+                  className="pawtx-field"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold uppercase tracking-[0.2em] text-charcoal mb-1">
+                <label className="pawtx-label">
                   {t('contact.email')}
                 </label>
                 <input
@@ -110,12 +110,12 @@ export const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose }) =
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder={t('contact.emailPlaceholder')}
-                  className="w-full bg-parchment border border-warm-taupe rounded-xl px-4 py-2.5 text-sm pawtx-focus focus:border-terracotta"
+                  className="pawtx-field"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold uppercase tracking-[0.2em] text-charcoal mb-1">
+                <label className="pawtx-label">
                   {t('contact.message')}
                 </label>
                 <textarea
@@ -125,7 +125,7 @@ export const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose }) =
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
                   placeholder={t('contact.messagePlaceholder')}
-                  className="w-full bg-parchment border border-warm-taupe rounded-xl px-4 py-2.5 text-sm pawtx-focus focus:border-terracotta"
+                  className="pawtx-field"
                 />
               </div>
 
@@ -142,7 +142,7 @@ export const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose }) =
               />
 
               {hasError && (
-                <div className="flex items-start gap-2 bg-terracotta/10 border border-terracotta/30 rounded-xl px-4 py-3 text-xs text-terracotta">
+                <div className="pawtx-callout">
                   <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
                   <span>{t('contact.errorText')}</span>
                 </div>
@@ -166,7 +166,7 @@ export const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose }) =
         ) : (
           <div className="text-center py-8 space-y-4">
             <CheckCircle2 className="w-12 h-12 text-olive mx-auto" />
-            <h3 id={TITLE_ID} className="text-2xl font-serif font-bold text-graphite">
+            <h3 id={TITLE_ID} className="pawtx-card-heading">
               {t('contact.sentTitle')}
             </h3>
             <p className="text-xs text-charcoal">

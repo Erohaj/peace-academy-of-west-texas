@@ -216,10 +216,6 @@ export const ShiftsAdmin: React.FC = () => {
     }
   };
 
-  const field =
-    'w-full bg-parchment border border-warm-taupe rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-terracotta';
-  const label = 'block text-xs font-bold uppercase tracking-[0.2em] text-charcoal mb-1';
-
   return (
     <div className="space-y-6">
 
@@ -235,49 +231,49 @@ export const ShiftsAdmin: React.FC = () => {
       </div>
 
       {error && (
-        <div className="flex items-start gap-2 bg-terracotta/10 border border-terracotta/30 rounded-2xl px-4 py-3 text-xs text-terracotta">
+        <div className="pawtx-callout">
           <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
           <span>{error}</span>
         </div>
       )}
 
       {editingId && (
-        <form onSubmit={handleSave} className="bg-aged-paper border border-warm-taupe rounded-2xl p-6 space-y-4">
+        <form onSubmit={handleSave} className="pawtx-card">
           <h3 className="font-serif font-bold text-lg">
             {editingId === 'new' ? 'New shift' : 'Edit shift'}
           </h3>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className={label}>Title (English) *</label>
-              <input required className={field} value={form.title}
+              <label className="pawtx-label">Title (English) *</label>
+              <input required className="pawtx-field" value={form.title}
                 onChange={(e) => setForm({ ...form, title: e.target.value })} />
             </div>
             <div>
-              <label className={label}>Título (Español) *</label>
-              <input required className={field} value={form.title_es}
+              <label className="pawtx-label">Título (Español) *</label>
+              <input required className="pawtx-field" value={form.title_es}
                 onChange={(e) => setForm({ ...form, title_es: e.target.value })} />
             </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className={label}>What they will do (English) *</label>
-              <textarea required rows={3} className={field} value={form.description}
+              <label className="pawtx-label">What they will do (English) *</label>
+              <textarea required rows={3} className="pawtx-field" value={form.description}
                 onChange={(e) => setForm({ ...form, description: e.target.value })} />
             </div>
             <div>
-              <label className={label}>Descripción (Español) *</label>
-              <textarea required rows={3} className={field} value={form.description_es}
+              <label className="pawtx-label">Descripción (Español) *</label>
+              <textarea required rows={3} className="pawtx-field" value={form.description_es}
                 onChange={(e) => setForm({ ...form, description_es: e.target.value })} />
             </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
-              <label className={label}>Role</label>
+              <label className="pawtx-label">Role</label>
               <select
-                className={field}
+                className="pawtx-field"
                 value={form.role}
                 onChange={(e) => setForm({ ...form, role: e.target.value as VolunteerRoleRow })}
               >
@@ -290,8 +286,8 @@ export const ShiftsAdmin: React.FC = () => {
               </p>
             </div>
             <div>
-              <label className={label}>Spots *</label>
-              <input required type="number" min={1} className={field} value={form.spots_total}
+              <label className="pawtx-label">Spots *</label>
+              <input required type="number" min={1} className="pawtx-field" value={form.spots_total}
                 onChange={(e) => setForm({ ...form, spots_total: Number(e.target.value) })} />
               {editingRow && editingRow.spots_filled > 0 && (
                 <p className="text-[11px] text-charcoal mt-1.5">
@@ -310,13 +306,13 @@ export const ShiftsAdmin: React.FC = () => {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className={label}>Starts (Central Time) *</label>
-              <input required type="datetime-local" className={field} value={form.starts_at}
+              <label className="pawtx-label">Starts (Central Time) *</label>
+              <input required type="datetime-local" className="pawtx-field" value={form.starts_at}
                 onChange={(e) => setForm({ ...form, starts_at: e.target.value })} />
             </div>
             <div>
-              <label className={label}>Ends (Central Time) *</label>
-              <input required type="datetime-local" className={field} value={form.ends_at}
+              <label className="pawtx-label">Ends (Central Time) *</label>
+              <input required type="datetime-local" className="pawtx-field" value={form.ends_at}
                 onChange={(e) => setForm({ ...form, ends_at: e.target.value })} />
               <p className="text-[11px] text-charcoal mt-1.5">
                 {previewHours === null
@@ -327,8 +323,8 @@ export const ShiftsAdmin: React.FC = () => {
           </div>
 
           <div>
-            <label className={label}>Part of an event</label>
-            <select className={field} value={form.event_id}
+            <label className="pawtx-label">Part of an event</label>
+            <select className="pawtx-field" value={form.event_id}
               onChange={(e) => setForm({ ...form, event_id: e.target.value })}>
               <option value="">Standalone — not tied to an event</option>
               {events.map((event) => (
@@ -341,14 +337,14 @@ export const ShiftsAdmin: React.FC = () => {
             <button
               type="submit"
               disabled={isSaving}
-              className="bg-terracotta hover:bg-terracotta-deep text-white px-6 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider cursor-pointer disabled:opacity-50"
+              className="pawtx-cta"
             >
               {isSaving ? 'Saving...' : 'Save shift'}
             </button>
             <button
               type="button"
               onClick={() => setEditingId(null)}
-              className="border border-warm-taupe hover:bg-parchment px-6 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider cursor-pointer"
+              className="pawtx-cta-outline"
             >
               Cancel
             </button>
@@ -416,28 +412,28 @@ export const ShiftsAdmin: React.FC = () => {
                         <button
                           onClick={() => setRosterShiftId(rosterShiftId === row.id ? null : row.id)}
                           title="Roster and hours"
-                          className="p-2 rounded-lg hover:bg-parchment text-charcoal cursor-pointer"
+                          className="pawtx-icon-btn"
                         >
                           <ClipboardCheck className="w-4 h-4" />
                         </button>
                         <button
                           onClick={() => togglePublished(row)}
                           title={row.published ? 'Unpublish' : 'Publish'}
-                          className="p-2 rounded-lg hover:bg-parchment text-charcoal cursor-pointer"
+                          className="pawtx-icon-btn"
                         >
                           {row.published ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
                         </button>
                         <button
                           onClick={() => startEdit(row)}
                           title="Edit"
-                          className="p-2 rounded-lg hover:bg-parchment text-charcoal cursor-pointer"
+                          className="pawtx-icon-btn"
                         >
                           <Pencil className="w-4 h-4" />
                         </button>
                         <button
                           onClick={() => handleDelete(row)}
                           title="Delete"
-                          className="p-2 rounded-lg hover:bg-terracotta/10 text-terracotta cursor-pointer"
+                          className="pawtx-icon-btn-accent"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>

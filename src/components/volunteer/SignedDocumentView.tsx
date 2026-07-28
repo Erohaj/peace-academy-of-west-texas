@@ -105,7 +105,7 @@ export const SignedDocumentView: React.FC<Props> = ({ title, signature }) => {
       )}
 
       {error && (
-        <div className="flex items-start gap-2 bg-terracotta/10 border border-terracotta/30 rounded-xl px-3 py-2.5 text-xs text-terracotta">
+        <div className="pawtx-callout">
           <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
           <span>{error}</span>
         </div>

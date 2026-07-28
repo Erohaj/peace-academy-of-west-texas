@@ -233,7 +233,7 @@ export const BrochureShowcase: React.FC = () => {
                     <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-terracotta">
                       {isEs ? 'Propósito Fundamental' : 'Core Statement'}
                     </div>
-                    <h3 className="text-2xl font-serif font-bold text-graphite">
+                    <h3 className="pawtx-card-heading">
                       {isEs ? 'Nuestra Misión' : 'Our Mission'}
                     </h3>
                   </div>
@@ -263,7 +263,7 @@ export const BrochureShowcase: React.FC = () => {
                     <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-olive">
                       {isEs ? 'Aspiración Futura' : 'Future Horizon'}
                     </div>
-                    <h3 className="text-2xl font-serif font-bold text-graphite">
+                    <h3 className="pawtx-card-heading">
                       {isEs ? 'Nuestra Visión' : 'Our Vision'}
                     </h3>
                   </div>

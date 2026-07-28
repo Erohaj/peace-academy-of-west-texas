@@ -457,19 +457,19 @@ export const SearchModal: React.FC = () => {
         <div className="px-4 py-3 border-t border-warm-taupe bg-aged-paper/80 text-[11px] text-charcoal flex items-center justify-between">
           <div className="flex items-center gap-3">
             <span>
-              <kbd className="px-1.5 py-0.5 rounded bg-white border border-warm-taupe font-mono text-[10px] shadow-2xs">
+              <kbd className="pawtx-kbd">
                 ↑↓
               </kbd>{' '}
               {isEs ? 'Navegar' : 'Navigate'}
             </span>
             <span>
-              <kbd className="px-1.5 py-0.5 rounded bg-white border border-warm-taupe font-mono text-[10px] shadow-2xs">
+              <kbd className="pawtx-kbd">
                 ↵
               </kbd>{' '}
               {isEs ? 'Seleccionar' : 'Select'}
             </span>
             <span>
-              <kbd className="px-1.5 py-0.5 rounded bg-white border border-warm-taupe font-mono text-[10px] shadow-2xs">
+              <kbd className="pawtx-kbd">
                 ESC
               </kbd>{' '}
               {isEs ? 'Cerrar' : 'Close'}

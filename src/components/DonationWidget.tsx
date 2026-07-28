@@ -182,7 +182,7 @@ export const DonationWidget: React.FC<PageTitleProps> = ({ asPageTitle }) => {
               </div>
 
               <div className="space-y-2 max-w-md mx-auto">
-                <CardTitle className="text-2xl font-serif font-bold text-graphite">
+                <CardTitle className="pawtx-card-heading">
                   {t('donate.comingSoonTitle')}
                 </CardTitle>
                 <p className="text-sm text-charcoal">
@@ -341,7 +341,7 @@ export const DonationWidget: React.FC<PageTitleProps> = ({ asPageTitle }) => {
               {/* Donor Contact Details */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-bold uppercase tracking-[0.2em] text-charcoal mb-1">
+                  <label className="pawtx-label">
                     {t('donate.yourName')}
                   </label>
                   <input
@@ -349,12 +349,12 @@ export const DonationWidget: React.FC<PageTitleProps> = ({ asPageTitle }) => {
                     value={donorName}
                     onChange={(e) => setDonorName(e.target.value)}
                     placeholder="Jane Doe"
-                    className="w-full bg-parchment border border-warm-taupe rounded-xl px-4 py-2.5 text-sm pawtx-focus focus:border-terracotta"
+                    className="pawtx-field"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold uppercase tracking-[0.2em] text-charcoal mb-1">
+                  <label className="pawtx-label">
                     {t('donate.yourEmail')} *
                   </label>
                   <input
@@ -363,7 +363,7 @@ export const DonationWidget: React.FC<PageTitleProps> = ({ asPageTitle }) => {
                     value={donorEmail}
                     onChange={(e) => setDonorEmail(e.target.value)}
                     placeholder="jane@example.com"
-                    className="w-full bg-parchment border border-warm-taupe rounded-xl px-4 py-2.5 text-sm pawtx-focus focus:border-terracotta"
+                    className="pawtx-field"
                   />
                 </div>
               </div>
@@ -377,7 +377,7 @@ export const DonationWidget: React.FC<PageTitleProps> = ({ asPageTitle }) => {
               </div>
 
               {checkoutError && (
-                <div className="flex items-start gap-2 bg-terracotta/10 border border-terracotta/30 rounded-2xl px-4 py-3 text-xs text-terracotta">
+                <div className="pawtx-callout">
                   <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
                   <span>{checkoutError}</span>
                 </div>

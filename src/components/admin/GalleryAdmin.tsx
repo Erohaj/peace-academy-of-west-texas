@@ -160,9 +160,6 @@ export const GalleryAdmin: React.FC = () => {
     }
   };
 
-  const field = 'w-full bg-parchment border border-warm-taupe rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-terracotta';
-  const label = 'block text-xs font-bold uppercase tracking-[0.2em] text-charcoal mb-1';
-
   return (
     <div className="space-y-6">
 
@@ -178,48 +175,48 @@ export const GalleryAdmin: React.FC = () => {
       </div>
 
       {error && (
-        <div className="flex items-start gap-2 bg-terracotta/10 border border-terracotta/30 rounded-2xl px-4 py-3 text-xs text-terracotta">
+        <div className="pawtx-callout">
           <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
           <span>{error}</span>
         </div>
       )}
 
       {editingId && (
-        <form onSubmit={handleSave} className="bg-aged-paper border border-warm-taupe rounded-2xl p-6 space-y-4">
+        <form onSubmit={handleSave} className="pawtx-card">
           <h3 className="font-serif font-bold text-lg">
             {editingId === 'new' ? 'Add photo' : 'Edit photo'}
           </h3>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className={label}>Title (English) *</label>
-              <input required className={field} value={form.title}
+              <label className="pawtx-label">Title (English) *</label>
+              <input required className="pawtx-field" value={form.title}
                 onChange={(e) => setForm({ ...form, title: e.target.value })} />
             </div>
             <div>
-              <label className={label}>Título (Español) *</label>
-              <input required className={field} value={form.title_es}
+              <label className="pawtx-label">Título (Español) *</label>
+              <input required className="pawtx-field" value={form.title_es}
                 onChange={(e) => setForm({ ...form, title_es: e.target.value })} />
             </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className={label}>Caption (English) *</label>
-              <textarea required rows={3} className={field} value={form.caption}
+              <label className="pawtx-label">Caption (English) *</label>
+              <textarea required rows={3} className="pawtx-field" value={form.caption}
                 onChange={(e) => setForm({ ...form, caption: e.target.value })} />
             </div>
             <div>
-              <label className={label}>Descripción (Español) *</label>
-              <textarea required rows={3} className={field} value={form.caption_es}
+              <label className="pawtx-label">Descripción (Español) *</label>
+              <textarea required rows={3} className="pawtx-field" value={form.caption_es}
                 onChange={(e) => setForm({ ...form, caption_es: e.target.value })} />
             </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
             <div>
-              <label className={label}>Category</label>
-              <select className={field} value={form.category}
+              <label className="pawtx-label">Category</label>
+              <select className="pawtx-field" value={form.category}
                 onChange={(e) => setForm({ ...form, category: e.target.value as GalleryRow['category'] })}>
                 <option value="cooking">Cooking</option>
                 <option value="cultural">Cultural</option>
@@ -230,13 +227,13 @@ export const GalleryAdmin: React.FC = () => {
             <div>
               {/* Only the month and year are shown on the site; the day is
                   stored but never rendered. */}
-              <label className={label}>Date taken *</label>
-              <input required type="date" className={field} value={form.taken_on}
+              <label className="pawtx-label">Date taken *</label>
+              <input required type="date" className="pawtx-field" value={form.taken_on}
                 onChange={(e) => setForm({ ...form, taken_on: e.target.value })} />
             </div>
             <div>
-              <label className={label}>Sort order</label>
-              <input type="number" className={field} value={form.sort_order}
+              <label className="pawtx-label">Sort order</label>
+              <input type="number" className="pawtx-field" value={form.sort_order}
                 onChange={(e) => setForm({ ...form, sort_order: Number(e.target.value) })} />
             </div>
             <div className="flex items-end pb-2.5">
@@ -249,13 +246,13 @@ export const GalleryAdmin: React.FC = () => {
           </div>
 
           <div>
-            <label className={label}>Location *</label>
-            <input required className={field} value={form.location}
+            <label className="pawtx-label">Location *</label>
+            <input required className="pawtx-field" value={form.location}
               onChange={(e) => setForm({ ...form, location: e.target.value })} />
           </div>
 
           <div>
-            <label className={label}>Photo *</label>
+            <label className="pawtx-label">Photo *</label>
             <div className="flex items-center gap-4">
               {(form.image_url || form.image_key) && (
                 <img
@@ -285,14 +282,14 @@ export const GalleryAdmin: React.FC = () => {
             <button
               type="submit"
               disabled={isSaving || isUploading}
-              className="bg-terracotta hover:bg-terracotta-deep text-white px-6 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider cursor-pointer disabled:opacity-50"
+              className="pawtx-cta"
             >
               {isSaving ? 'Saving...' : 'Save photo'}
             </button>
             <button
               type="button"
               onClick={() => setEditingId(null)}
-              className="border border-warm-taupe hover:bg-parchment px-6 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider cursor-pointer"
+              className="pawtx-cta-outline"
             >
               Cancel
             </button>
@@ -324,15 +321,15 @@ export const GalleryAdmin: React.FC = () => {
                 )}
                 <div className="flex items-center gap-1 pt-1">
                   <button onClick={() => togglePublished(row)} title={row.published ? 'Hide' : 'Show'}
-                    className="p-2 rounded-lg hover:bg-parchment text-charcoal cursor-pointer">
+                    className="pawtx-icon-btn">
                     {row.published ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
                   </button>
                   <button onClick={() => startEdit(row)} title="Edit"
-                    className="p-2 rounded-lg hover:bg-parchment text-charcoal cursor-pointer">
+                    className="pawtx-icon-btn">
                     <Pencil className="w-4 h-4" />
                   </button>
                   <button onClick={() => handleDelete(row)} title="Delete"
-                    className="p-2 rounded-lg hover:bg-terracotta/10 text-terracotta cursor-pointer">
+                    className="pawtx-icon-btn-accent">
                     <Trash2 className="w-4 h-4" />
                   </button>
                 </div>

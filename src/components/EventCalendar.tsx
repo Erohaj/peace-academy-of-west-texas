@@ -225,7 +225,7 @@ export const EventCalendar: React.FC<EventCalendarProps> = ({ events, selectedCa
               <CalendarIcon className="w-5 h-5 text-terracotta" />
             </div>
             <div>
-              <h3 className="text-2xl font-serif font-bold text-graphite capitalize">
+              <h3 className="pawtx-card-heading capitalize">
                 {monthName}
               </h3>
               <p className="text-xs text-charcoal font-medium">
@@ -416,7 +416,7 @@ export const EventCalendar: React.FC<EventCalendarProps> = ({ events, selectedCa
               <Sparkles className="w-3.5 h-3.5 text-olive" />
               <span>{t('events.selectDayEvents', { date: '' })}</span>
             </div>
-            <h3 className="text-xl sm:text-2xl font-serif font-bold text-graphite capitalize">
+            <h3 className="text-xl sm:pawtx-card-heading capitalize">
               {selectedDateFormatted || (isSpanish ? 'Selecciona una fecha' : 'Select a date')}
             </h3>
           </div>

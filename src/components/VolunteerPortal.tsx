@@ -177,7 +177,7 @@ export const VolunteerPortal: React.FC = () => {
               <div className="w-12 h-12 bg-olive/10 text-olive rounded-2xl flex items-center justify-center mx-auto">
                 <ShieldCheck className="w-6 h-6" />
               </div>
-              <h1 className="text-2xl font-serif font-bold text-graphite">
+              <h1 className="pawtx-card-heading">
                 {t('volunteer.portalTitle')}
               </h1>
               <p className="text-xs text-charcoal">
@@ -215,7 +215,7 @@ export const VolunteerPortal: React.FC = () => {
 
               <form onSubmit={handleMagicLinkSubmit} className="space-y-4">
                 <div>
-                  <label className="block text-xs font-bold uppercase tracking-[0.2em] text-charcoal mb-1">
+                  <label className="pawtx-label">
                     {t('volunteer.magicLinkTitle')}
                   </label>
                   <div className="relative">
@@ -233,7 +233,7 @@ export const VolunteerPortal: React.FC = () => {
                 </div>
 
                 {loginError && (
-                  <div className="flex items-start gap-2 bg-terracotta/10 border border-terracotta/30 rounded-xl px-3 py-2.5 text-xs text-terracotta">
+                  <div className="pawtx-callout">
                     <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
                     <span>{loginError}</span>
                   </div>
@@ -298,7 +298,7 @@ export const VolunteerPortal: React.FC = () => {
               </div>
             )}
             <div>
-              <h1 className="text-2xl font-serif font-bold text-graphite">
+              <h1 className="pawtx-card-heading">
                 {t('volunteer.welcomeBack', { name: volunteer?.fullName })}
               </h1>
               <p className="text-xs text-charcoal">
@@ -435,7 +435,7 @@ export const VolunteerPortal: React.FC = () => {
             {/* Shift booking failures surface here rather than silently
                 reverting the optimistic update the store just rolled back. */}
             {shiftError && (
-              <div className="flex items-start gap-2 bg-terracotta/10 border border-terracotta/30 rounded-2xl px-4 py-3 text-xs text-terracotta">
+              <div className="pawtx-callout">
                 <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
                 <span>{shiftError}</span>
               </div>
@@ -444,7 +444,7 @@ export const VolunteerPortal: React.FC = () => {
             {/* FORMS TAB */}
             {activeTab === 'forms' && (
               <div className="bg-aged-paper rounded-2xl p-6 border border-warm-taupe shadow-sm animate-fadeIn">
-                <h3 className="text-2xl font-serif font-bold text-graphite mb-1">
+                <h3 className="pawtx-card-heading mb-1">
                   {t('volunteer.tabForms')}
                 </h3>
                 <p className="text-xs text-charcoal mb-6">
@@ -692,7 +692,7 @@ export const VolunteerPortal: React.FC = () => {
             {activeTab === 'hours' && (
               <div className="bg-aged-paper rounded-2xl p-6 border border-warm-taupe shadow-sm space-y-6 animate-fadeIn">
                 <div className="space-y-2">
-                  <h3 className="text-2xl font-serif font-bold text-graphite">
+                  <h3 className="pawtx-card-heading">
                     Service Log & Achievement Badges
                   </h3>
                   <p className="text-xs text-charcoal">
@@ -816,7 +816,7 @@ export const VolunteerPortal: React.FC = () => {
             {activeTab === 'profile' && (
               <div className="bg-aged-paper rounded-2xl p-6 border border-warm-taupe shadow-sm space-y-6 animate-fadeIn">
                 <div className="space-y-2">
-                  <h3 className="text-2xl font-serif font-bold text-graphite">
+                  <h3 className="pawtx-card-heading">
                     {t('volunteer.tabProfile')}
                   </h3>
                   <p className="text-xs text-charcoal">
@@ -828,7 +828,7 @@ export const VolunteerPortal: React.FC = () => {
                   <div>
                     <label
                       htmlFor="volunteer-name"
-                      className="block text-xs font-bold uppercase tracking-[0.2em] text-charcoal mb-1"
+                      className="pawtx-label"
                     >
                       {t('volunteer.profileName')}
                     </label>
@@ -837,14 +837,14 @@ export const VolunteerPortal: React.FC = () => {
                       value={nameInput}
                       onChange={(e) => setNameInput(e.target.value)}
                       placeholder={t('volunteer.profileNamePlaceholder')}
-                      className="w-full bg-parchment border border-warm-taupe rounded-xl px-4 py-2.5 text-sm pawtx-focus focus:border-terracotta"
+                      className="pawtx-field"
                     />
                   </div>
 
                   <div>
                     <label
                       htmlFor="volunteer-phone"
-                      className="block text-xs font-bold uppercase tracking-[0.2em] text-charcoal mb-1"
+                      className="pawtx-label"
                     >
                       {t('volunteer.profilePhone')}
                     </label>
@@ -853,12 +853,12 @@ export const VolunteerPortal: React.FC = () => {
                       type="tel"
                       value={phoneInput}
                       onChange={(e) => setPhoneInput(e.target.value)}
-                      className="w-full bg-parchment border border-warm-taupe rounded-xl px-4 py-2.5 text-sm pawtx-focus focus:border-terracotta"
+                      className="pawtx-field"
                     />
                   </div>
 
                   <div>
-                    <span className="block text-xs font-bold uppercase tracking-[0.2em] text-charcoal mb-1">
+                    <span className="pawtx-label">
                       {t('volunteer.profileEmail')}
                     </span>
                     {/* Not editable: it is the identity the account signs in
@@ -867,7 +867,7 @@ export const VolunteerPortal: React.FC = () => {
                   </div>
 
                   {profileError && (
-                    <div className="flex items-start gap-2 bg-terracotta/10 border border-terracotta/30 rounded-xl px-3 py-2.5 text-xs text-terracotta">
+                    <div className="pawtx-callout">
                       <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
                       <span>{profileError}</span>
                     </div>

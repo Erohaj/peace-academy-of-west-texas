@@ -147,7 +147,7 @@ export const ApplicationsAdmin: React.FC = () => {
       </div>
 
       {error && (
-        <div className="flex items-start gap-2 bg-terracotta/10 border border-terracotta/30 rounded-2xl px-4 py-3 text-xs text-terracotta">
+        <div className="pawtx-callout">
           <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
           <span>{error}</span>
         </div>
@@ -280,14 +280,14 @@ export const ApplicationsAdmin: React.FC = () => {
                     </div>
 
                     <div>
-                      <label className="block text-xs font-bold uppercase tracking-[0.2em] text-charcoal mb-1">
+                      <label className="pawtx-label">
                         Review note
                       </label>
                       <textarea
                         rows={2}
                         value={reviewNote}
                         onChange={(e) => setReviewNote(e.target.value)}
-                        className="w-full bg-white border border-warm-taupe rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-terracotta"
+                        className="w-full bg-white border border-warm-taupe rounded-xl px-4 py-2.5 text-sm pawtx-focus focus:border-terracotta"
                         placeholder="Optional — visible to staff only"
                       />
                     </div>

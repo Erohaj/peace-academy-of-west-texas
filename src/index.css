@@ -88,6 +88,82 @@
   }
 }
 
+/*
+ * The handful of shapes this UI actually repeats.
+ *
+ * Each of these was a class string written out by hand between three and
+ * fifteen times, and five components additionally kept their own private
+ * `field`/`label` constants holding byte-identical copies. The cost was not
+ * the typing: it was that a change to the field style, or to the focus ring,
+ * had to be found in fifteen places and was never found in all of them.
+ *
+ * Only shapes that were already identical are here. Anything that differed in
+ * padding or border weight either kept its inline classes or was normalised
+ * deliberately — see the callouts below.
+ */
+
+@utility pawtx-label {
+  @apply block text-xs font-bold uppercase tracking-[0.2em] text-charcoal mb-1;
+}
+
+@utility pawtx-card-heading {
+  @apply text-2xl font-serif font-bold text-graphite;
+}
+
+@utility pawtx-field {
+  @apply w-full bg-parchment border border-warm-taupe rounded-xl px-4 py-2.5 text-sm
+         pawtx-focus focus:border-terracotta;
+}
+
+/* Same field with room for the icon the caller absolutely positions in it. */
+@utility pawtx-field-icon {
+  @apply w-full bg-parchment border border-warm-taupe rounded-xl pl-10 pr-4 py-2.5 text-sm
+         pawtx-focus focus:border-terracotta focus:ring-1 focus:ring-terracotta;
+}
+
+/*
+ * Inline notices. These came in three radii and two paddings across 19 sites
+ * for no reason anyone could point at; they are one shape now.
+ */
+@utility pawtx-callout {
+  @apply flex items-start gap-2 bg-terracotta/10 border border-terracotta/30
+         rounded-2xl px-4 py-3 text-xs text-terracotta;
+}
+
+@utility pawtx-callout-olive {
+  @apply flex items-start gap-2 bg-olive/10 border border-olive/30
+         rounded-2xl px-4 py-3 text-xs text-olive;
+}
+
+@utility pawtx-cta {
+  @apply bg-terracotta hover:bg-terracotta-deep text-white px-6 py-2.5 rounded-full
+         text-xs font-bold uppercase tracking-wider cursor-pointer disabled:opacity-50
+         pawtx-focus;
+}
+
+@utility pawtx-cta-outline {
+  @apply border border-warm-taupe hover:bg-parchment px-6 py-2.5 rounded-full
+         text-xs font-bold uppercase tracking-wider cursor-pointer pawtx-focus;
+}
+
+/* NOTE: `rounded-lg` is 24px in this theme, not Tailwind's 8px — on a ~40px
+   box that clamps to a circle, which is how these have always rendered. */
+@utility pawtx-icon-btn {
+  @apply p-2 rounded-lg hover:bg-parchment text-charcoal cursor-pointer pawtx-focus;
+}
+
+@utility pawtx-icon-btn-accent {
+  @apply p-2 rounded-lg hover:bg-terracotta/10 text-terracotta cursor-pointer pawtx-focus;
+}
+
+@utility pawtx-card {
+  @apply bg-aged-paper border border-warm-taupe rounded-2xl p-6 space-y-4;
+}
+
+@utility pawtx-kbd {
+  @apply px-1.5 py-0.5 rounded bg-white border border-warm-taupe font-mono text-3xs shadow-2xs;
+}
+
 /* Custom scrollbars */
 ::-webkit-scrollbar {
   width: 8px;

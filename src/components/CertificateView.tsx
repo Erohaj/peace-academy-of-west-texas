@@ -64,7 +64,7 @@ export const CertificateView: React.FC<Props> = ({ certificate }) => {
         <div className="text-xs font-bold uppercase tracking-[0.3em] text-terracotta">
           Certificate of Volunteer Service
         </div>
-        <div className="text-2xl font-serif font-bold text-graphite">{SITE_NAME}</div>
+        <div className="pawtx-card-heading">{SITE_NAME}</div>
         <div className="text-[11px] text-charcoal">
           {ORG_ADDRESS} · 501(c)(3) Non-Profit Organization
         </div>
@@ -146,7 +146,7 @@ export const CertificateView: React.FC<Props> = ({ certificate }) => {
       )}
 
       {isRevoked && (
-        <div className="flex items-start gap-2 bg-terracotta/10 border border-terracotta/30 rounded-2xl px-4 py-3 text-xs text-terracotta">
+        <div className="pawtx-callout">
           <ShieldOff className="w-4 h-4 shrink-0 mt-0.5" />
           <span>
             This certificate was withdrawn on {formatDate(certificate.revoked_at!.slice(0, 10))}
