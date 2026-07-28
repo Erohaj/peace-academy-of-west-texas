@@ -57,6 +57,10 @@
   --font-display: 'Playfair Display', Georgia, serif;
   --font-serif: 'Playfair Display', Georgia, serif;
   --font-inter: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  /* The wordmark beside the shield, and nothing else. A condensed gothic,
+     because that is what the lettering inside the shield is — Playfair next
+     to it read as two different organisations sharing a badge. */
+  --font-wordmark: 'Oswald', 'Arial Narrow', ui-sans-serif, system-ui, sans-serif;
 
   /* Eyebrows, badges and timestamps sit below Tailwind's 12px `text-xs`
      floor. Named here so 77 hand-written `text-[10px]`/`text-[11px]` stop

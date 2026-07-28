@@ -41,15 +41,17 @@ export const PAWTXLogo: React.FC<LogoProps> = ({
           margin so much as a coincidence. Below md the badge stands alone. */}
       {showText && (
         <div className="hidden md:block text-left">
+          {/* Same lockup as the shield: condensed gothic, all caps, the second
+              line smaller and letter-spaced under the first. */}
           <span
-            className={`block font-serif font-bold text-base tracking-tight leading-none whitespace-nowrap ${textColor}`}
+            className={`block font-wordmark font-semibold text-lg uppercase tracking-wide leading-none whitespace-nowrap ${textColor}`}
           >
-            PEACE ACADEMY
+            Peace Academy
           </span>
           <span
-            className={`block text-3xs font-bold uppercase tracking-[0.2em] whitespace-nowrap ${subTextColor}`}
+            className={`block font-wordmark font-medium text-2xs uppercase tracking-[0.18em] leading-tight whitespace-nowrap ${subTextColor}`}
           >
-            OF WEST TEXAS
+            of West Texas
           </span>
         </div>
       )}
