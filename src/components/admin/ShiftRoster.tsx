@@ -184,44 +184,44 @@ export const ShiftRoster: React.FC<Props> = ({ shift, onClose, onSaved }) => {
   const pill = 'px-3 py-1.5 rounded-full text-[11px] font-bold uppercase tracking-wider cursor-pointer transition-colors flex items-center gap-1.5';
 
   return (
-    <div className="bg-[#F4F1ED] border border-[#E5E0D8] rounded-2xl p-6 space-y-4">
+    <div className="bg-aged-paper border border-warm-taupe rounded-2xl p-6 space-y-4">
       <div className="flex items-start justify-between gap-4">
         <div>
           <h3 className="font-serif font-bold text-lg flex items-center gap-2">
-            <ClipboardCheck className="w-5 h-5 text-[#A64D32]" />
+            <ClipboardCheck className="w-5 h-5 text-terracotta" />
             Roster — {shift.title}
           </h3>
-          <p className="text-xs text-[#5A5A5A] mt-1">
+          <p className="text-xs text-charcoal mt-1">
             Crediting hours here is what a service letter is built from. Only mark
             someone as attended if they were there.
           </p>
         </div>
         <button
           onClick={onClose}
-          className="text-xs font-bold uppercase tracking-wider text-[#5A5A5A] hover:text-[#2A2A2A] cursor-pointer"
+          className="text-xs font-bold uppercase tracking-wider text-charcoal hover:text-graphite cursor-pointer"
         >
           Close
         </button>
       </div>
 
       {!shiftHasEnded && (
-        <div className="flex items-start gap-2 bg-[#5B6346]/10 border border-[#5B6346]/30 rounded-xl px-4 py-3 text-xs text-[#5B6346]">
+        <div className="flex items-start gap-2 bg-olive/10 border border-olive/30 rounded-xl px-4 py-3 text-xs text-olive">
           <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
           <span>This shift has not finished yet. Hours dated in the future are refused.</span>
         </div>
       )}
 
       {error && (
-        <div className="flex items-start gap-2 bg-[#A64D32]/10 border border-[#A64D32]/30 rounded-xl px-4 py-3 text-xs text-[#A64D32]">
+        <div className="flex items-start gap-2 bg-terracotta/10 border border-terracotta/30 rounded-xl px-4 py-3 text-xs text-terracotta">
           <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
           <span>{error}</span>
         </div>
       )}
 
       {isLoading ? (
-        <p className="text-sm text-[#5A5A5A]">Loading roster...</p>
+        <p className="text-sm text-charcoal">Loading roster...</p>
       ) : entries.length === 0 ? (
-        <p className="text-sm text-[#5A5A5A]">
+        <p className="text-sm text-charcoal">
           Nobody has claimed this shift yet. Hours worked outside the schedule can be
           added to a volunteer's log directly.
         </p>
@@ -233,11 +233,11 @@ export const ShiftRoster: React.FC<Props> = ({ shift, onClose, onSaved }) => {
               return (
                 <div
                   key={entry.signupId}
-                  className="bg-[#FDFBF7] border border-[#E5E0D8] rounded-xl px-4 py-3 flex flex-wrap items-center justify-between gap-3"
+                  className="bg-parchment border border-warm-taupe rounded-xl px-4 py-3 flex flex-wrap items-center justify-between gap-3"
                 >
                   <div className="min-w-[12rem]">
                     <div className="font-bold text-sm">{entry.fullName}</div>
-                    <div className="text-[11px] text-[#5A5A5A]">
+                    <div className="text-[11px] text-charcoal">
                       {entry.loggedHours === null
                         ? 'Not yet credited'
                         : `Credited ${entry.loggedHours} hrs`}
@@ -250,8 +250,8 @@ export const ShiftRoster: React.FC<Props> = ({ shift, onClose, onSaved }) => {
                       onClick={() => setAttendance(entry.userId, 'attended')}
                       className={`${pill} ${
                         decision?.attendance === 'attended'
-                          ? 'bg-[#5B6346] text-white'
-                          : 'bg-white border border-[#E5E0D8] text-[#5A5A5A] hover:bg-[#F4F1ED]'
+                          ? 'bg-olive text-white'
+                          : 'bg-white border border-warm-taupe text-charcoal hover:bg-aged-paper'
                       }`}
                     >
                       <Check className="w-3.5 h-3.5" />
@@ -262,8 +262,8 @@ export const ShiftRoster: React.FC<Props> = ({ shift, onClose, onSaved }) => {
                       onClick={() => setAttendance(entry.userId, 'no_show')}
                       className={`${pill} ${
                         decision?.attendance === 'no_show'
-                          ? 'bg-[#A64D32] text-white'
-                          : 'bg-white border border-[#E5E0D8] text-[#5A5A5A] hover:bg-[#F4F1ED]'
+                          ? 'bg-terracotta text-white'
+                          : 'bg-white border border-warm-taupe text-charcoal hover:bg-aged-paper'
                       }`}
                     >
                       <X className="w-3.5 h-3.5" />
@@ -279,9 +279,9 @@ export const ShiftRoster: React.FC<Props> = ({ shift, onClose, onSaved }) => {
                       disabled={decision?.attendance !== 'attended'}
                       value={decision?.hours ?? ''}
                       onChange={(e) => setHours(entry.userId, e.target.value)}
-                      className="w-20 bg-white border border-[#E5E0D8] rounded-xl px-3 py-1.5 text-sm disabled:opacity-40 focus:outline-none focus:border-[#A64D32]"
+                      className="w-20 bg-white border border-warm-taupe rounded-xl px-3 py-1.5 text-sm disabled:opacity-40 focus:outline-none focus:border-terracotta"
                     />
-                    <span className="text-[11px] text-[#5A5A5A]">hrs</span>
+                    <span className="text-[11px] text-charcoal">hrs</span>
                   </div>
                 </div>
               );
@@ -290,7 +290,7 @@ export const ShiftRoster: React.FC<Props> = ({ shift, onClose, onSaved }) => {
 
           <div className="flex flex-wrap items-end gap-4 pt-2">
             <div>
-              <label className="block text-xs font-bold uppercase tracking-[0.2em] text-[#5A5A5A] mb-1">
+              <label className="block text-xs font-bold uppercase tracking-[0.2em] text-charcoal mb-1">
                 Served on
               </label>
               <input
@@ -300,7 +300,7 @@ export const ShiftRoster: React.FC<Props> = ({ shift, onClose, onSaved }) => {
                   discardReview();
                   setServedOn(e.target.value);
                 }}
-                className="bg-[#FDFBF7] border border-[#E5E0D8] rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#A64D32]"
+                className="bg-parchment border border-warm-taupe rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-terracotta"
               />
             </div>
 
@@ -308,7 +308,7 @@ export const ShiftRoster: React.FC<Props> = ({ shift, onClose, onSaved }) => {
               <button
                 type="button"
                 onClick={handleReview}
-                className="bg-[#A64D32] hover:bg-[#8b3f28] text-white px-6 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider cursor-pointer"
+                className="bg-terracotta hover:bg-terracotta-deep text-white px-6 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider cursor-pointer"
               >
                 Review and credit
               </button>
@@ -316,7 +316,7 @@ export const ShiftRoster: React.FC<Props> = ({ shift, onClose, onSaved }) => {
           </div>
 
           {justSaved && (
-            <div className="flex items-start gap-2 bg-[#5B6346]/10 border border-[#5B6346]/30 rounded-xl px-4 py-3 text-xs text-[#5B6346]">
+            <div className="flex items-start gap-2 bg-olive/10 border border-olive/30 rounded-xl px-4 py-3 text-xs text-olive">
               <Check className="w-4 h-4 shrink-0 mt-0.5" />
               <span>
                 {justSaved} Volunteers see this on the Hours Log &amp; Badges tab of their
@@ -329,10 +329,10 @@ export const ShiftRoster: React.FC<Props> = ({ shift, onClose, onSaved }) => {
               asking "are you sure?", because the thing worth checking is
               whether these are the right people and the right hours. */}
           {pending && (
-            <div className="bg-[#FDFBF7] border border-[#A64D32]/40 rounded-2xl p-5 space-y-3">
-              <div className="text-sm font-bold text-[#2A2A2A]">Confirm before crediting</div>
+            <div className="bg-parchment border border-terracotta/40 rounded-2xl p-5 space-y-3">
+              <div className="text-sm font-bold text-graphite">Confirm before crediting</div>
 
-              <ul className="text-xs text-[#5A5A5A] space-y-1">
+              <ul className="text-xs text-charcoal space-y-1">
                 {pending.map((decision) => {
                   const name =
                     entries.find((e) => e.userId === decision.userId)?.fullName ?? decision.userId;
@@ -352,7 +352,7 @@ export const ShiftRoster: React.FC<Props> = ({ shift, onClose, onSaved }) => {
                 })}
               </ul>
 
-              <p className="text-[11px] text-[#5A5A5A]">
+              <p className="text-[11px] text-charcoal">
                 Dated{' '}
                 {new Date(`${servedOn}T12:00:00`).toLocaleDateString('en-US', {
                   dateStyle: 'long'
@@ -365,7 +365,7 @@ export const ShiftRoster: React.FC<Props> = ({ shift, onClose, onSaved }) => {
                   type="button"
                   onClick={handleConfirm}
                   disabled={isSaving}
-                  className="bg-[#A64D32] hover:bg-[#8b3f28] text-white px-6 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider cursor-pointer disabled:opacity-50"
+                  className="bg-terracotta hover:bg-terracotta-deep text-white px-6 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider cursor-pointer disabled:opacity-50"
                 >
                   {isSaving ? 'Saving...' : 'Confirm and credit'}
                 </button>
@@ -373,7 +373,7 @@ export const ShiftRoster: React.FC<Props> = ({ shift, onClose, onSaved }) => {
                   type="button"
                   onClick={() => setPending(null)}
                   disabled={isSaving}
-                  className="border border-[#E5E0D8] hover:bg-white px-6 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider cursor-pointer disabled:opacity-50"
+                  className="border border-warm-taupe hover:bg-white px-6 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider cursor-pointer disabled:opacity-50"
                 >
                   Back
                 </button>

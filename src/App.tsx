@@ -194,7 +194,7 @@ export const App: React.FC = () => {
    */
   const lazyTab = (node: React.ReactNode) => (
     <Suspense
-      fallback={<div className="py-20 text-center text-sm text-[#5A5A5A]">{t('common.loading')}</div>}
+      fallback={<div className="py-20 text-center text-sm text-charcoal">{t('common.loading')}</div>}
     >
       {node}
     </Suspense>
@@ -218,15 +218,15 @@ export const App: React.FC = () => {
               the page rather than replacing it. */}
           {dataStatus === 'error' && (
             <div className="max-w-3xl mx-auto px-4 pt-8">
-              <div className="flex items-start gap-3 bg-[#A64D32]/10 border border-[#A64D32]/30 rounded-2xl px-5 py-4">
-                <AlertCircle className="w-5 h-5 text-[#A64D32] shrink-0 mt-0.5" />
+              <div className="flex items-start gap-3 bg-terracotta/10 border border-terracotta/30 rounded-2xl px-5 py-4">
+                <AlertCircle className="w-5 h-5 text-terracotta shrink-0 mt-0.5" />
                 <div className="flex-1 text-sm">
-                  <div className="font-bold text-[#A64D32]">
+                  <div className="font-bold text-terracotta">
                     {dataError === 'not_configured'
                       ? t('common.notConfiguredTitle')
                       : t('common.loadErrorTitle')}
                   </div>
-                  <p className="text-xs text-[#5A5A5A] mt-1">
+                  <p className="text-xs text-charcoal mt-1">
                     {dataError === 'not_configured'
                       ? t('common.notConfiguredText')
                       : t('common.loadErrorText')}
@@ -235,7 +235,7 @@ export const App: React.FC = () => {
                 {dataError !== 'not_configured' && (
                   <button
                     onClick={() => void refreshContent()}
-                    className="shrink-0 flex items-center gap-1.5 bg-[#A64D32] hover:bg-[#8b3f28] text-white px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer"
+                    className="shrink-0 flex items-center gap-1.5 bg-terracotta hover:bg-terracotta-deep text-white px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer"
                   >
                     <RefreshCw className="w-3.5 h-3.5" />
                     <span>{t('common.retry')}</span>

@@ -23,11 +23,11 @@ import { useAppStore } from '../../store/useAppStore';
 import { SignedDocumentView } from '../volunteer/SignedDocumentView';
 
 const STATUS_STYLES: Record<ApplicationRow['status'], string> = {
-  submitted: 'bg-[#5A5A5A]/15 text-[#5A5A5A]',
-  in_review: 'bg-[#A64D32]/15 text-[#A64D32]',
-  approved: 'bg-[#5B6346]/15 text-[#5B6346]',
+  submitted: 'bg-charcoal/15 text-charcoal',
+  in_review: 'bg-terracotta/15 text-terracotta',
+  approved: 'bg-olive/15 text-olive',
   declined: 'bg-red-900/10 text-red-800',
-  withdrawn: 'bg-[#5A5A5A]/15 text-[#5A5A5A]'
+  withdrawn: 'bg-charcoal/15 text-charcoal'
 };
 
 /**
@@ -136,8 +136,8 @@ export const ApplicationsAdmin: React.FC = () => {
               onClick={() => setStatusFilter(value)}
               className={`px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider cursor-pointer transition-colors ${
                 statusFilter === value
-                  ? 'bg-[#A64D32] text-white'
-                  : 'bg-[#F4F1ED] text-[#2A2A2A] hover:bg-[#E5E0D8]'
+                  ? 'bg-terracotta text-white'
+                  : 'bg-aged-paper text-graphite hover:bg-warm-taupe'
               }`}
             >
               {label}
@@ -147,16 +147,16 @@ export const ApplicationsAdmin: React.FC = () => {
       </div>
 
       {error && (
-        <div className="flex items-start gap-2 bg-[#A64D32]/10 border border-[#A64D32]/30 rounded-2xl px-4 py-3 text-xs text-[#A64D32]">
+        <div className="flex items-start gap-2 bg-terracotta/10 border border-terracotta/30 rounded-2xl px-4 py-3 text-xs text-terracotta">
           <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
           <span>{error}</span>
         </div>
       )}
 
       {isLoading ? (
-        <p className="text-sm text-[#5A5A5A]">Loading applications...</p>
+        <p className="text-sm text-charcoal">Loading applications...</p>
       ) : visibleRows.length === 0 ? (
-        <p className="text-sm text-[#5A5A5A]">No applications match this filter.</p>
+        <p className="text-sm text-charcoal">No applications match this filter.</p>
       ) : (
         <div className="space-y-3">
           {visibleRows.map((row) => {
@@ -166,7 +166,7 @@ export const ApplicationsAdmin: React.FC = () => {
             return (
               <div
                 key={row.id}
-                className="bg-[#F4F1ED] border border-[#E5E0D8] rounded-2xl overflow-hidden"
+                className="bg-aged-paper border border-warm-taupe rounded-2xl overflow-hidden"
               >
                 <button
                   onClick={() => void toggleExpand(row)}
@@ -178,14 +178,14 @@ export const ApplicationsAdmin: React.FC = () => {
                       {row.was_minor_at_submission && (
                         <span
                           title="Was a minor when they applied"
-                          className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider bg-[#A64D32]/15 text-[#A64D32] px-2 py-0.5 rounded-full"
+                          className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider bg-terracotta/15 text-terracotta px-2 py-0.5 rounded-full"
                         >
                           <ShieldAlert className="w-3 h-3" />
                           Minor
                         </span>
                       )}
                     </div>
-                    <div className="text-xs text-[#5A5A5A] truncate">{row.email}</div>
+                    <div className="text-xs text-charcoal truncate">{row.email}</div>
                   </div>
                   <div className="flex items-center gap-3 shrink-0">
                     <span
@@ -194,15 +194,15 @@ export const ApplicationsAdmin: React.FC = () => {
                       {row.status.replace('_', ' ')}
                     </span>
                     {isOpen ? (
-                      <ChevronUp className="w-4 h-4 text-[#5A5A5A]" />
+                      <ChevronUp className="w-4 h-4 text-charcoal" />
                     ) : (
-                      <ChevronDown className="w-4 h-4 text-[#5A5A5A]" />
+                      <ChevronDown className="w-4 h-4 text-charcoal" />
                     )}
                   </div>
                 </button>
 
                 {isOpen && (
-                  <div className="border-t border-[#E5E0D8] p-5 space-y-5 bg-[#FDFBF7]">
+                  <div className="border-t border-warm-taupe p-5 space-y-5 bg-parchment">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 text-xs">
                       <Field label="Phone" value={row.phone} />
                       <Field label="Date of birth" value={row.date_of_birth} />
@@ -226,18 +226,18 @@ export const ApplicationsAdmin: React.FC = () => {
                     </div>
 
                     <div>
-                      <div className="text-xs font-bold uppercase tracking-[0.2em] text-[#5A5A5A] mb-2 flex items-center gap-1.5">
+                      <div className="text-xs font-bold uppercase tracking-[0.2em] text-charcoal mb-2 flex items-center gap-1.5">
                         <FileSignature className="w-3.5 h-3.5" />
                         Signed documents
                       </div>
                       {signatures.length === 0 ? (
-                        <p className="text-xs text-[#5A5A5A]">
+                        <p className="text-xs text-charcoal">
                           Nothing signed against this application yet.
                         </p>
                       ) : (
                         <ul className="space-y-1.5">
                           {signatures.map((sig) => (
-                            <li key={sig.id} className="bg-white border border-[#E5E0D8] rounded-lg">
+                            <li key={sig.id} className="bg-white border border-warm-taupe rounded-lg">
                               <button
                                 onClick={() =>
                                   setExpandedSignatureId(
@@ -255,18 +255,18 @@ export const ApplicationsAdmin: React.FC = () => {
                                   {sig.choice && ` — chose "${sig.choice.replace('_', ' ')}"`}
                                 </span>
                                 <span className="flex items-center gap-2 shrink-0 ml-3">
-                                  <span className="text-[#5A5A5A] whitespace-nowrap">
+                                  <span className="text-charcoal whitespace-nowrap">
                                     {new Date(sig.signed_at).toLocaleDateString('en-US', {
                                       dateStyle: 'medium'
                                     })}
                                   </span>
-                                  <span className="text-[10px] font-bold uppercase tracking-wider text-[#A64D32]">
+                                  <span className="text-[10px] font-bold uppercase tracking-wider text-terracotta">
                                     {expandedSignatureId === sig.id ? 'Hide' : 'View'}
                                   </span>
                                 </span>
                               </button>
                               {expandedSignatureId === sig.id && (
-                                <div className="border-t border-[#E5E0D8] p-3">
+                                <div className="border-t border-warm-taupe p-3">
                                   <SignedDocumentView
                                     title={titleForVersion(sig.version_id)}
                                     signature={sig}
@@ -280,14 +280,14 @@ export const ApplicationsAdmin: React.FC = () => {
                     </div>
 
                     <div>
-                      <label className="block text-xs font-bold uppercase tracking-[0.2em] text-[#5A5A5A] mb-1">
+                      <label className="block text-xs font-bold uppercase tracking-[0.2em] text-charcoal mb-1">
                         Review note
                       </label>
                       <textarea
                         rows={2}
                         value={reviewNote}
                         onChange={(e) => setReviewNote(e.target.value)}
-                        className="w-full bg-white border border-[#E5E0D8] rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#A64D32]"
+                        className="w-full bg-white border border-warm-taupe rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-terracotta"
                         placeholder="Optional — visible to staff only"
                       />
                     </div>
@@ -296,7 +296,7 @@ export const ApplicationsAdmin: React.FC = () => {
                       <button
                         onClick={() => void handleReview(row, 'approved')}
                         disabled={isSaving}
-                        className="flex items-center gap-1.5 bg-[#5B6346] hover:bg-[#4a5239] text-white px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider cursor-pointer disabled:opacity-50"
+                        className="flex items-center gap-1.5 bg-olive hover:bg-[#4a5239] text-white px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider cursor-pointer disabled:opacity-50"
                       >
                         <Check className="w-3.5 h-3.5" />
                         Approve
@@ -304,7 +304,7 @@ export const ApplicationsAdmin: React.FC = () => {
                       <button
                         onClick={() => void handleReview(row, 'declined')}
                         disabled={isSaving}
-                        className="flex items-center gap-1.5 bg-white border border-[#E5E0D8] hover:bg-[#F4F1ED] text-[#2A2A2A] px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider cursor-pointer disabled:opacity-50"
+                        className="flex items-center gap-1.5 bg-white border border-warm-taupe hover:bg-aged-paper text-graphite px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider cursor-pointer disabled:opacity-50"
                       >
                         <X className="w-3.5 h-3.5" />
                         Decline
@@ -313,7 +313,7 @@ export const ApplicationsAdmin: React.FC = () => {
                         <button
                           onClick={() => void handleReview(row, 'in_review')}
                           disabled={isSaving}
-                          className="px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider cursor-pointer text-[#5A5A5A] hover:bg-[#F4F1ED] disabled:opacity-50"
+                          className="px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider cursor-pointer text-charcoal hover:bg-aged-paper disabled:opacity-50"
                         >
                           Mark in review
                         </button>
@@ -333,7 +333,7 @@ export const ApplicationsAdmin: React.FC = () => {
 const Field: React.FC<{ label: string; value: string | null }> = ({ label, value }) =>
   value ? (
     <div>
-      <dt className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#5A5A5A]">{label}</dt>
-      <dd className="text-[#2A2A2A] mt-0.5">{value}</dd>
+      <dt className="text-[10px] font-bold uppercase tracking-[0.2em] text-charcoal">{label}</dt>
+      <dd className="text-graphite mt-0.5">{value}</dd>
     </div>
   ) : null;

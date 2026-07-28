@@ -43,22 +43,22 @@ export const EventFeed: React.FC<PageTitleProps> = ({ asPageTitle }) => {
   ];
 
   return (
-    <section id="events-section" className="py-20 bg-[#FDFBF7] text-[#2A2A2A]">
+    <section id="events-section" className="py-20 bg-parchment text-graphite">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
         
         {/* Section Header */}
         <AnimatedSection direction="up" delayMs={50}>
           <div className="text-center max-w-3xl mx-auto space-y-4">
-            <div className="inline-flex items-center gap-2 text-[#5B6346] font-bold text-xs uppercase tracking-[0.2em] bg-[#5B6346]/10 px-4 py-1.5 rounded-full border border-[#5B6346]/20">
-              <Sparkles className="w-3.5 h-3.5 text-[#5B6346]" />
+            <div className="inline-flex items-center gap-2 text-olive font-bold text-xs uppercase tracking-[0.2em] bg-olive/10 px-4 py-1.5 rounded-full border border-olive/20">
+              <Sparkles className="w-3.5 h-3.5 text-olive" />
               <span>Community Gatherings & Workshops</span>
             </div>
 
-            <Title className="text-3xl sm:text-5xl font-serif font-bold text-[#2A2A2A]">
+            <Title className="text-3xl sm:text-5xl font-serif font-bold text-graphite">
               {t('events.sectionTitle')}
             </Title>
 
-            <p className="text-base sm:text-lg text-[#5A5A5A]">
+            <p className="text-base sm:text-lg text-charcoal">
               {t('events.subtitle')}
             </p>
           </div>
@@ -66,7 +66,7 @@ export const EventFeed: React.FC<PageTitleProps> = ({ asPageTitle }) => {
 
         {/* Search, Category Filter & View Switcher Controls */}
         <AnimatedSection direction="up" delayMs={100}>
-          <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4 bg-[#F4F1ED] p-4 rounded-3xl border border-[#E5E0D8] shadow-sm">
+          <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4 bg-aged-paper p-4 rounded-3xl border border-warm-taupe shadow-sm">
             
             {/* Category Filter Pills — swipeable on small screens, wrapping on
                 desktop so a pill label never gets sliced by the search field. */}
@@ -79,8 +79,8 @@ export const EventFeed: React.FC<PageTitleProps> = ({ asPageTitle }) => {
                     onClick={() => setSelectedCategory(cat.id)}
                     className={`px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all cursor-pointer whitespace-nowrap ${
                       isActive
-                        ? 'bg-[#A64D32] text-white shadow-sm'
-                        : 'bg-[#FDFBF7] text-[#2A2A2A] hover:bg-white border border-[#E5E0D8]'
+                        ? 'bg-terracotta text-white shadow-sm'
+                        : 'bg-parchment text-graphite hover:bg-white border border-warm-taupe'
                     }`}
                   >
                     {t(cat.labelKey)}
@@ -93,24 +93,24 @@ export const EventFeed: React.FC<PageTitleProps> = ({ asPageTitle }) => {
             <div className="flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto">
               {/* Search Bar */}
               <div className="relative w-full sm:w-64">
-                <Search className="w-4 h-4 text-[#5A5A5A] absolute left-3.5 top-1/2 -translate-y-1/2" />
+                <Search className="w-4 h-4 text-charcoal absolute left-3.5 top-1/2 -translate-y-1/2" />
                 <input
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder={t('events.searchPlaceholder')}
-                  className="w-full bg-[#FDFBF7] border border-[#E5E0D8] rounded-full pl-10 pr-4 py-2 text-xs text-[#2A2A2A] pawtx-focus focus:border-[#A64D32] focus:ring-1 focus:ring-[#A64D32]"
+                  className="w-full bg-parchment border border-warm-taupe rounded-full pl-10 pr-4 py-2 text-xs text-graphite pawtx-focus focus:border-terracotta focus:ring-1 focus:ring-terracotta"
                 />
               </div>
 
               {/* View Mode Toggle Switch */}
-              <div className="flex items-center bg-[#FDFBF7] p-1 rounded-full border border-[#E5E0D8] justify-center">
+              <div className="flex items-center bg-parchment p-1 rounded-full border border-warm-taupe justify-center">
                 <button
                   onClick={() => setViewMode('grid')}
                   className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
                     viewMode === 'grid'
-                      ? 'bg-[#5B6346] text-white shadow-xs'
-                      : 'text-[#5A5A5A] hover:text-[#2A2A2A]'
+                      ? 'bg-olive text-white shadow-xs'
+                      : 'text-charcoal hover:text-graphite'
                   }`}
                 >
                   <LayoutGrid className="w-3.5 h-3.5" />
@@ -121,8 +121,8 @@ export const EventFeed: React.FC<PageTitleProps> = ({ asPageTitle }) => {
                   onClick={() => setViewMode('calendar')}
                   className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
                     viewMode === 'calendar'
-                      ? 'bg-[#5B6346] text-white shadow-xs'
-                      : 'text-[#5A5A5A] hover:text-[#2A2A2A]'
+                      ? 'bg-olive text-white shadow-xs'
+                      : 'text-charcoal hover:text-graphite'
                   }`}
                 >
                   <CalendarIcon className="w-3.5 h-3.5" />
@@ -157,9 +157,9 @@ export const EventFeed: React.FC<PageTitleProps> = ({ asPageTitle }) => {
           </div>
         ) : (
           <AnimatedSection direction="fade" delayMs={100}>
-            <div className="text-center py-16 bg-[#F4F1ED] rounded-3xl border border-[#E5E0D8] space-y-3">
-              <Filter className="w-8 h-8 text-[#A64D32] mx-auto opacity-50" />
-              <p className="text-base text-[#5A5A5A] font-medium">
+            <div className="text-center py-16 bg-aged-paper rounded-3xl border border-warm-taupe space-y-3">
+              <Filter className="w-8 h-8 text-terracotta mx-auto opacity-50" />
+              <p className="text-base text-charcoal font-medium">
                 {t('events.noEvents')}
               </p>
               <button
@@ -167,7 +167,7 @@ export const EventFeed: React.FC<PageTitleProps> = ({ asPageTitle }) => {
                   setSelectedCategory('all');
                   setSearchQuery('');
                 }}
-                className="text-xs text-[#A64D32] font-bold uppercase tracking-widest underline hover:text-[#8b3f28]"
+                className="text-xs text-terracotta font-bold uppercase tracking-widest underline hover:text-terracotta-deep"
               >
                 Reset Filters
               </button>

@@ -47,48 +47,48 @@ function hasHeadingChild(children: React.ReactNode): boolean {
 
 const components: ComponentProps<typeof ReactMarkdown>['components'] = {
   h2: ({ children }) => (
-    <h2 className="text-xl font-serif font-bold text-[#2A2A2A] mt-8 mb-3 first:mt-0">
+    <h2 className="text-xl font-serif font-bold text-graphite mt-8 mb-3 first:mt-0">
       {children}
     </h2>
   ),
   h3: ({ children }) => (
-    <h3 className="text-base font-bold uppercase tracking-wide text-[#A64D32]">{children}</h3>
+    <h3 className="text-base font-bold uppercase tracking-wide text-terracotta">{children}</h3>
   ),
-  p: ({ children }) => <p className="text-sm leading-relaxed text-[#2A2A2A] mb-4">{children}</p>,
+  p: ({ children }) => <p className="text-sm leading-relaxed text-graphite mb-4">{children}</p>,
   ul: ({ children }) => (
-    <ul className="list-disc pl-5 space-y-1.5 text-sm text-[#2A2A2A] mb-4">{children}</ul>
+    <ul className="list-disc pl-5 space-y-1.5 text-sm text-graphite mb-4">{children}</ul>
   ),
   ol: ({ children }) => (
-    <ol className="list-decimal pl-5 space-y-1.5 text-sm text-[#2A2A2A] mb-4">{children}</ol>
+    <ol className="list-decimal pl-5 space-y-1.5 text-sm text-graphite mb-4">{children}</ol>
   ),
-  strong: ({ children }) => <strong className="font-bold text-[#2A2A2A]">{children}</strong>,
+  strong: ({ children }) => <strong className="font-bold text-graphite">{children}</strong>,
   a: ({ href, children }) => (
     <a
       href={href}
       target={href?.startsWith('mailto:') ? undefined : '_blank'}
       rel={href?.startsWith('mailto:') ? undefined : 'noopener noreferrer'}
-      className="text-[#A64D32] font-bold underline"
+      className="text-terracotta font-bold underline"
     >
       {children}
     </a>
   ),
-  hr: () => <hr className="border-[#E5E0D8] my-6" />,
+  hr: () => <hr className="border-warm-taupe my-6" />,
   code: ({ children }) => (
-    <code className="bg-[#F4F1ED] px-1.5 py-0.5 rounded text-xs font-mono">{children}</code>
+    <code className="bg-aged-paper px-1.5 py-0.5 rounded text-xs font-mono">{children}</code>
   ),
   table: ({ children }) => (
-    <div className="overflow-x-auto mb-4 border border-[#E5E0D8] rounded-xl">
+    <div className="overflow-x-auto mb-4 border border-warm-taupe rounded-xl">
       <table className="w-full text-xs text-left">{children}</table>
     </div>
   ),
   thead: ({ children }) => (
-    <thead className="bg-[#F4F1ED] uppercase tracking-wider text-[#5A5A5A] font-bold">
+    <thead className="bg-aged-paper uppercase tracking-wider text-charcoal font-bold">
       {children}
     </thead>
   ),
-  tr: ({ children }) => <tr className="border-t border-[#E5E0D8] first:border-t-0">{children}</tr>,
+  tr: ({ children }) => <tr className="border-t border-warm-taupe first:border-t-0">{children}</tr>,
   th: ({ children }) => <th className="p-3">{children}</th>,
-  td: ({ children }) => <td className="p-3 align-top text-[#2A2A2A]">{children}</td>,
+  td: ({ children }) => <td className="p-3 align-top text-graphite">{children}</td>,
 
   blockquote: ({ children }) => {
     if (hasHeadingChild(children)) {
@@ -96,10 +96,10 @@ const components: ComponentProps<typeof ReactMarkdown>['components'] = {
       // subtlety, on purpose. This is the paragraph that Texas law requires
       // to catch a reasonable person's attention.
       return (
-        <blockquote className="border-2 border-[#A64D32] bg-[#A64D32]/10 rounded-2xl px-5 py-4 my-6">
+        <blockquote className="border-2 border-terracotta bg-terracotta/10 rounded-2xl px-5 py-4 my-6">
           <div className="flex gap-3">
-            <AlertTriangle className="w-6 h-6 text-[#A64D32] shrink-0 mt-0.5" aria-hidden="true" />
-            <div className="text-sm font-bold text-[#2A2A2A] leading-relaxed [&_p]:mb-3 [&_p:last-child]:mb-0 [&_h3]:text-base [&_h3]:font-bold [&_h3]:uppercase [&_h3]:text-[#A64D32] [&_h3]:mb-2">
+            <AlertTriangle className="w-6 h-6 text-terracotta shrink-0 mt-0.5" aria-hidden="true" />
+            <div className="text-sm font-bold text-graphite leading-relaxed [&_p]:mb-3 [&_p:last-child]:mb-0 [&_h3]:text-base [&_h3]:font-bold [&_h3]:uppercase [&_h3]:text-terracotta [&_h3]:mb-2">
               {children}
             </div>
           </div>
@@ -110,10 +110,10 @@ const components: ComponentProps<typeof ReactMarkdown>['components'] = {
     // The ordinary case: a note, not a warning. Used for the "Draft — not
     // reviewed" guardrail and for plain informational asides.
     return (
-      <blockquote className="border-l-4 border-[#5B6346]/50 bg-[#5B6346]/5 rounded-r-xl px-4 py-3 my-4">
+      <blockquote className="border-l-4 border-olive/50 bg-olive/5 rounded-r-xl px-4 py-3 my-4">
         <div className="flex gap-2.5">
-          <Info className="w-4 h-4 text-[#5B6346] shrink-0 mt-0.5" aria-hidden="true" />
-          <div className="text-xs text-[#2A2A2A] leading-relaxed [&_p]:mb-2 [&_p:last-child]:mb-0">
+          <Info className="w-4 h-4 text-olive shrink-0 mt-0.5" aria-hidden="true" />
+          <div className="text-xs text-graphite leading-relaxed [&_p]:mb-2 [&_p:last-child]:mb-0">
             {children}
           </div>
         </div>
@@ -149,7 +149,7 @@ export const MarkdownDocument: React.FC<Props> = ({ markdown }) => {
 
   return (
     <Suspense
-      fallback={<p className="text-sm text-[#5A5A5A]">Loading document…</p>}
+      fallback={<p className="text-sm text-charcoal">Loading document…</p>}
     >
       {remarkGfm && (
         <ReactMarkdown remarkPlugins={[remarkGfm as never]} components={components}>

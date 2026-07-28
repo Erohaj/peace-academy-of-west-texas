@@ -14,7 +14,7 @@ export const Footer: React.FC<FooterProps> = ({ onOpenContact }) => {
   const { setActiveTab, language, setLanguage, volunteer } = useAppStore();
 
   return (
-    <footer className="bg-[#2A2A2A] text-white pt-16 pb-12 border-t border-white/10">
+    <footer className="bg-graphite text-white pt-16 pb-12 border-t border-white/10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
         
         {/* Main Grid */}
@@ -37,13 +37,13 @@ export const Footer: React.FC<FooterProps> = ({ onOpenContact }) => {
               />
             </button>
 
-            <p className="text-xs text-[#E5E0D8]/80 leading-relaxed">
+            <p className="text-xs text-warm-taupe/80 leading-relaxed">
               Bridging West Texas cultures through authentic culinary heritage, cross-cultural dialogue, and compassionate volunteer outreach.
             </p>
 
-            <div className="inline-flex items-center gap-1.5 bg-white/5 border border-white/10 px-3 py-1 rounded-full text-[11px] text-[#5B6346]/80 font-bold">
-              <ShieldCheck className="w-3.5 h-3.5 text-[#5B6346]" />
-              <span className="text-[#E5E0D8]">501(c)(3) Non-Profit Organization</span>
+            <div className="inline-flex items-center gap-1.5 bg-white/5 border border-white/10 px-3 py-1 rounded-full text-[11px] text-olive/80 font-bold">
+              <ShieldCheck className="w-3.5 h-3.5 text-olive" />
+              <span className="text-warm-taupe">501(c)(3) Non-Profit Organization</span>
             </div>
           </div>
 
@@ -52,7 +52,7 @@ export const Footer: React.FC<FooterProps> = ({ onOpenContact }) => {
             <h2 className="text-xs font-bold uppercase tracking-[0.2em] text-terracotta-soft">
               Navigation
             </h2>
-            <ul className="space-y-2 text-xs text-[#E5E0D8]/80">
+            <ul className="space-y-2 text-xs text-warm-taupe/80">
               <li>
                 <button onClick={() => setActiveTab('home')} className="hover:text-white transition-colors cursor-pointer">
                   {t('nav.home')}
@@ -81,21 +81,21 @@ export const Footer: React.FC<FooterProps> = ({ onOpenContact }) => {
             <h2 className="text-xs font-bold uppercase tracking-[0.2em] text-terracotta-soft">
               Community Outreach
             </h2>
-            <div className="space-y-2 text-xs text-[#E5E0D8]/80">
+            <div className="space-y-2 text-xs text-warm-taupe/80">
               <a
                 href={ORG_LINKS.map}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-2 hover:text-white transition-colors"
               >
-                <MapPin className="w-3.5 h-3.5 text-[#A64D32] shrink-0" />
+                <MapPin className="w-3.5 h-3.5 text-terracotta shrink-0" />
                 <span>{ORG_ADDRESS}</span>
               </a>
               <a
                 href={`mailto:${ORG_EMAIL}`}
                 className="flex items-center gap-2 hover:text-white transition-colors"
               >
-                <Mail className="w-3.5 h-3.5 text-[#A64D32] shrink-0" />
+                <Mail className="w-3.5 h-3.5 text-terracotta shrink-0" />
                 <span>{ORG_EMAIL}</span>
               </a>
               <p className="pt-2 text-[11px] text-white/50">
@@ -115,8 +115,8 @@ export const Footer: React.FC<FooterProps> = ({ onOpenContact }) => {
                 onClick={() => setLanguage('en')}
                 className={`px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider border transition-all cursor-pointer ${
                   language === 'en'
-                    ? 'bg-[#A64D32] border-[#A64D32] text-white'
-                    : 'bg-white/5 border-white/10 text-[#E5E0D8] hover:text-white'
+                    ? 'bg-terracotta border-terracotta text-white'
+                    : 'bg-white/5 border-white/10 text-warm-taupe hover:text-white'
                 }`}
               >
                 English
@@ -126,8 +126,8 @@ export const Footer: React.FC<FooterProps> = ({ onOpenContact }) => {
                 onClick={() => setLanguage('es')}
                 className={`px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider border transition-all cursor-pointer ${
                   language === 'es'
-                    ? 'bg-[#A64D32] border-[#A64D32] text-white'
-                    : 'bg-white/5 border-white/10 text-[#E5E0D8] hover:text-white'
+                    ? 'bg-terracotta border-terracotta text-white'
+                    : 'bg-white/5 border-white/10 text-warm-taupe hover:text-white'
                 }`}
               >
                 Español
@@ -147,7 +147,7 @@ export const Footer: React.FC<FooterProps> = ({ onOpenContact }) => {
         </div>
 
         {/* Bottom Bar */}
-        <div className="pt-8 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#E5E0D8]/70">
+        <div className="pt-8 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-warm-taupe/70">
           <p className="flex items-center gap-3">
             <span>© {new Date().getFullYear()} Peace Academy of West Texas. All rights reserved.</span>
 
@@ -157,7 +157,7 @@ export const Footer: React.FC<FooterProps> = ({ onOpenContact }) => {
             {volunteer?.role === 'admin' && (
               <button
                 onClick={() => setActiveTab('admin')}
-                className="text-[#A64D32] hover:text-white transition-colors cursor-pointer font-bold uppercase tracking-wider"
+                className="text-terracotta hover:text-white transition-colors cursor-pointer font-bold uppercase tracking-wider"
               >
                 {t('footer.adminPanel')}
               </button>

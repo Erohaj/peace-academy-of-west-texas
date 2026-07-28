@@ -255,7 +255,7 @@ export const SocialMediaFeed: React.FC<PageTitleProps> = ({ asPageTitle }) => {
         return {
           icon: <Globe className="w-3.5 h-3.5 text-white" />,
           label: 'Social',
-          bgClass: 'bg-[#A64D32] text-white'
+          bgClass: 'bg-terracotta text-white'
         };
     }
   };
@@ -269,10 +269,10 @@ export const SocialMediaFeed: React.FC<PageTitleProps> = ({ asPageTitle }) => {
   ];
 
   return (
-    <section id="social-feed-section" className="py-20 bg-parchment relative overflow-hidden border-t border-[#E5E0D8]">
+    <section id="social-feed-section" className="py-20 bg-parchment relative overflow-hidden border-t border-warm-taupe">
       {/* Toast Notification */}
       {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-50 bg-[#2A2A2A] text-white px-5 py-3 rounded-full shadow-2xl flex items-center gap-3 text-xs font-semibold border border-graphite animate-bounce">
+        <div className="fixed bottom-6 right-6 z-50 bg-graphite text-white px-5 py-3 rounded-full shadow-2xl flex items-center gap-3 text-xs font-semibold border border-graphite animate-bounce">
           <CheckCircle2 className="w-4 h-4 text-emerald-400" />
           <span>{toastMessage}</span>
         </div>
@@ -282,22 +282,22 @@ export const SocialMediaFeed: React.FC<PageTitleProps> = ({ asPageTitle }) => {
         
         {/* Section Header */}
         <AnimatedSection direction="down">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-[#E5E0D8] pb-6">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-warm-taupe pb-6">
             <div className="space-y-3 max-w-2xl">
-              <div className="inline-flex items-center gap-2 bg-[#F4F1ED] border border-[#E5E0D8] px-3.5 py-1.5 rounded-full">
+              <div className="inline-flex items-center gap-2 bg-aged-paper border border-warm-taupe px-3.5 py-1.5 rounded-full">
                 <span className="relative flex h-2.5 w-2.5">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
                 </span>
-                <span className="text-[11px] font-bold text-[#A64D32] uppercase tracking-wider">
+                <span className="text-[11px] font-bold text-terracotta uppercase tracking-wider">
                   {t('social.liveBadge')}
                 </span>
               </div>
 
-              <Title className="text-3xl sm:text-4xl font-extrabold text-[#2A2A2A] font-serif tracking-tight">
+              <Title className="text-3xl sm:text-4xl font-extrabold text-graphite font-serif tracking-tight">
                 {t('social.sectionTitle')}
               </Title>
-              <p className="text-sm text-[#5A5A5A] leading-relaxed">
+              <p className="text-sm text-charcoal leading-relaxed">
                 {t('social.subtitle')}
               </p>
             </div>
@@ -316,18 +316,18 @@ export const SocialMediaFeed: React.FC<PageTitleProps> = ({ asPageTitle }) => {
               <button
                 onClick={handleFetchLatest}
                 disabled={isFetching}
-                className="px-4 py-2.5 rounded-full bg-[#FDFBF7] border border-[#E5E0D8] text-[#2A2A2A] hover:bg-white text-xs font-bold shadow-xs transition-all flex items-center gap-2 cursor-pointer"
+                className="px-4 py-2.5 rounded-full bg-parchment border border-warm-taupe text-graphite hover:bg-white text-xs font-bold shadow-xs transition-all flex items-center gap-2 cursor-pointer"
               >
-                <RefreshCw className={`w-3.5 h-3.5 text-[#A64D32] ${isFetching ? 'animate-spin' : ''}`} />
+                <RefreshCw className={`w-3.5 h-3.5 text-terracotta ${isFetching ? 'animate-spin' : ''}`} />
                 <span>{isFetching ? t('social.fetching') : t('social.refreshFeed')}</span>
               </button>
 
               <button
                 onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-                className="px-3.5 py-2.5 rounded-full bg-[#FDFBF7] border border-[#E5E0D8] text-[#5A5A5A] hover:text-[#2A2A2A] hover:bg-white text-xs font-bold shadow-xs transition-all flex items-center gap-1.5 cursor-pointer"
+                className="px-3.5 py-2.5 rounded-full bg-parchment border border-warm-taupe text-charcoal hover:text-graphite hover:bg-white text-xs font-bold shadow-xs transition-all flex items-center gap-1.5 cursor-pointer"
                 title="Scroll to Top"
               >
-                <ArrowUp className="w-3.5 h-3.5 text-[#A64D32]" />
+                <ArrowUp className="w-3.5 h-3.5 text-terracotta" />
                 <span className="hidden sm:inline">{language === 'es' ? 'Ir Arriba' : 'Top'}</span>
               </button>
             </div>
@@ -338,13 +338,13 @@ export const SocialMediaFeed: React.FC<PageTitleProps> = ({ asPageTitle }) => {
             to the org's channels, so it sits at the top of the section rather
             than below the feed where it was easy to scroll past. */}
         <AnimatedSection direction="up" delayMs={100}>
-          <div className="bg-[#F4F1ED] rounded-3xl p-8 border border-[#E5E0D8] flex flex-col md:flex-row items-center justify-between gap-6 text-center md:text-left">
+          <div className="bg-aged-paper rounded-3xl p-8 border border-warm-taupe flex flex-col md:flex-row items-center justify-between gap-6 text-center md:text-left">
             <div className="space-y-2">
-              <div className="text-xs font-bold text-[#A64D32] uppercase tracking-wider flex items-center justify-center md:justify-start gap-2">
+              <div className="text-xs font-bold text-terracotta uppercase tracking-wider flex items-center justify-center md:justify-start gap-2">
                 <Radio className="w-4 h-4" />
                 <span>{t('social.followerCount')}</span>
               </div>
-              <CardTitle className="text-2xl font-extrabold text-[#2A2A2A] font-serif">
+              <CardTitle className="text-2xl font-extrabold text-graphite font-serif">
                 {t('social.followUs')}
               </CardTitle>
             </div>
@@ -438,8 +438,8 @@ export const SocialMediaFeed: React.FC<PageTitleProps> = ({ asPageTitle }) => {
                   aria-pressed={isActive}
                   className={`p-2.5 rounded-full transition-all cursor-pointer flex items-center justify-center shrink-0 ${
                     isActive
-                      ? 'bg-[#A64D32] text-white shadow-sm'
-                      : 'bg-[#FDFBF7] text-[#5A5A5A] hover:bg-white hover:text-[#A64D32] border border-[#E5E0D8]'
+                      ? 'bg-terracotta text-white shadow-sm'
+                      : 'bg-parchment text-charcoal hover:bg-white hover:text-terracotta border border-warm-taupe'
                   }`}
                 >
                   {plat.icon}
@@ -461,21 +461,21 @@ export const SocialMediaFeed: React.FC<PageTitleProps> = ({ asPageTitle }) => {
 
             return (
               <AnimatedSection key={post.id} direction="up" delayMs={50 + (idx % 3) * 80}>
-                <div className="bg-[#F4F1ED] rounded-[28px] border border-[#E5E0D8] shadow-sm hover:shadow-md transition-all flex flex-col h-full overflow-hidden group">
+                <div className="bg-aged-paper rounded-[28px] border border-warm-taupe shadow-sm hover:shadow-md transition-all flex flex-col h-full overflow-hidden group">
                   
                   {/* Card Top Author Bar */}
-                  <div className="p-5 flex items-center justify-between border-b border-[#E5E0D8]/60 bg-white/40">
+                  <div className="p-5 flex items-center justify-between border-b border-warm-taupe/60 bg-white/40">
                     <div className="flex items-center gap-3">
                       <img
                         src={post.author.avatarUrl}
                         alt={post.author.name}
                         loading="lazy"
                         decoding="async"
-                        className="w-10 h-10 rounded-full object-cover border border-[#E5E0D8]"
+                        className="w-10 h-10 rounded-full object-cover border border-warm-taupe"
                       />
                       <div>
                         <div className="flex items-center gap-1.5">
-                          <span className="text-xs font-bold text-[#2A2A2A]">{post.author.name}</span>
+                          <span className="text-xs font-bold text-graphite">{post.author.name}</span>
                           {post.author.verified && (
                             <CheckCircle2 className="w-3.5 h-3.5 text-sky-500 fill-sky-500/20 shrink-0" />
                           )}
@@ -499,7 +499,7 @@ export const SocialMediaFeed: React.FC<PageTitleProps> = ({ asPageTitle }) => {
                   {post.mediaUrl && (
                     <div
                       onClick={() => setPreviewMediaPost(post)}
-                      className="relative h-60 bg-[#E5E0D8] overflow-hidden cursor-pointer group/media"
+                      className="relative h-60 bg-warm-taupe overflow-hidden cursor-pointer group/media"
                     >
                       <img
                         src={post.mediaUrl}
@@ -509,7 +509,7 @@ export const SocialMediaFeed: React.FC<PageTitleProps> = ({ asPageTitle }) => {
                         className="w-full h-full object-cover group-hover/media:scale-105 transition-transform duration-500"
                       />
                       <div className="absolute inset-0 bg-black/20 opacity-0 group-hover/media:opacity-100 transition-opacity flex items-center justify-center">
-                        <span className="bg-white/90 text-[#2A2A2A] text-xs font-bold px-3 py-1.5 rounded-full shadow-md backdrop-blur-sm">
+                        <span className="bg-white/90 text-graphite text-xs font-bold px-3 py-1.5 rounded-full shadow-md backdrop-blur-sm">
                           {language === 'es' ? 'Ver Multimedia' : 'Expand Media'}
                         </span>
                       </div>
@@ -532,7 +532,7 @@ export const SocialMediaFeed: React.FC<PageTitleProps> = ({ asPageTitle }) => {
                     {post.tags && post.tags.length > 0 && (
                       <div className="flex flex-wrap gap-1.5 pt-1">
                         {post.tags.map((tag) => (
-                          <span key={tag} className="text-[10px] font-semibold text-[#8B3F28] bg-[#A64D32]/10 px-2 py-0.5 rounded-md">
+                          <span key={tag} className="text-[10px] font-semibold text-terracotta-deep bg-terracotta/10 px-2 py-0.5 rounded-md">
                             #{tag}
                           </span>
                         ))}
@@ -540,7 +540,7 @@ export const SocialMediaFeed: React.FC<PageTitleProps> = ({ asPageTitle }) => {
                     )}
 
                     {/* Engagement Metrics & Interactive Buttons Bar */}
-                    <div className="pt-3 border-t border-[#E5E0D8] flex items-center justify-between text-[#5A5A5A]">
+                    <div className="pt-3 border-t border-warm-taupe flex items-center justify-between text-charcoal">
                       
                       {/* Left: Like & Comment Controls */}
                       <div className="flex items-center gap-4">
@@ -558,7 +558,7 @@ export const SocialMediaFeed: React.FC<PageTitleProps> = ({ asPageTitle }) => {
                           onClick={() =>
                             setExpandedCommentPostId(isCommentsExpanded ? null : post.id)
                           }
-                          className="flex items-center gap-1.5 text-xs font-bold hover:text-[#2A2A2A] transition-all cursor-pointer"
+                          className="flex items-center gap-1.5 text-xs font-bold hover:text-graphite transition-all cursor-pointer"
                         >
                           <MessageCircle className="w-4 h-4" />
                           <span>{post.commentsCount}</span>
@@ -566,7 +566,7 @@ export const SocialMediaFeed: React.FC<PageTitleProps> = ({ asPageTitle }) => {
 
                         <button
                           onClick={() => handleShare(post.postUrl)}
-                          className="flex items-center gap-1.5 text-xs font-bold hover:text-[#2A2A2A] transition-all cursor-pointer"
+                          className="flex items-center gap-1.5 text-xs font-bold hover:text-graphite transition-all cursor-pointer"
                           title={t('social.share')}
                         >
                           <Share2 className="w-4 h-4" />
@@ -578,18 +578,18 @@ export const SocialMediaFeed: React.FC<PageTitleProps> = ({ asPageTitle }) => {
                         <button
                           onClick={() => handleToggleBookmark(post.id)}
                           className={`p-1.5 rounded-full hover:bg-black/5 transition-colors cursor-pointer ${
-                            post.isBookmarked ? 'text-[#A64D32]' : ''
+                            post.isBookmarked ? 'text-terracotta' : ''
                           }`}
                           title="Bookmark"
                         >
-                          <Bookmark className={`w-4 h-4 ${post.isBookmarked ? 'fill-[#A64D32]' : ''}`} />
+                          <Bookmark className={`w-4 h-4 ${post.isBookmarked ? 'fill-terracotta' : ''}`} />
                         </button>
 
                         <a
                           href={post.postUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="p-1.5 rounded-full hover:bg-black/5 text-[#5A5A5A] hover:text-[#2A2A2A] transition-colors"
+                          className="p-1.5 rounded-full hover:bg-black/5 text-charcoal hover:text-graphite transition-colors"
                           title={t('social.viewPost')}
                         >
                           <ExternalLink className="w-4 h-4" />
@@ -599,8 +599,8 @@ export const SocialMediaFeed: React.FC<PageTitleProps> = ({ asPageTitle }) => {
 
                     {/* Inline Comment Drawer */}
                     {isCommentsExpanded && (
-                      <div className="pt-3 border-t border-[#E5E0D8] space-y-3 bg-[#FDFBF7] p-3 rounded-2xl">
-                        <div className="flex items-center justify-between text-[11px] font-bold text-[#2A2A2A]">
+                      <div className="pt-3 border-t border-warm-taupe space-y-3 bg-parchment p-3 rounded-2xl">
+                        <div className="flex items-center justify-between text-[11px] font-bold text-graphite">
                           <span>{t('social.commentsTitle', { count: post.commentsCount })}</span>
                         </div>
 
@@ -608,8 +608,8 @@ export const SocialMediaFeed: React.FC<PageTitleProps> = ({ asPageTitle }) => {
                         <div className="max-h-36 overflow-y-auto space-y-2 pr-1 text-[11px]">
                           {post.commentsList && post.commentsList.length > 0 ? (
                             post.commentsList.map((comm) => (
-                              <div key={comm.id} className="bg-white p-2.5 rounded-xl border border-[#E5E0D8]/60 space-y-1">
-                                <div className="flex items-center justify-between font-bold text-[#2A2A2A]">
+                              <div key={comm.id} className="bg-white p-2.5 rounded-xl border border-warm-taupe/60 space-y-1">
+                                <div className="flex items-center justify-between font-bold text-graphite">
                                   <span>{comm.authorName}</span>
                                   <span className="text-[9px] text-charcoal font-normal">{comm.createdAt}</span>
                                 </div>
@@ -629,11 +629,11 @@ export const SocialMediaFeed: React.FC<PageTitleProps> = ({ asPageTitle }) => {
                             onChange={(e) => setCommentInput(e.target.value)}
                             onKeyDown={(e) => e.key === 'Enter' && handleAddComment(post.id)}
                             placeholder={t('social.addCommentPlaceholder')}
-                            className="flex-1 bg-white border border-[#E5E0D8] rounded-full px-3 py-1.5 text-xs pawtx-focus focus:border-[#A64D32]"
+                            className="flex-1 bg-white border border-warm-taupe rounded-full px-3 py-1.5 text-xs pawtx-focus focus:border-terracotta"
                           />
                           <button
                             onClick={() => handleAddComment(post.id)}
-                            className="p-1.5 bg-[#A64D32] text-white rounded-full hover:bg-terracotta-deep transition-colors cursor-pointer"
+                            className="p-1.5 bg-terracotta text-white rounded-full hover:bg-terracotta-deep transition-colors cursor-pointer"
                           >
                             <Send className="w-3.5 h-3.5" />
                           </button>
@@ -651,7 +651,7 @@ export const SocialMediaFeed: React.FC<PageTitleProps> = ({ asPageTitle }) => {
         {/* Media Lightbox Modal */}
         {previewMediaPost && (
           <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-            <div className="bg-[#FDFBF7] rounded-3xl overflow-hidden max-w-3xl w-full max-h-[90vh] flex flex-col border border-[#E5E0D8] shadow-2xl relative">
+            <div className="bg-parchment rounded-3xl overflow-hidden max-w-3xl w-full max-h-[90vh] flex flex-col border border-warm-taupe shadow-2xl relative">
               
               {/* Modal Close Button */}
               <button
@@ -679,10 +679,10 @@ export const SocialMediaFeed: React.FC<PageTitleProps> = ({ asPageTitle }) => {
                       alt={previewMediaPost.author.name}
                       loading="lazy"
                       decoding="async"
-                      className="w-10 h-10 rounded-full border border-[#E5E0D8]"
+                      className="w-10 h-10 rounded-full border border-warm-taupe"
                     />
                     <div>
-                      <div className="font-bold text-sm text-[#2A2A2A]">{previewMediaPost.author.name}</div>
+                      <div className="font-bold text-sm text-graphite">{previewMediaPost.author.name}</div>
                       <div className="text-xs text-[#6B6B69]">{previewMediaPost.author.handle}</div>
                     </div>
                   </div>
@@ -691,7 +691,7 @@ export const SocialMediaFeed: React.FC<PageTitleProps> = ({ asPageTitle }) => {
                     href={previewMediaPost.postUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="px-4 py-2 rounded-full bg-[#A64D32] text-white text-xs font-bold flex items-center gap-2 hover:bg-terracotta-deep transition-colors"
+                    className="px-4 py-2 rounded-full bg-terracotta text-white text-xs font-bold flex items-center gap-2 hover:bg-terracotta-deep transition-colors"
                   >
                     <span>{t('social.viewPost')}</span>
                     <ExternalLink className="w-3.5 h-3.5" />

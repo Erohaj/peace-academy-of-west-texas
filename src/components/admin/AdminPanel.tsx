@@ -56,27 +56,27 @@ export const AdminPanel: React.FC = () => {
 
   if (authStatus !== 'ready') {
     return (
-      <section className="py-20 bg-[#FDFBF7] min-h-[70vh] flex items-center justify-center">
-        <p className="text-sm text-[#5A5A5A]">{t('common.loading')}</p>
+      <section className="py-20 bg-parchment min-h-[70vh] flex items-center justify-center">
+        <p className="text-sm text-charcoal">{t('common.loading')}</p>
       </section>
     );
   }
 
   if (!isAdmin) {
     return (
-      <section className="py-20 bg-[#FDFBF7] min-h-[70vh] flex items-center justify-center text-[#2A2A2A]">
+      <section className="py-20 bg-parchment min-h-[70vh] flex items-center justify-center text-graphite">
         <div className="max-w-md w-full mx-auto px-4 text-center space-y-4">
-          <div className="w-14 h-14 bg-[#A64D32]/10 text-[#A64D32] rounded-2xl flex items-center justify-center mx-auto">
+          <div className="w-14 h-14 bg-terracotta/10 text-terracotta rounded-2xl flex items-center justify-center mx-auto">
             <ShieldAlert className="w-7 h-7" />
           </div>
           <h1 className="text-2xl font-serif font-bold">Staff access only</h1>
-          <p className="text-sm text-[#5A5A5A]">
+          <p className="text-sm text-charcoal">
             This area is limited to Peace Academy staff accounts. If you manage content for
             PAWTX, ask an administrator to grant your account access.
           </p>
           <button
             onClick={() => setActiveTab('home')}
-            className="bg-[#2A2A2A] hover:bg-black text-white px-6 py-2.5 rounded-full text-xs font-bold uppercase tracking-widest cursor-pointer"
+            className="bg-graphite hover:bg-black text-white px-6 py-2.5 rounded-full text-xs font-bold uppercase tracking-widest cursor-pointer"
           >
             Back to site
           </button>
@@ -86,17 +86,17 @@ export const AdminPanel: React.FC = () => {
   }
 
   return (
-    <section className="py-12 bg-[#FDFBF7] min-h-screen text-[#2A2A2A]">
+    <section className="py-12 bg-parchment min-h-screen text-graphite">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
 
-        <div className="bg-[#F4F1ED] rounded-2xl p-6 border border-[#E5E0D8] shadow-sm">
-          <div className="text-xs font-bold uppercase tracking-[0.2em] text-[#A64D32]">
+        <div className="bg-aged-paper rounded-2xl p-6 border border-warm-taupe shadow-sm">
+          <div className="text-xs font-bold uppercase tracking-[0.2em] text-terracotta">
             {t('footer.adminPanel')}
           </div>
           <h1 className="text-2xl font-serif font-bold mt-1">
             Signed in as {volunteer?.fullName}
           </h1>
-          <p className="text-xs text-[#5A5A5A] mt-1">
+          <p className="text-xs text-charcoal mt-1">
             Changes publish to the live site immediately.
           </p>
         </div>
@@ -110,8 +110,8 @@ export const AdminPanel: React.FC = () => {
                 onClick={() => setSection(id)}
                 className={`w-full text-left px-4 py-3 rounded-xl font-bold text-xs uppercase tracking-wider flex items-center gap-3 transition-colors cursor-pointer ${
                   section === id
-                    ? 'bg-[#A64D32] text-white shadow-sm'
-                    : 'text-[#2A2A2A] hover:bg-[#F4F1ED]'
+                    ? 'bg-terracotta text-white shadow-sm'
+                    : 'text-graphite hover:bg-aged-paper'
                 }`}
               >
                 <Icon className="w-4 h-4" />

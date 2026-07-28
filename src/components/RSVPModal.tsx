@@ -158,15 +158,15 @@ export const RSVPModal: React.FC = () => {
       panelClassName="max-w-lg w-full overflow-hidden"
     >
         {/* Header Bar */}
-        <div className="bg-[#F4F1ED] px-6 py-4 border-b border-[#E5E0D8] flex items-center justify-between">
+        <div className="bg-aged-paper px-6 py-4 border-b border-warm-taupe flex items-center justify-between">
           <div>
-            <div className="text-xs font-bold uppercase tracking-[0.2em] text-[#A64D32]">
+            <div className="text-xs font-bold uppercase tracking-[0.2em] text-terracotta">
               {step === 1 && t('rsvpModal.step1Title')}
               {step === 2 && t('rsvpModal.step2Title')}
               {step === 3 && t('rsvpModal.step3Title')}
               {step === 4 && errorCopy.title}
             </div>
-            <h3 id={TITLE_ID} className="text-lg font-serif font-bold text-[#2A2A2A] truncate max-w-[300px]">
+            <h3 id={TITLE_ID} className="text-lg font-serif font-bold text-graphite truncate max-w-[300px]">
               {title}
             </h3>
           </div>
@@ -176,7 +176,7 @@ export const RSVPModal: React.FC = () => {
             // Icon-only, so it reached a screen reader as an unlabelled
             // "button" — the same fix ContactModal already carries.
             aria-label={t('rsvpModal.closeModal')}
-            className="p-2 rounded-full hover:bg-black/5 text-[#5A5A5A] transition-colors cursor-pointer pawtx-focus"
+            className="p-2 rounded-full hover:bg-black/5 text-charcoal transition-colors cursor-pointer pawtx-focus"
           >
             <X className="w-5 h-5" aria-hidden="true" />
           </button>
@@ -190,11 +190,11 @@ export const RSVPModal: React.FC = () => {
             <form onSubmit={handleNextStep} className="space-y-4">
               
               <div>
-                <label className="block text-xs font-bold uppercase tracking-[0.2em] text-[#5A5A5A] mb-1">
+                <label className="block text-xs font-bold uppercase tracking-[0.2em] text-charcoal mb-1">
                   {t('rsvpModal.fullName')} *
                 </label>
                 <div className="relative">
-                  <User className="w-4 h-4 text-[#5A5A5A] absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <User className="w-4 h-4 text-charcoal absolute left-3.5 top-1/2 -translate-y-1/2" />
                   {/* aria-required rather than the native `required`: the
                       validation here is custom and translated, and the native
                       attribute would preempt it with a browser bubble in the
@@ -207,22 +207,22 @@ export const RSVPModal: React.FC = () => {
                     aria-required="true"
                     aria-invalid={Boolean(errors.fullName)}
                     aria-describedby={errors.fullName ? 'rsvp-error-name' : undefined}
-                    className="w-full bg-[#FDFBF7] border border-[#E5E0D8] rounded-xl pl-10 pr-4 py-2.5 text-sm pawtx-focus focus:border-[#A64D32] focus:ring-1 focus:ring-[#A64D32]"
+                    className="w-full bg-parchment border border-warm-taupe rounded-xl pl-10 pr-4 py-2.5 text-sm pawtx-focus focus:border-terracotta focus:ring-1 focus:ring-terracotta"
                   />
                 </div>
                 {errors.fullName && (
-                  <p id="rsvp-error-name" className="text-xs font-semibold text-[#A64D32] mt-1">
+                  <p id="rsvp-error-name" className="text-xs font-semibold text-terracotta mt-1">
                     {errors.fullName}
                   </p>
                 )}
               </div>
 
               <div>
-                <label className="block text-xs font-bold uppercase tracking-[0.2em] text-[#5A5A5A] mb-1">
+                <label className="block text-xs font-bold uppercase tracking-[0.2em] text-charcoal mb-1">
                   {t('rsvpModal.email')} *
                 </label>
                 <div className="relative">
-                  <Mail className="w-4 h-4 text-[#5A5A5A] absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <Mail className="w-4 h-4 text-charcoal absolute left-3.5 top-1/2 -translate-y-1/2" />
                   <input
                     type="email"
                     value={email}
@@ -231,11 +231,11 @@ export const RSVPModal: React.FC = () => {
                     aria-required="true"
                     aria-invalid={Boolean(errors.email)}
                     aria-describedby={errors.email ? 'rsvp-error-email' : undefined}
-                    className="w-full bg-[#FDFBF7] border border-[#E5E0D8] rounded-xl pl-10 pr-4 py-2.5 text-sm pawtx-focus focus:border-[#A64D32] focus:ring-1 focus:ring-[#A64D32]"
+                    className="w-full bg-parchment border border-warm-taupe rounded-xl pl-10 pr-4 py-2.5 text-sm pawtx-focus focus:border-terracotta focus:ring-1 focus:ring-terracotta"
                   />
                 </div>
                 {errors.email && (
-                  <p id="rsvp-error-email" className="text-xs font-semibold text-[#A64D32] mt-1">
+                  <p id="rsvp-error-email" className="text-xs font-semibold text-terracotta mt-1">
                     {errors.email}
                   </p>
                 )}
@@ -243,31 +243,31 @@ export const RSVPModal: React.FC = () => {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-bold uppercase tracking-[0.2em] text-[#5A5A5A] mb-1">
+                  <label className="block text-xs font-bold uppercase tracking-[0.2em] text-charcoal mb-1">
                     {t('rsvpModal.phone')}
                   </label>
                   <div className="relative">
-                    <Phone className="w-4 h-4 text-[#5A5A5A] absolute left-3.5 top-1/2 -translate-y-1/2" />
+                    <Phone className="w-4 h-4 text-charcoal absolute left-3.5 top-1/2 -translate-y-1/2" />
                     <input
                       type="tel"
                       value={phone}
                       onChange={(e) => setPhone(e.target.value)}
                       placeholder={t('rsvpModal.phonePlaceholder')}
-                      className="w-full bg-[#FDFBF7] border border-[#E5E0D8] rounded-xl pl-10 pr-4 py-2.5 text-sm pawtx-focus focus:border-[#A64D32] focus:ring-1 focus:ring-[#A64D32]"
+                      className="w-full bg-parchment border border-warm-taupe rounded-xl pl-10 pr-4 py-2.5 text-sm pawtx-focus focus:border-terracotta focus:ring-1 focus:ring-terracotta"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold uppercase tracking-[0.2em] text-[#5A5A5A] mb-1">
+                  <label className="block text-xs font-bold uppercase tracking-[0.2em] text-charcoal mb-1">
                     {t('rsvpModal.guests')}
                   </label>
                   <div className="relative">
-                    <UsersIcon className="w-4 h-4 text-[#5A5A5A] absolute left-3.5 top-1/2 -translate-y-1/2" />
+                    <UsersIcon className="w-4 h-4 text-charcoal absolute left-3.5 top-1/2 -translate-y-1/2" />
                     <select
                       value={guestCount}
                       onChange={(e) => setGuestCount(Number(e.target.value))}
-                      className="w-full bg-[#FDFBF7] border border-[#E5E0D8] rounded-xl pl-10 pr-4 py-2.5 text-sm pawtx-focus focus:border-[#A64D32] focus:ring-1 focus:ring-[#A64D32]"
+                      className="w-full bg-parchment border border-warm-taupe rounded-xl pl-10 pr-4 py-2.5 text-sm pawtx-focus focus:border-terracotta focus:ring-1 focus:ring-terracotta"
                     >
                       {[0, 1, 2, 3].map((count) => (
                         <option key={count} value={count}>
@@ -284,12 +284,12 @@ export const RSVPModal: React.FC = () => {
                   "photographs only" is a real answer people give, and a lone
                   checkbox would force it into a yes or a no. */}
               {needsMediaConsent && (
-                <fieldset className="bg-[#F4F1ED] border border-[#E5E0D8] rounded-2xl p-4 space-y-3">
-                  <legend className="px-1 text-xs font-bold uppercase tracking-[0.2em] text-[#5A5A5A]">
+                <fieldset className="bg-aged-paper border border-warm-taupe rounded-2xl p-4 space-y-3">
+                  <legend className="px-1 text-xs font-bold uppercase tracking-[0.2em] text-charcoal">
                     {t('rsvpModal.mediaConsentTitle')} *
                   </legend>
 
-                  <p className="text-xs text-[#5A5A5A] leading-relaxed">
+                  <p className="text-xs text-charcoal leading-relaxed">
                     {t('rsvpModal.mediaConsentIntro')}
                   </p>
 
@@ -303,8 +303,8 @@ export const RSVPModal: React.FC = () => {
                         key={value}
                         className={`flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition-colors ${
                           mediaConsent === value
-                            ? 'border-[#A64D32] bg-[#FDFBF7]'
-                            : 'border-[#E5E0D8] bg-[#FDFBF7]/60 hover:bg-[#FDFBF7]'
+                            ? 'border-terracotta bg-parchment'
+                            : 'border-warm-taupe bg-parchment/60 hover:bg-parchment'
                         }`}
                       >
                         <input
@@ -317,13 +317,13 @@ export const RSVPModal: React.FC = () => {
                             setErrors((current) => ({ ...current, mediaConsent: undefined }));
                           }}
                         />
-                        <span className="text-xs text-[#2A2A2A] leading-relaxed">{copy}</span>
+                        <span className="text-xs text-graphite leading-relaxed">{copy}</span>
                       </label>
                     ))}
                   </div>
 
                   {errors.mediaConsent && (
-                    <p className="text-xs text-[#A64D32] font-semibold">{errors.mediaConsent}</p>
+                    <p className="text-xs text-terracotta font-semibold">{errors.mediaConsent}</p>
                   )}
                 </fieldset>
               )}
@@ -332,7 +332,7 @@ export const RSVPModal: React.FC = () => {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full bg-[#A64D32] hover:bg-[#8b3f28] text-white py-3 rounded-full font-bold text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md disabled:opacity-50"
+                  className="w-full bg-terracotta hover:bg-terracotta-deep text-white py-3 rounded-full font-bold text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md disabled:opacity-50"
                 >
                   {/* Without the donation step this button is the last one, so
                       it must not promise a "step 2" that no longer exists. */}
@@ -354,12 +354,12 @@ export const RSVPModal: React.FC = () => {
           {step === 2 && (
             <div className="space-y-6">
               
-              <div className="bg-[#F4F1ED] p-4 rounded-2xl border border-[#E5E0D8] space-y-2">
-                <div className="flex items-center gap-2 text-[#A64D32] font-bold text-sm">
-                  <Heart className="w-4 h-4 fill-[#A64D32]" />
+              <div className="bg-aged-paper p-4 rounded-2xl border border-warm-taupe space-y-2">
+                <div className="flex items-center gap-2 text-terracotta font-bold text-sm">
+                  <Heart className="w-4 h-4 fill-terracotta" />
                   <span>{t('rsvpModal.optionalDonationTitle')}</span>
                 </div>
-                <p className="text-xs text-[#5A5A5A]">
+                <p className="text-xs text-charcoal">
                   {t('rsvpModal.optionalDonationSubtitle')}
                 </p>
               </div>
@@ -375,8 +375,8 @@ export const RSVPModal: React.FC = () => {
                       onClick={() => setDonationAmount(amt)}
                       className={`py-3 rounded-xl border text-sm font-bold transition-all cursor-pointer ${
                         isSelected
-                          ? 'border-[#A64D32] bg-[#A64D32] text-white shadow-sm'
-                          : 'border-[#E5E0D8] bg-[#FDFBF7] text-[#2A2A2A] hover:bg-[#F4F1ED]'
+                          ? 'border-terracotta bg-terracotta text-white shadow-sm'
+                          : 'border-warm-taupe bg-parchment text-graphite hover:bg-aged-paper'
                       }`}
                     >
                       ${amt}
@@ -389,7 +389,7 @@ export const RSVPModal: React.FC = () => {
                 type="button"
                 onClick={() => setDonationAmount(0)}
                 className={`w-full py-2 text-xs font-semibold transition-colors cursor-pointer ${
-                  donationAmount === 0 ? 'text-[#A64D32] underline font-bold' : 'text-[#5A5A5A] hover:text-[#2A2A2A]'
+                  donationAmount === 0 ? 'text-terracotta underline font-bold' : 'text-charcoal hover:text-graphite'
                 }`}
               >
                 {t('rsvpModal.noDonationOption')}
@@ -399,7 +399,7 @@ export const RSVPModal: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setStep(1)}
-                  className="w-1/3 border border-[#E5E0D8] py-3 rounded-full text-xs font-bold uppercase tracking-wider text-[#5A5A5A] hover:bg-[#F4F1ED] cursor-pointer"
+                  className="w-1/3 border border-warm-taupe py-3 rounded-full text-xs font-bold uppercase tracking-wider text-charcoal hover:bg-aged-paper cursor-pointer"
                 >
                   Back
                 </button>
@@ -408,7 +408,7 @@ export const RSVPModal: React.FC = () => {
                   type="button"
                   onClick={handleFinalSubmit}
                   disabled={isSubmitting}
-                  className="w-2/3 bg-[#A64D32] hover:bg-[#8b3f28] text-white py-3 rounded-full font-bold text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-2 shadow-md cursor-pointer disabled:opacity-50"
+                  className="w-2/3 bg-terracotta hover:bg-terracotta-deep text-white py-3 rounded-full font-bold text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-2 shadow-md cursor-pointer disabled:opacity-50"
                 >
                   {isSubmitting ? (
                     <span>{t('rsvpModal.submitting')}</span>
@@ -428,15 +428,15 @@ export const RSVPModal: React.FC = () => {
           {step === 3 && (
             <div className="text-center py-6 space-y-5 animate-fadeIn">
               
-              <div className="w-16 h-16 bg-[#5B6346]/20 text-[#5B6346] rounded-full flex items-center justify-center mx-auto shadow-sm">
+              <div className="w-16 h-16 bg-olive/20 text-olive rounded-full flex items-center justify-center mx-auto shadow-sm">
                 <CheckCircle2 className="w-10 h-10" />
               </div>
 
               <div className="space-y-2">
-                <h4 className="text-2xl font-serif font-bold text-[#2A2A2A]">
+                <h4 className="text-2xl font-serif font-bold text-graphite">
                   {t('rsvpModal.successTitle')}
                 </h4>
-                <p className="text-sm text-[#5A5A5A] max-w-sm mx-auto">
+                <p className="text-sm text-charcoal max-w-sm mx-auto">
                   {/* Only promise an email when one can actually be sent. */}
                   {emailEnabled
                     ? t('rsvpModal.successMessage', { email, title })
@@ -445,13 +445,13 @@ export const RSVPModal: React.FC = () => {
               </div>
 
               {/* Event Ticket Summary Box */}
-              <div className="bg-[#F4F1ED] p-4 rounded-2xl border border-[#E5E0D8] text-left text-xs space-y-1.5">
-                <div className="font-bold text-[#2A2A2A] text-sm font-serif">{title}</div>
-                <div className="text-[#5A5A5A] flex items-center gap-1.5">
-                  <Calendar className="w-3.5 h-3.5 text-[#A64D32]" />
+              <div className="bg-aged-paper p-4 rounded-2xl border border-warm-taupe text-left text-xs space-y-1.5">
+                <div className="font-bold text-graphite text-sm font-serif">{title}</div>
+                <div className="text-charcoal flex items-center gap-1.5">
+                  <Calendar className="w-3.5 h-3.5 text-terracotta" />
                   <span>{selectedEventForRsvp.date} ({selectedEventForRsvp.time})</span>
                 </div>
-                <div className="text-[#5A5A5A]">
+                <div className="text-charcoal">
                   {guestCount > 0
                     ? t('rsvpModal.guestPassWithGuests', {
                         name: fullName,
@@ -469,7 +469,7 @@ export const RSVPModal: React.FC = () => {
                   href={googleCalendarUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-full bg-[#2A2A2A] hover:bg-black text-white py-3 rounded-full text-xs font-bold uppercase tracking-widest flex items-center justify-center gap-2 transition-all shadow-sm"
+                  className="w-full bg-graphite hover:bg-black text-white py-3 rounded-full text-xs font-bold uppercase tracking-widest flex items-center justify-center gap-2 transition-all shadow-sm"
                 >
                   <ExternalLink className="w-4 h-4" />
                   <span>{t('rsvpModal.addToCalendar')}</span>
@@ -477,7 +477,7 @@ export const RSVPModal: React.FC = () => {
 
                 <button
                   onClick={closeRsvpModal}
-                  className="w-full border border-[#E5E0D8] hover:bg-[#F4F1ED] text-[#2A2A2A] py-2.5 rounded-full text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer"
+                  className="w-full border border-warm-taupe hover:bg-aged-paper text-graphite py-2.5 rounded-full text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer"
                 >
                   {t('rsvpModal.closeModal')}
                 </button>
@@ -490,15 +490,15 @@ export const RSVPModal: React.FC = () => {
           {step === 4 && (
             <div className="text-center py-6 space-y-5 animate-fadeIn">
 
-              <div className="w-16 h-16 bg-[#A64D32]/15 text-[#A64D32] rounded-full flex items-center justify-center mx-auto shadow-sm">
+              <div className="w-16 h-16 bg-terracotta/15 text-terracotta rounded-full flex items-center justify-center mx-auto shadow-sm">
                 <AlertCircle className="w-10 h-10" />
               </div>
 
               <div className="space-y-2">
-                <h4 className="text-2xl font-serif font-bold text-[#2A2A2A]">
+                <h4 className="text-2xl font-serif font-bold text-graphite">
                   {errorCopy.title}
                 </h4>
-                <p className="text-sm text-[#5A5A5A] max-w-sm mx-auto">
+                <p className="text-sm text-charcoal max-w-sm mx-auto">
                   {errorCopy.text}
                 </p>
               </div>
@@ -510,7 +510,7 @@ export const RSVPModal: React.FC = () => {
                   <button
                     onClick={() => void handleFinalSubmit()}
                     disabled={isSubmitting}
-                    className="w-full bg-[#A64D32] hover:bg-[#8b3f28] text-white py-3 rounded-full text-xs font-bold uppercase tracking-widest transition-all shadow-sm cursor-pointer disabled:opacity-50"
+                    className="w-full bg-terracotta hover:bg-terracotta-deep text-white py-3 rounded-full text-xs font-bold uppercase tracking-widest transition-all shadow-sm cursor-pointer disabled:opacity-50"
                   >
                     {isSubmitting ? t('rsvpModal.submitting') : t('rsvpModal.tryAgain')}
                   </button>
@@ -518,7 +518,7 @@ export const RSVPModal: React.FC = () => {
 
                 <button
                   onClick={closeRsvpModal}
-                  className="w-full border border-[#E5E0D8] hover:bg-[#F4F1ED] text-[#2A2A2A] py-2.5 rounded-full text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer"
+                  className="w-full border border-warm-taupe hover:bg-aged-paper text-graphite py-2.5 rounded-full text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer"
                 >
                   {t('rsvpModal.closeModal')}
                 </button>

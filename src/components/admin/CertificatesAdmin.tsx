@@ -149,28 +149,28 @@ export const CertificatesAdmin: React.FC = () => {
     : [];
 
   const field =
-    'w-full bg-[#FDFBF7] border border-[#E5E0D8] rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#A64D32]';
-  const label = 'block text-xs font-bold uppercase tracking-[0.2em] text-[#5A5A5A] mb-1';
+    'w-full bg-parchment border border-warm-taupe rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-terracotta';
+  const label = 'block text-xs font-bold uppercase tracking-[0.2em] text-charcoal mb-1';
 
   return (
     <div className="space-y-6">
       <h2 className="text-xl font-serif font-bold">Certificates of service</h2>
 
       {error && (
-        <div className="flex items-start gap-2 bg-[#A64D32]/10 border border-[#A64D32]/30 rounded-2xl px-4 py-3 text-xs text-[#A64D32]">
+        <div className="flex items-start gap-2 bg-terracotta/10 border border-terracotta/30 rounded-2xl px-4 py-3 text-xs text-terracotta">
           <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
           <span>{error}</span>
         </div>
       )}
 
-      <div className="bg-[#F4F1ED] border border-[#E5E0D8] rounded-2xl p-6 space-y-4">
+      <div className="bg-aged-paper border border-warm-taupe rounded-2xl p-6 space-y-4">
         <div className="relative">
           <label className={label}>Volunteer</label>
           {selected ? (
-            <div className="flex items-center justify-between bg-white border border-[#E5E0D8] rounded-xl px-4 py-2.5">
+            <div className="flex items-center justify-between bg-white border border-warm-taupe rounded-xl px-4 py-2.5">
               <span className="text-sm font-bold">
                 {selected.full_name || selected.email}
-                <span className="font-normal text-[#5A5A5A] ml-2">{selected.email}</span>
+                <span className="font-normal text-charcoal ml-2">{selected.email}</span>
               </span>
               <button
                 onClick={() => {
@@ -178,7 +178,7 @@ export const CertificatesAdmin: React.FC = () => {
                   setEntries(null);
                   setJustIssued(null);
                 }}
-                className="text-xs font-bold text-[#A64D32] cursor-pointer uppercase tracking-wider"
+                className="text-xs font-bold text-terracotta cursor-pointer uppercase tracking-wider"
               >
                 Change
               </button>
@@ -186,7 +186,7 @@ export const CertificatesAdmin: React.FC = () => {
           ) : (
             <>
               <div className="relative">
-                <Search className="w-4 h-4 text-[#5A5A5A] absolute left-3.5 top-1/2 -translate-y-1/2" />
+                <Search className="w-4 h-4 text-charcoal absolute left-3.5 top-1/2 -translate-y-1/2" />
                 <input
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
@@ -195,15 +195,15 @@ export const CertificatesAdmin: React.FC = () => {
                 />
               </div>
               {filteredVolunteers.length > 0 && (
-                <div className="absolute z-10 mt-1 w-full bg-white border border-[#E5E0D8] rounded-xl shadow-lg max-h-56 overflow-y-auto">
+                <div className="absolute z-10 mt-1 w-full bg-white border border-warm-taupe rounded-xl shadow-lg max-h-56 overflow-y-auto">
                   {filteredVolunteers.map((v) => (
                     <button
                       key={v.id}
                       onClick={() => selectVolunteer(v)}
-                      className="w-full text-left px-4 py-2.5 hover:bg-[#F4F1ED] cursor-pointer text-sm border-b border-[#F4F1ED] last:border-0"
+                      className="w-full text-left px-4 py-2.5 hover:bg-aged-paper cursor-pointer text-sm border-b border-aged-paper last:border-0"
                     >
                       <span className="font-bold">{v.full_name || v.email}</span>
-                      <span className="text-[#5A5A5A] ml-2 text-xs">{v.email}</span>
+                      <span className="text-charcoal ml-2 text-xs">{v.email}</span>
                     </button>
                   ))}
                 </div>
@@ -244,7 +244,7 @@ export const CertificatesAdmin: React.FC = () => {
                 <button
                   onClick={() => void handleLoadHours()}
                   disabled={isLoadingHours}
-                  className="w-full bg-white border border-[#E5E0D8] hover:bg-[#FDFBF7] px-4 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider cursor-pointer disabled:opacity-50"
+                  className="w-full bg-white border border-warm-taupe hover:bg-parchment px-4 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider cursor-pointer disabled:opacity-50"
                 >
                   {isLoadingHours ? 'Loading...' : 'Load hours'}
                 </button>
@@ -252,9 +252,9 @@ export const CertificatesAdmin: React.FC = () => {
             </div>
 
             {entries && (
-              <div className="bg-white border border-[#E5E0D8] rounded-xl p-4 space-y-3">
+              <div className="bg-white border border-warm-taupe rounded-xl p-4 space-y-3">
                 {entries.length === 0 ? (
-                  <p className="text-xs text-[#5A5A5A]">
+                  <p className="text-xs text-charcoal">
                     No credited hours in this range. There is nothing to certify.
                   </p>
                 ) : (
@@ -262,8 +262,8 @@ export const CertificatesAdmin: React.FC = () => {
                     <table className="w-full text-xs">
                       <tbody>
                         {entries.map((entry, i) => (
-                          <tr key={i} className="border-b border-[#F4F1ED] last:border-0">
-                            <td className="py-1.5 text-[#5A5A5A] whitespace-nowrap">
+                          <tr key={i} className="border-b border-aged-paper last:border-0">
+                            <td className="py-1.5 text-charcoal whitespace-nowrap">
                               {entry.servedOn}
                             </td>
                             <td className="py-1.5">{entry.description}</td>
@@ -274,9 +274,9 @@ export const CertificatesAdmin: React.FC = () => {
                         ))}
                       </tbody>
                     </table>
-                    <div className="flex items-center justify-between pt-2 border-t border-[#E5E0D8] font-bold text-sm">
+                    <div className="flex items-center justify-between pt-2 border-t border-warm-taupe font-bold text-sm">
                       <span>Total</span>
-                      <span className="text-[#A64D32]">{totalHours} hrs</span>
+                      <span className="text-terracotta">{totalHours} hrs</span>
                     </div>
 
                     <div>
@@ -292,7 +292,7 @@ export const CertificatesAdmin: React.FC = () => {
                     <button
                       onClick={() => void handleIssue()}
                       disabled={isIssuing}
-                      className="flex items-center gap-2 bg-[#A64D32] hover:bg-[#8b3f28] text-white px-6 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider cursor-pointer disabled:opacity-50"
+                      className="flex items-center gap-2 bg-terracotta hover:bg-terracotta-deep text-white px-6 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider cursor-pointer disabled:opacity-50"
                     >
                       <Award className="w-4 h-4" />
                       {isIssuing ? 'Issuing...' : `Issue certificate for ${totalHours} hours`}
@@ -307,7 +307,7 @@ export const CertificatesAdmin: React.FC = () => {
 
       {justIssued && (
         <div className="space-y-3">
-          <h3 className="text-sm font-bold uppercase tracking-[0.2em] text-[#5B6346]">
+          <h3 className="text-sm font-bold uppercase tracking-[0.2em] text-olive">
             Certificate issued — {justIssued.certificate_no}
           </h3>
           <CertificateView certificate={justIssued} />
@@ -316,19 +316,19 @@ export const CertificatesAdmin: React.FC = () => {
 
       {selected && pastCertificates.length > 0 && (
         <div className="space-y-2">
-          <h3 className="text-sm font-bold uppercase tracking-[0.2em] text-[#5A5A5A]">
+          <h3 className="text-sm font-bold uppercase tracking-[0.2em] text-charcoal">
             Previously issued
           </h3>
           {pastCertificates.map((cert) => (
-            <div key={cert.id} className="bg-[#F4F1ED] border border-[#E5E0D8] rounded-xl">
+            <div key={cert.id} className="bg-aged-paper border border-warm-taupe rounded-xl">
               <div className="flex items-center justify-between px-4 py-3">
                 <div className="text-xs">
                   <span className="font-mono font-bold">{cert.certificate_no}</span>
-                  <span className="text-[#5A5A5A] ml-3">
+                  <span className="text-charcoal ml-3">
                     {cert.period_start} — {cert.period_end} · {Number(cert.total_hours)} hrs
                   </span>
                   {cert.revoked_at && (
-                    <span className="ml-3 text-[10px] font-bold uppercase tracking-wider bg-[#A64D32]/15 text-[#A64D32] px-2 py-0.5 rounded-full">
+                    <span className="ml-3 text-[10px] font-bold uppercase tracking-wider bg-terracotta/15 text-terracotta px-2 py-0.5 rounded-full">
                       Withdrawn
                     </span>
                   )}
@@ -336,7 +336,7 @@ export const CertificatesAdmin: React.FC = () => {
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => setExpandedCertId(expandedCertId === cert.id ? null : cert.id)}
-                    className="p-1.5 rounded-lg hover:bg-white text-[#5A5A5A] cursor-pointer"
+                    className="p-1.5 rounded-lg hover:bg-white text-charcoal cursor-pointer"
                     title="View"
                   >
                     {expandedCertId === cert.id ? (
@@ -348,7 +348,7 @@ export const CertificatesAdmin: React.FC = () => {
                   {!cert.revoked_at && (
                     <button
                       onClick={() => void handleRevoke(cert)}
-                      className="p-1.5 rounded-lg hover:bg-[#A64D32]/10 text-[#A64D32] cursor-pointer"
+                      className="p-1.5 rounded-lg hover:bg-terracotta/10 text-terracotta cursor-pointer"
                       title="Withdraw"
                     >
                       <ShieldOff className="w-4 h-4" />
@@ -357,7 +357,7 @@ export const CertificatesAdmin: React.FC = () => {
                 </div>
               </div>
               {expandedCertId === cert.id && (
-                <div className="border-t border-[#E5E0D8] p-4">
+                <div className="border-t border-warm-taupe p-4">
                   <CertificateView certificate={cert} />
                 </div>
               )}

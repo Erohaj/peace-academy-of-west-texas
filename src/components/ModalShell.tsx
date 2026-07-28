@@ -65,7 +65,7 @@ export const ModalShell: React.FC<ModalShellProps> = ({
           panelProps.onKeyDown(event);
           onKeyDown?.(event);
         }}
-        className={`bg-[#FDFBF7] rounded-[28px] border border-[#E5E0D8] shadow-modal text-[#2A2A2A] relative outline-none animate-scaleUp ${panelClassName}`}
+        className={`bg-parchment rounded-[28px] border border-warm-taupe shadow-modal text-graphite relative outline-none animate-scaleUp ${panelClassName}`}
       >
         {children}
       </div>

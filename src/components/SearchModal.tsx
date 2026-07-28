@@ -235,8 +235,8 @@ export const SearchModal: React.FC = () => {
         </h2>
 
         {/* Top Search Input Bar */}
-        <div className="p-4 sm:p-5 border-b border-[#E5E0D8] bg-white flex items-center gap-3">
-          <Search className="w-5 h-5 text-[#A64D32] shrink-0" />
+        <div className="p-4 sm:p-5 border-b border-warm-taupe bg-white flex items-center gap-3">
+          <Search className="w-5 h-5 text-terracotta shrink-0" />
           <input
             ref={inputRef}
             type="text"
@@ -247,12 +247,12 @@ export const SearchModal: React.FC = () => {
                 ? "Buscar eventos, fotos de galería o voluntariado..."
                 : "Search events, gallery photos, or volunteer roles..."
             }
-            className="w-full bg-transparent text-base sm:text-lg font-medium text-[#2A2A2A] placeholder:text-[#5A5A5A]/60 pawtx-focus"
+            className="w-full bg-transparent text-base sm:text-lg font-medium text-graphite placeholder:text-charcoal/60 pawtx-focus"
           />
           {query && (
             <button
               onClick={() => setQuery('')}
-              className="p-1 rounded-full hover:bg-[#F4F1ED] text-[#5A5A5A] transition-colors cursor-pointer"
+              className="p-1 rounded-full hover:bg-aged-paper text-charcoal transition-colors cursor-pointer"
               title="Clear search"
             >
               <X className="w-4 h-4" />
@@ -260,20 +260,20 @@ export const SearchModal: React.FC = () => {
           )}
           <button
             onClick={closeSearch}
-            className="px-2.5 py-1 rounded-lg bg-[#F4F1ED] text-xs font-mono font-bold text-[#5A5A5A] hover:bg-[#E5E0D8] transition-colors cursor-pointer shrink-0"
+            className="px-2.5 py-1 rounded-lg bg-aged-paper text-xs font-mono font-bold text-charcoal hover:bg-warm-taupe transition-colors cursor-pointer shrink-0"
           >
             ESC
           </button>
         </div>
 
         {/* Category Filter Chips */}
-        <div className="px-4 sm:px-5 py-2.5 border-b border-[#E5E0D8] bg-[#F4F1ED]/60 flex items-center gap-2 overflow-x-auto no-scrollbar">
+        <div className="px-4 sm:px-5 py-2.5 border-b border-warm-taupe bg-aged-paper/60 flex items-center gap-2 overflow-x-auto no-scrollbar">
           <button
             onClick={() => setActiveCategory('all')}
             className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider transition-colors whitespace-nowrap cursor-pointer ${
               activeCategory === 'all'
-                ? 'bg-[#A64D32] text-white shadow-sm'
-                : 'bg-white text-[#5A5A5A] hover:bg-white/80 border border-[#E5E0D8]'
+                ? 'bg-terracotta text-white shadow-sm'
+                : 'bg-white text-charcoal hover:bg-white/80 border border-warm-taupe'
             }`}
           >
             {isEs ? 'Todos' : 'All'} ({counts.all})
@@ -282,8 +282,8 @@ export const SearchModal: React.FC = () => {
             onClick={() => setActiveCategory('events')}
             className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider transition-colors flex items-center gap-1.5 whitespace-nowrap cursor-pointer ${
               activeCategory === 'events'
-                ? 'bg-[#A64D32] text-white shadow-sm'
-                : 'bg-white text-[#5A5A5A] hover:bg-white/80 border border-[#E5E0D8]'
+                ? 'bg-terracotta text-white shadow-sm'
+                : 'bg-white text-charcoal hover:bg-white/80 border border-warm-taupe'
             }`}
           >
             <Calendar className="w-3.5 h-3.5" />
@@ -293,8 +293,8 @@ export const SearchModal: React.FC = () => {
             onClick={() => setActiveCategory('gallery')}
             className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider transition-colors flex items-center gap-1.5 whitespace-nowrap cursor-pointer ${
               activeCategory === 'gallery'
-                ? 'bg-[#A64D32] text-white shadow-sm'
-                : 'bg-white text-[#5A5A5A] hover:bg-white/80 border border-[#E5E0D8]'
+                ? 'bg-terracotta text-white shadow-sm'
+                : 'bg-white text-charcoal hover:bg-white/80 border border-warm-taupe'
             }`}
           >
             <ImageIcon className="w-3.5 h-3.5" />
@@ -304,8 +304,8 @@ export const SearchModal: React.FC = () => {
             onClick={() => setActiveCategory('shifts')}
             className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider transition-colors flex items-center gap-1.5 whitespace-nowrap cursor-pointer ${
               activeCategory === 'shifts'
-                ? 'bg-[#A64D32] text-white shadow-sm'
-                : 'bg-white text-[#5A5A5A] hover:bg-white/80 border border-[#E5E0D8]'
+                ? 'bg-terracotta text-white shadow-sm'
+                : 'bg-white text-charcoal hover:bg-white/80 border border-warm-taupe'
             }`}
           >
             <UserCheck className="w-3.5 h-3.5" />
@@ -326,7 +326,7 @@ export const SearchModal: React.FC = () => {
         >
           {!query && (
             <div className="space-y-4">
-              <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-[#A64D32]">
+              <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-terracotta">
                 <Sparkles className="w-4 h-4" />
                 <span>{isEs ? 'Búsquedas Sugeridas' : 'Popular Search Topics'}</span>
               </div>
@@ -344,9 +344,9 @@ export const SearchModal: React.FC = () => {
                   <button
                     key={tag}
                     onClick={() => setQuery(tag)}
-                    className="px-3 py-1.5 rounded-full bg-white border border-[#E5E0D8] text-xs font-medium text-[#2A2A2A] hover:border-[#A64D32] hover:text-[#A64D32] transition-colors flex items-center gap-1.5 cursor-pointer shadow-2xs"
+                    className="px-3 py-1.5 rounded-full bg-white border border-warm-taupe text-xs font-medium text-graphite hover:border-terracotta hover:text-terracotta transition-colors flex items-center gap-1.5 cursor-pointer shadow-2xs"
                   >
-                    <Tag className="w-3 h-3 text-[#A64D32]" />
+                    <Tag className="w-3 h-3 text-terracotta" />
                     <span>{tag}</span>
                   </button>
                 ))}
@@ -356,11 +356,11 @@ export const SearchModal: React.FC = () => {
 
           {query && filteredResults.length === 0 && (
             <div className="py-12 text-center space-y-3">
-              <Search className="w-10 h-10 text-[#5A5A5A]/40 mx-auto" />
-              <p className="text-base font-bold text-[#2A2A2A]">
+              <Search className="w-10 h-10 text-charcoal/40 mx-auto" />
+              <p className="text-base font-bold text-graphite">
                 {isEs ? `No se encontraron resultados para "${query}"` : `No matches found for "${query}"`}
               </p>
-              <p className="text-xs text-[#5A5A5A]">
+              <p className="text-xs text-charcoal">
                 {isEs
                   ? 'Prueba buscando términos como "cocina", "voluntario", "Midland" o "evento".'
                   : 'Try searching for terms like "cooking", "pantry", "Odessa", or "festival".'}
@@ -377,8 +377,8 @@ export const SearchModal: React.FC = () => {
                 onMouseEnter={() => setSelectedIndex(index)}
                 className={`p-3.5 sm:p-4 rounded-2xl border transition-all cursor-pointer flex items-start gap-4 ${
                   isSelected
-                    ? 'bg-white border-[#A64D32] shadow-md ring-1 ring-[#A64D32]/20'
-                    : 'bg-white/80 border-[#E5E0D8] hover:bg-white hover:border-[#A64D32]/50'
+                    ? 'bg-white border-terracotta shadow-md ring-1 ring-terracotta/20'
+                    : 'bg-white/80 border-warm-taupe hover:bg-white hover:border-terracotta/50'
                 }`}
               >
                 {/* Image Thumbnail or Category Icon */}
@@ -388,10 +388,10 @@ export const SearchModal: React.FC = () => {
                     alt={item.title}
                     loading="lazy"
                     decoding="async"
-                    className="w-16 h-16 sm:w-20 sm:h-20 object-cover rounded-xl shrink-0 border border-[#E5E0D8]"
+                    className="w-16 h-16 sm:w-20 sm:h-20 object-cover rounded-xl shrink-0 border border-warm-taupe"
                   />
                 ) : (
-                  <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-xl bg-[#F4F1ED] border border-[#E5E0D8] flex items-center justify-center shrink-0 text-[#A64D32]">
+                  <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-xl bg-aged-paper border border-warm-taupe flex items-center justify-center shrink-0 text-terracotta">
                     {item.type === 'event' && <Calendar className="w-6 h-6" />}
                     {item.type === 'gallery' && <ImageIcon className="w-6 h-6" />}
                     {item.type === 'shift' && <UserCheck className="w-6 h-6" />}
@@ -413,26 +413,26 @@ export const SearchModal: React.FC = () => {
                       {item.badge}
                     </span>
                     {item.subtitle && (
-                      <span className="text-xs text-[#5A5A5A] flex items-center gap-1">
-                        <Clock className="w-3 h-3 text-[#A64D32]" />
+                      <span className="text-xs text-charcoal flex items-center gap-1">
+                        <Clock className="w-3 h-3 text-terracotta" />
                         {item.subtitle}
                       </span>
                     )}
                   </div>
 
-                  <h4 className="text-sm sm:text-base font-serif font-bold text-[#2A2A2A] truncate">
+                  <h4 className="text-sm sm:text-base font-serif font-bold text-graphite truncate">
                     {item.title}
                   </h4>
 
-                  <p className="text-xs text-[#5A5A5A] line-clamp-2 leading-relaxed">
+                  <p className="text-xs text-charcoal line-clamp-2 leading-relaxed">
                     {item.description}
                   </p>
 
                   {/* Full strength, not /80: the alpha resolved to #7B7B7B on
                       white, which is 4.2:1 and fails AA at 11px. */}
                   {item.location && (
-                    <div className="flex items-center gap-1 text-[11px] text-[#5A5A5A] pt-0.5">
-                      <MapPin className="w-3 h-3 text-[#A64D32]" />
+                    <div className="flex items-center gap-1 text-[11px] text-charcoal pt-0.5">
+                      <MapPin className="w-3 h-3 text-terracotta" />
                       <span className="truncate">{item.location}</span>
                     </div>
                   )}
@@ -442,7 +442,7 @@ export const SearchModal: React.FC = () => {
                 <div className="self-center shrink-0 pl-1">
                   <div
                     className={`p-2 rounded-full transition-colors ${
-                      isSelected ? 'bg-[#A64D32] text-white' : 'bg-[#F4F1ED] text-[#5A5A5A]'
+                      isSelected ? 'bg-terracotta text-white' : 'bg-aged-paper text-charcoal'
                     }`}
                   >
                     <ArrowRight className="w-4 h-4" />
@@ -454,28 +454,28 @@ export const SearchModal: React.FC = () => {
         </div>
 
         {/* Modal Footer Quick Keyboard Hints */}
-        <div className="px-4 py-3 border-t border-[#E5E0D8] bg-[#F4F1ED]/80 text-[11px] text-[#5A5A5A] flex items-center justify-between">
+        <div className="px-4 py-3 border-t border-warm-taupe bg-aged-paper/80 text-[11px] text-charcoal flex items-center justify-between">
           <div className="flex items-center gap-3">
             <span>
-              <kbd className="px-1.5 py-0.5 rounded bg-white border border-[#E5E0D8] font-mono text-[10px] shadow-2xs">
+              <kbd className="px-1.5 py-0.5 rounded bg-white border border-warm-taupe font-mono text-[10px] shadow-2xs">
                 ↑↓
               </kbd>{' '}
               {isEs ? 'Navegar' : 'Navigate'}
             </span>
             <span>
-              <kbd className="px-1.5 py-0.5 rounded bg-white border border-[#E5E0D8] font-mono text-[10px] shadow-2xs">
+              <kbd className="px-1.5 py-0.5 rounded bg-white border border-warm-taupe font-mono text-[10px] shadow-2xs">
                 ↵
               </kbd>{' '}
               {isEs ? 'Seleccionar' : 'Select'}
             </span>
             <span>
-              <kbd className="px-1.5 py-0.5 rounded bg-white border border-[#E5E0D8] font-mono text-[10px] shadow-2xs">
+              <kbd className="px-1.5 py-0.5 rounded bg-white border border-warm-taupe font-mono text-[10px] shadow-2xs">
                 ESC
               </kbd>{' '}
               {isEs ? 'Cerrar' : 'Close'}
             </span>
           </div>
-          <span className="font-bold text-[#A64D32]">
+          <span className="font-bold text-terracotta">
             {filteredResults.length} {isEs ? 'resultados' : 'results'}
           </span>
         </div>

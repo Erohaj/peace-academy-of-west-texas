@@ -65,8 +65,8 @@ export const SignedDocumentView: React.FC<Props> = ({ title, signature }) => {
   // card on screen, a bare page for print) — see the two usages below.
   const documentBody = body && (
     <>
-      <h4 className="font-serif font-bold text-lg text-[#2A2A2A] mb-1">{title}</h4>
-      <p className="text-[11px] text-[#5A5A5A] mb-4">
+      <h4 className="font-serif font-bold text-lg text-graphite mb-1">{title}</h4>
+      <p className="text-[11px] text-charcoal mb-4">
         Signed by {signature.signer_name} on {formatSignedAt(signature.signed_at)}
         {signature.choice && ` — chose "${signature.choice.replace('_', ' ')}"`}
       </p>
@@ -77,8 +77,8 @@ export const SignedDocumentView: React.FC<Props> = ({ title, signature }) => {
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <div className="text-xs text-[#5A5A5A]">
-          Signed by <strong className="text-[#2A2A2A]">{signature.signer_name}</strong>
+        <div className="text-xs text-charcoal">
+          Signed by <strong className="text-graphite">{signature.signer_name}</strong>
           {signature.signer_role === 'guardian' &&
             signature.minor_name &&
             ` (parent/guardian of ${signature.minor_name})`}
@@ -89,7 +89,7 @@ export const SignedDocumentView: React.FC<Props> = ({ title, signature }) => {
         {body && (
           <button
             onClick={print}
-            className="flex items-center gap-1.5 bg-white border border-[#E5E0D8] hover:bg-[#F4F1ED] text-[#2A2A2A] px-3 py-1.5 rounded-full text-[11px] font-bold uppercase tracking-wider cursor-pointer"
+            className="flex items-center gap-1.5 bg-white border border-warm-taupe hover:bg-aged-paper text-graphite px-3 py-1.5 rounded-full text-[11px] font-bold uppercase tracking-wider cursor-pointer"
           >
             <Printer className="w-3.5 h-3.5" />
             Print / Save as PDF
@@ -98,21 +98,21 @@ export const SignedDocumentView: React.FC<Props> = ({ title, signature }) => {
       </div>
 
       {isLoading && (
-        <div className="flex items-center gap-2 text-xs text-[#5A5A5A] py-4">
+        <div className="flex items-center gap-2 text-xs text-charcoal py-4">
           <Loader2 className="w-4 h-4 animate-spin" />
           Loading document...
         </div>
       )}
 
       {error && (
-        <div className="flex items-start gap-2 bg-[#A64D32]/10 border border-[#A64D32]/30 rounded-xl px-3 py-2.5 text-xs text-[#A64D32]">
+        <div className="flex items-start gap-2 bg-terracotta/10 border border-terracotta/30 rounded-xl px-3 py-2.5 text-xs text-terracotta">
           <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
           <span>{error}</span>
         </div>
       )}
 
       {/* On-screen preview — always here while expanded, regardless of printing. */}
-      {body && <div className="bg-white border border-[#E5E0D8] rounded-2xl p-5">{documentBody}</div>}
+      {body && <div className="bg-white border border-warm-taupe rounded-2xl p-5">{documentBody}</div>}
 
       {/* The print copy: a separate instance of the same content, portalled
           out to #print-root, which exists only for the moment window.print()

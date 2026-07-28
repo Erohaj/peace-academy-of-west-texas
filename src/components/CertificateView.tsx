@@ -60,21 +60,21 @@ export const CertificateView: React.FC<Props> = ({ certificate }) => {
   // their outer wrapper below.
   const certificateBody = (
     <>
-      <div className="text-center space-y-1 border-b border-[#E5E0D8] pb-6">
-        <div className="text-xs font-bold uppercase tracking-[0.3em] text-[#A64D32]">
+      <div className="text-center space-y-1 border-b border-warm-taupe pb-6">
+        <div className="text-xs font-bold uppercase tracking-[0.3em] text-terracotta">
           Certificate of Volunteer Service
         </div>
-        <div className="text-2xl font-serif font-bold text-[#2A2A2A]">{SITE_NAME}</div>
-        <div className="text-[11px] text-[#5A5A5A]">
+        <div className="text-2xl font-serif font-bold text-graphite">{SITE_NAME}</div>
+        <div className="text-[11px] text-charcoal">
           {ORG_ADDRESS} · 501(c)(3) Non-Profit Organization
         </div>
       </div>
 
       <div className="text-center space-y-3">
-        <p className="text-xs text-[#5A5A5A] uppercase tracking-wider">This certifies that</p>
-        <p className="text-3xl font-serif font-bold text-[#2A2A2A]">{certificate.recipient_name}</p>
-        <p className="text-sm text-[#5A5A5A] max-w-md mx-auto leading-relaxed">
-          completed <strong className="text-[#A64D32]">{Number(certificate.total_hours)} hours</strong>{' '}
+        <p className="text-xs text-charcoal uppercase tracking-wider">This certifies that</p>
+        <p className="text-3xl font-serif font-bold text-graphite">{certificate.recipient_name}</p>
+        <p className="text-sm text-charcoal max-w-md mx-auto leading-relaxed">
+          completed <strong className="text-terracotta">{Number(certificate.total_hours)} hours</strong>{' '}
           of volunteer service with {SITE_NAME} between{' '}
           <strong>{formatDate(certificate.period_start)}</strong> and{' '}
           <strong>{formatDate(certificate.period_end)}</strong>.
@@ -82,8 +82,8 @@ export const CertificateView: React.FC<Props> = ({ certificate }) => {
       </div>
 
       {entries.length > 0 && (
-        <table className="w-full text-xs border-t border-[#E5E0D8] pt-3">
-          <thead className="text-[#5A5A5A] uppercase tracking-wider">
+        <table className="w-full text-xs border-t border-warm-taupe pt-3">
+          <thead className="text-charcoal uppercase tracking-wider">
             <tr>
               <th className="text-left font-bold pb-2">Date</th>
               <th className="text-left font-bold pb-2">Activity</th>
@@ -92,23 +92,23 @@ export const CertificateView: React.FC<Props> = ({ certificate }) => {
           </thead>
           <tbody>
             {entries.map((entry, index) => (
-              <tr key={index} className="border-t border-[#F4F1ED]">
-                <td className="py-1.5 text-[#2A2A2A]">{formatDate(entry.servedOn)}</td>
-                <td className="py-1.5 text-[#2A2A2A]">{entry.description}</td>
-                <td className="py-1.5 text-right text-[#2A2A2A]">{entry.hours}</td>
+              <tr key={index} className="border-t border-aged-paper">
+                <td className="py-1.5 text-graphite">{formatDate(entry.servedOn)}</td>
+                <td className="py-1.5 text-graphite">{entry.description}</td>
+                <td className="py-1.5 text-right text-graphite">{entry.hours}</td>
               </tr>
             ))}
           </tbody>
         </table>
       )}
 
-      <div className="flex items-end justify-between gap-6 pt-4 border-t border-[#E5E0D8]">
-        <div className="text-xs text-[#2A2A2A] space-y-0.5">
+      <div className="flex items-end justify-between gap-6 pt-4 border-t border-warm-taupe">
+        <div className="text-xs text-graphite space-y-0.5">
           <div className="font-bold">{certificate.issued_by_name}</div>
           {certificate.issued_by_title && (
-            <div className="text-[#5A5A5A]">{certificate.issued_by_title}</div>
+            <div className="text-charcoal">{certificate.issued_by_title}</div>
           )}
-          <div className="text-[#5A5A5A]">{formatDate(certificate.issued_at.slice(0, 10))}</div>
+          <div className="text-charcoal">{formatDate(certificate.issued_at.slice(0, 10))}</div>
         </div>
 
         <div className="text-center shrink-0">
@@ -118,13 +118,13 @@ export const CertificateView: React.FC<Props> = ({ certificate }) => {
               dangerouslySetInnerHTML={{ __html: qrSvg }}
             />
           )}
-          <div className="text-[9px] font-mono text-[#5A5A5A] mt-1 tracking-wider">
+          <div className="text-[9px] font-mono text-charcoal mt-1 tracking-wider">
             {certificate.certificate_no}
           </div>
         </div>
       </div>
 
-      <p className="text-center text-[10px] text-[#5A5A5A] flex items-center justify-center gap-1.5">
+      <p className="text-center text-[10px] text-charcoal flex items-center justify-center gap-1.5">
         <ShieldCheck className="w-3 h-3" />
         Verify this certificate at {verifyUrl.replace(/^https?:\/\//, '')}
       </p>
@@ -137,7 +137,7 @@ export const CertificateView: React.FC<Props> = ({ certificate }) => {
         <div className="flex justify-end">
           <button
             onClick={print}
-            className="flex items-center gap-2 bg-[#A64D32] hover:bg-[#8b3f28] text-white px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider cursor-pointer"
+            className="flex items-center gap-2 bg-terracotta hover:bg-terracotta-deep text-white px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider cursor-pointer"
           >
             <Printer className="w-4 h-4" />
             Print / Save as PDF
@@ -146,7 +146,7 @@ export const CertificateView: React.FC<Props> = ({ certificate }) => {
       )}
 
       {isRevoked && (
-        <div className="flex items-start gap-2 bg-[#A64D32]/10 border border-[#A64D32]/30 rounded-2xl px-4 py-3 text-xs text-[#A64D32]">
+        <div className="flex items-start gap-2 bg-terracotta/10 border border-terracotta/30 rounded-2xl px-4 py-3 text-xs text-terracotta">
           <ShieldOff className="w-4 h-4 shrink-0 mt-0.5" />
           <span>
             This certificate was withdrawn on {formatDate(certificate.revoked_at!.slice(0, 10))}
@@ -158,7 +158,7 @@ export const CertificateView: React.FC<Props> = ({ certificate }) => {
 
       <div
         className={`bg-white border-2 rounded-2xl p-10 max-w-2xl mx-auto space-y-8 ${
-          isRevoked ? 'border-red-300 opacity-60' : 'border-[#E5E0D8]'
+          isRevoked ? 'border-red-300 opacity-60' : 'border-warm-taupe'
         }`}
       >
         {certificateBody}

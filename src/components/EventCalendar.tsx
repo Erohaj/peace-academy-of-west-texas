@@ -140,15 +140,15 @@ export const EventCalendar: React.FC<EventCalendarProps> = ({ events, selectedCa
   const getCategoryBadgeStyle = (cat: EventCategory) => {
     switch (cat) {
       case 'cooking':
-        return 'bg-[#A64D32] text-white border-[#8b3f28]';
+        return 'bg-terracotta text-white border-terracotta-deep';
       case 'cultural':
-        return 'bg-[#5B6346] text-white border-[#474e36]';
+        return 'bg-olive text-white border-[#474e36]';
       case 'seminars':
         return 'bg-[#C27D38] text-white border-[#a0642a]';
       case 'relief':
         return 'bg-[#8C3A2B] text-white border-[#6e2a1e]';
       default:
-        return 'bg-[#2A2A2A] text-white border-black';
+        return 'bg-graphite text-white border-black';
     }
   };
 
@@ -215,20 +215,20 @@ export const EventCalendar: React.FC<EventCalendarProps> = ({ events, selectedCa
   return (
     <div className="space-y-8">
       {/* Calendar Top Control Header */}
-      <div className="bg-[#F4F1ED] rounded-3xl p-6 border border-[#E5E0D8] shadow-sm space-y-6">
+      <div className="bg-aged-paper rounded-3xl p-6 border border-warm-taupe shadow-sm space-y-6">
         
         <div className="flex flex-col md:flex-row items-center justify-between gap-4">
           
           {/* Month Title & Nav */}
           <div className="flex items-center gap-3">
-            <div className="p-2.5 bg-[#A64D32]/10 rounded-2xl border border-[#A64D32]/20">
-              <CalendarIcon className="w-5 h-5 text-[#A64D32]" />
+            <div className="p-2.5 bg-terracotta/10 rounded-2xl border border-terracotta/20">
+              <CalendarIcon className="w-5 h-5 text-terracotta" />
             </div>
             <div>
-              <h3 className="text-2xl font-serif font-bold text-[#2A2A2A] capitalize">
+              <h3 className="text-2xl font-serif font-bold text-graphite capitalize">
                 {monthName}
               </h3>
-              <p className="text-xs text-[#5A5A5A] font-medium">
+              <p className="text-xs text-charcoal font-medium">
                 {filteredEvents.length} {isSpanish ? 'eventos programados' : 'scheduled events'}
               </p>
             </div>
@@ -238,22 +238,22 @@ export const EventCalendar: React.FC<EventCalendarProps> = ({ events, selectedCa
           <div className="flex items-center gap-2">
             <button
               onClick={handleToday}
-              className="px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider bg-white text-[#2A2A2A] hover:bg-[#A64D32] hover:text-white border border-[#E5E0D8] transition-all cursor-pointer"
+              className="px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider bg-white text-graphite hover:bg-terracotta hover:text-white border border-warm-taupe transition-all cursor-pointer"
             >
               {t('events.today')}
             </button>
-            <div className="flex items-center bg-white rounded-full border border-[#E5E0D8] p-1">
+            <div className="flex items-center bg-white rounded-full border border-warm-taupe p-1">
               <button
                 onClick={handlePrevMonth}
                 aria-label="Previous Month"
-                className="p-2 rounded-full hover:bg-[#F4F1ED] text-[#2A2A2A] transition-colors cursor-pointer"
+                className="p-2 rounded-full hover:bg-aged-paper text-graphite transition-colors cursor-pointer"
               >
                 <ChevronLeft className="w-4 h-4" />
               </button>
               <button
                 onClick={handleNextMonth}
                 aria-label="Next Month"
-                className="p-2 rounded-full hover:bg-[#F4F1ED] text-[#2A2A2A] transition-colors cursor-pointer"
+                className="p-2 rounded-full hover:bg-aged-paper text-graphite transition-colors cursor-pointer"
               >
                 <ChevronRight className="w-4 h-4" />
               </button>
@@ -264,8 +264,8 @@ export const EventCalendar: React.FC<EventCalendarProps> = ({ events, selectedCa
 
         {/* Quick Jump Month Pills */}
         {eventMonths.length > 0 && (
-          <div className="flex items-center gap-2 overflow-x-auto pt-2 pb-1 scrollbar-none border-t border-[#E5E0D8]/60">
-            <span className="text-xs font-bold uppercase tracking-wider text-[#5A5A5A] shrink-0 mr-1">
+          <div className="flex items-center gap-2 overflow-x-auto pt-2 pb-1 scrollbar-none border-t border-warm-taupe/60">
+            <span className="text-xs font-bold uppercase tracking-wider text-charcoal shrink-0 mr-1">
               {t('events.quickJump')}:
             </span>
             {eventMonths.map((m) => {
@@ -276,13 +276,13 @@ export const EventCalendar: React.FC<EventCalendarProps> = ({ events, selectedCa
                   onClick={() => setCurrentDate(new Date(m.year, m.month, 1))}
                   className={`px-3 py-1 rounded-full text-xs font-bold transition-all shrink-0 flex items-center gap-1.5 cursor-pointer ${
                     isActive
-                      ? 'bg-[#5B6346] text-white shadow-sm'
-                      : 'bg-white text-[#2A2A2A] hover:bg-[#E5E0D8] border border-[#E5E0D8]'
+                      ? 'bg-olive text-white shadow-sm'
+                      : 'bg-white text-graphite hover:bg-warm-taupe border border-warm-taupe'
                   }`}
                 >
                   <span>{m.label}</span>
                   <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
-                    isActive ? 'bg-white/20 text-white' : 'bg-[#5B6346]/10 text-[#5B6346]'
+                    isActive ? 'bg-white/20 text-white' : 'bg-olive/10 text-olive'
                   }`}>
                     {m.count}
                   </span>
@@ -295,15 +295,15 @@ export const EventCalendar: React.FC<EventCalendarProps> = ({ events, selectedCa
       </div>
 
       {/* Main Monthly Calendar Grid */}
-      <div className="bg-[#FDFBF7] rounded-3xl border border-[#E5E0D8] shadow-md overflow-hidden">
+      <div className="bg-parchment rounded-3xl border border-warm-taupe shadow-md overflow-hidden">
         
         {/* Weekday Header Row */}
-        <div className="grid grid-cols-7 bg-[#F4F1ED] border-b border-[#E5E0D8]">
+        <div className="grid grid-cols-7 bg-aged-paper border-b border-warm-taupe">
           {weekDays.map((day, idx) => (
             <div 
               key={day} 
               className={`py-3 text-center text-xs font-bold uppercase tracking-wider ${
-                idx === 0 || idx === 6 ? 'text-[#A64D32]' : 'text-[#5A5A5A]'
+                idx === 0 || idx === 6 ? 'text-terracotta' : 'text-charcoal'
               }`}
             >
               {day}
@@ -312,7 +312,7 @@ export const EventCalendar: React.FC<EventCalendarProps> = ({ events, selectedCa
         </div>
 
         {/* Calendar Days Cells Grid */}
-        <div className="grid grid-cols-7 auto-rows-fr divide-x divide-y divide-[#E5E0D8]/60 bg-white">
+        <div className="grid grid-cols-7 auto-rows-fr divide-x divide-y divide-warm-taupe/60 bg-white">
           {gridCells.map((cell, idx) => {
             const hasEvents = cell.events.length > 0;
             const isSelected = selectedDateIso === cell.isoDate;
@@ -324,25 +324,25 @@ export const EventCalendar: React.FC<EventCalendarProps> = ({ events, selectedCa
                   setSelectedDateIso(cell.isoDate);
                 }}
                 className={`min-h-[90px] sm:min-h-[120px] p-1.5 sm:p-2.5 transition-all cursor-pointer flex flex-col justify-between group relative ${
-                  !cell.isCurrentMonth ? 'bg-porcelain/60 text-muted-text' : 'bg-white text-[#2A2A2A]'
-                } ${isSelected ? 'ring-2 ring-inset ring-[#A64D32] bg-[#A64D32]/5' : 'hover:bg-[#F4F1ED]/50'}`}
+                  !cell.isCurrentMonth ? 'bg-porcelain/60 text-muted-text' : 'bg-white text-graphite'
+                } ${isSelected ? 'ring-2 ring-inset ring-terracotta bg-terracotta/5' : 'hover:bg-aged-paper/50'}`}
               >
                 {/* Cell Header: Day Number & Event Badge Count */}
                 <div className="flex items-center justify-between w-full">
                   <span
                     className={`text-xs sm:text-sm font-bold rounded-full w-6 h-6 flex items-center justify-center ${
                       isSelected
-                        ? 'bg-[#A64D32] text-white shadow-sm'
+                        ? 'bg-terracotta text-white shadow-sm'
                         : hasEvents
-                        ? 'bg-[#5B6346]/10 text-[#5B6346]'
-                        : 'text-[#5A5A5A]'
+                        ? 'bg-olive/10 text-olive'
+                        : 'text-charcoal'
                     }`}
                   >
                     {cell.dayNumber}
                   </span>
 
                   {hasEvents && (
-                    <span className="text-[10px] font-extrabold uppercase px-1.5 py-0.5 rounded-full bg-[#A64D32] text-white shadow-2xs">
+                    <span className="text-[10px] font-extrabold uppercase px-1.5 py-0.5 rounded-full bg-terracotta text-white shadow-2xs">
                       {cell.events.length} {cell.events.length === 1 ? 'event' : 'events'}
                     </span>
                   )}
@@ -392,8 +392,8 @@ export const EventCalendar: React.FC<EventCalendarProps> = ({ events, selectedCa
                       <span
                         key={evt.id}
                         className={`w-2 h-2 rounded-full ${
-                          evt.category === 'cooking' ? 'bg-[#A64D32]' :
-                          evt.category === 'cultural' ? 'bg-[#5B6346]' :
+                          evt.category === 'cooking' ? 'bg-terracotta' :
+                          evt.category === 'cultural' ? 'bg-olive' :
                           evt.category === 'seminars' ? 'bg-[#C27D38]' : 'bg-[#8C3A2B]'
                         }`}
                       />
@@ -408,20 +408,20 @@ export const EventCalendar: React.FC<EventCalendarProps> = ({ events, selectedCa
       </div>
 
       {/* Selected Day Event Drawer / Detail Cards */}
-      <div className="bg-[#F4F1ED] rounded-3xl p-6 sm:p-8 border border-[#E5E0D8] shadow-sm space-y-6">
+      <div className="bg-aged-paper rounded-3xl p-6 sm:p-8 border border-warm-taupe shadow-sm space-y-6">
         
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#E5E0D8] pb-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-warm-taupe pb-4">
           <div className="space-y-1">
-            <div className="inline-flex items-center gap-1.5 text-[#5B6346] font-bold text-xs uppercase tracking-wider">
-              <Sparkles className="w-3.5 h-3.5 text-[#5B6346]" />
+            <div className="inline-flex items-center gap-1.5 text-olive font-bold text-xs uppercase tracking-wider">
+              <Sparkles className="w-3.5 h-3.5 text-olive" />
               <span>{t('events.selectDayEvents', { date: '' })}</span>
             </div>
-            <h3 className="text-xl sm:text-2xl font-serif font-bold text-[#2A2A2A] capitalize">
+            <h3 className="text-xl sm:text-2xl font-serif font-bold text-graphite capitalize">
               {selectedDateFormatted || (isSpanish ? 'Selecciona una fecha' : 'Select a date')}
             </h3>
           </div>
 
-          <div className="text-xs text-[#5A5A5A] font-medium bg-white px-3.5 py-1.5 rounded-full border border-[#E5E0D8] self-start sm:self-auto">
+          <div className="text-xs text-charcoal font-medium bg-white px-3.5 py-1.5 rounded-full border border-warm-taupe self-start sm:self-auto">
             {selectedDayEvents.length} {isSpanish ? 'evento(s) encontrados' : 'event(s) scheduled'}
           </div>
         </div>
@@ -439,7 +439,7 @@ export const EventCalendar: React.FC<EventCalendarProps> = ({ events, selectedCa
               return (
                 <div
                   key={event.id}
-                  className="bg-[#FDFBF7] rounded-2xl p-5 border border-[#E5E0D8] shadow-sm flex flex-col justify-between space-y-4 hover:border-[#A64D32]/50 transition-all group"
+                  className="bg-parchment rounded-2xl p-5 border border-warm-taupe shadow-sm flex flex-col justify-between space-y-4 hover:border-terracotta/50 transition-all group"
                 >
                   <div className="space-y-3">
                     {/* Category pill & Image preview */}
@@ -465,34 +465,34 @@ export const EventCalendar: React.FC<EventCalendarProps> = ({ events, selectedCa
                       </div>
                     </div>
 
-                    <h4 className="text-lg font-serif font-bold text-[#2A2A2A] leading-snug group-hover:text-[#A64D32] transition-colors">
+                    <h4 className="text-lg font-serif font-bold text-graphite leading-snug group-hover:text-terracotta transition-colors">
                       {title}
                     </h4>
 
-                    <p className="text-xs text-[#5A5A5A] line-clamp-2">
+                    <p className="text-xs text-charcoal line-clamp-2">
                       {description}
                     </p>
 
-                    <div className="flex items-center gap-2 text-xs text-[#5A5A5A]">
-                      <MapPin className="w-3.5 h-3.5 text-[#A64D32] shrink-0" />
+                    <div className="flex items-center gap-2 text-xs text-charcoal">
+                      <MapPin className="w-3.5 h-3.5 text-terracotta shrink-0" />
                       <span className="truncate">{event.location}</span>
                     </div>
 
                     {/* Spots progress */}
                     <div className="space-y-1.5 pt-1">
                       <div className="flex items-center justify-between text-xs font-semibold">
-                        <span className="text-[#5A5A5A] flex items-center gap-1">
-                          <Users className="w-3.5 h-3.5 text-[#5B6346]" />
+                        <span className="text-charcoal flex items-center gap-1">
+                          <Users className="w-3.5 h-3.5 text-olive" />
                           <span>{event.reservedSpots} / {event.totalSpots} {isSpanish ? 'reservados' : 'reserved'}</span>
                         </span>
-                        <span className={isFull ? 'text-red-600 font-bold' : 'text-[#5B6346]'}>
+                        <span className={isFull ? 'text-red-600 font-bold' : 'text-olive'}>
                           {isFull ? t('events.waitlist') : t('events.spotsLeft', { count: spotsRemaining })}
                         </span>
                       </div>
-                      <div className="w-full h-2 bg-[#E5E0D8] rounded-full overflow-hidden">
+                      <div className="w-full h-2 bg-warm-taupe rounded-full overflow-hidden">
                         <div
                           className={`h-full transition-all duration-500 ${
-                            isFull ? 'bg-red-600' : 'bg-[#5B6346]'
+                            isFull ? 'bg-red-600' : 'bg-olive'
                           }`}
                           style={{ width: `${Math.min(100, pctReserved)}%` }}
                         />
@@ -501,13 +501,13 @@ export const EventCalendar: React.FC<EventCalendarProps> = ({ events, selectedCa
                   </div>
 
                   {/* Action Buttons */}
-                  <div className="flex flex-col sm:flex-row items-center gap-2 pt-2 border-t border-[#E5E0D8]">
+                  <div className="flex flex-col sm:flex-row items-center gap-2 pt-2 border-t border-warm-taupe">
                     <button
                       onClick={() => openRsvpModal(event)}
                       className={`w-full sm:flex-1 py-2.5 px-4 rounded-full text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer ${
                         isFull
-                          ? 'bg-[#2A2A2A] text-white hover:bg-black'
-                          : 'bg-[#A64D32] text-white hover:bg-[#8b3f28] shadow-md hover:shadow-lg'
+                          ? 'bg-graphite text-white hover:bg-black'
+                          : 'bg-terracotta text-white hover:bg-terracotta-deep shadow-md hover:shadow-lg'
                       }`}
                     >
                       <span>{isFull ? t('events.joinWaitlist') : t('events.rsvpButton')}</span>
@@ -518,10 +518,10 @@ export const EventCalendar: React.FC<EventCalendarProps> = ({ events, selectedCa
                       href={getGoogleCalendarUrl(event, isSpanish)}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="w-full sm:w-auto px-3.5 py-2.5 rounded-full text-xs font-bold text-[#2A2A2A] bg-white hover:bg-[#E5E0D8] border border-[#E5E0D8] flex items-center justify-center gap-1.5 transition-all"
+                      className="w-full sm:w-auto px-3.5 py-2.5 rounded-full text-xs font-bold text-graphite bg-white hover:bg-warm-taupe border border-warm-taupe flex items-center justify-center gap-1.5 transition-all"
                       title={t('events.addToCalendar')}
                     >
-                      <ExternalLink className="w-3.5 h-3.5 text-[#5B6346]" />
+                      <ExternalLink className="w-3.5 h-3.5 text-olive" />
                       <span className="sm:hidden">{t('events.addToCalendar')}</span>
                     </a>
                   </div>
@@ -531,12 +531,12 @@ export const EventCalendar: React.FC<EventCalendarProps> = ({ events, selectedCa
             })}
           </div>
         ) : (
-          <div className="text-center py-12 bg-[#FDFBF7] rounded-2xl border border-[#E5E0D8] space-y-3">
-            <Filter className="w-8 h-8 text-[#5A5A5A]/40 mx-auto" />
-            <p className="text-sm font-medium text-[#5A5A5A]">
+          <div className="text-center py-12 bg-parchment rounded-2xl border border-warm-taupe space-y-3">
+            <Filter className="w-8 h-8 text-charcoal/40 mx-auto" />
+            <p className="text-sm font-medium text-charcoal">
               {t('events.noEventsOnDay')}
             </p>
-            <p className="text-xs text-[#5A5A5A]/80 max-w-sm mx-auto">
+            <p className="text-xs text-charcoal/80 max-w-sm mx-auto">
               {isSpanish
                 ? 'Haz clic en cualquier día marcado con un distintivo en el calendario para ver sus detalles.'
                 : 'Click on any highlighted day in the calendar grid above to explore its schedule.'}

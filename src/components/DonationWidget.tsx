@@ -137,22 +137,22 @@ export const DonationWidget: React.FC<PageTitleProps> = ({ asPageTitle }) => {
   };
 
   return (
-    <section id="donate-section" className="py-20 bg-[#FDFBF7] text-[#2A2A2A] relative">
+    <section id="donate-section" className="py-20 bg-parchment text-graphite relative">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
         
         {/* Section Header */}
         <AnimatedSection direction="up" delayMs={50}>
           <div className="text-center space-y-3">
-            <div className="inline-flex items-center gap-2 text-[#5B6346] font-bold text-xs uppercase tracking-[0.2em] bg-[#5B6346]/10 px-4 py-1.5 rounded-full border border-[#5B6346]/20">
-              <Heart className="w-3.5 h-3.5 fill-[#A64D32] text-[#A64D32]" />
+            <div className="inline-flex items-center gap-2 text-olive font-bold text-xs uppercase tracking-[0.2em] bg-olive/10 px-4 py-1.5 rounded-full border border-olive/20">
+              <Heart className="w-3.5 h-3.5 fill-terracotta text-terracotta" />
               <span>501(c)(3) Tax Deductible</span>
             </div>
 
-            <Title className="text-3xl sm:text-5xl font-serif font-bold text-[#2A2A2A]">
+            <Title className="text-3xl sm:text-5xl font-serif font-bold text-graphite">
               {t('donate.title')}
             </Title>
 
-            <p className="text-base sm:text-lg text-[#5A5A5A] max-w-2xl mx-auto">
+            <p className="text-base sm:text-lg text-charcoal max-w-2xl mx-auto">
               {t('donate.subtitle')}
             </p>
           </div>
@@ -160,13 +160,13 @@ export const DonationWidget: React.FC<PageTitleProps> = ({ asPageTitle }) => {
 
         {/* Donation Interactive Card */}
         <AnimatedSection direction="up" delayMs={150}>
-          <div className="bg-[#F4F1ED] rounded-[32px] p-6 sm:p-10 border border-[#E5E0D8] shadow-lg relative overflow-hidden">
+          <div className="bg-aged-paper rounded-[32px] p-6 sm:p-10 border border-warm-taupe shadow-lg relative overflow-hidden">
           
           {isCancelled && (
-            <div className="mb-8 flex items-start gap-2.5 bg-[#A64D32]/10 border border-[#A64D32]/25 rounded-2xl px-4 py-3">
-              <AlertCircle className="w-4 h-4 text-[#A64D32] shrink-0 mt-0.5" />
-              <div className="text-xs text-[#5A5A5A]">
-                <div className="font-bold text-[#A64D32] mb-0.5">{t('donate.cancelledTitle')}</div>
+            <div className="mb-8 flex items-start gap-2.5 bg-terracotta/10 border border-terracotta/25 rounded-2xl px-4 py-3">
+              <AlertCircle className="w-4 h-4 text-terracotta shrink-0 mt-0.5" />
+              <div className="text-xs text-charcoal">
+                <div className="font-bold text-terracotta mb-0.5">{t('donate.cancelledTitle')}</div>
                 {t('donate.cancelledText')}
               </div>
             </div>
@@ -177,29 +177,29 @@ export const DonationWidget: React.FC<PageTitleProps> = ({ asPageTitle }) => {
                framing and a real way to give, rather than a button that can
                only produce an error. */
             <div className="text-center py-8 space-y-5">
-              <div className="w-16 h-16 bg-[#5B6346]/15 text-[#5B6346] rounded-2xl flex items-center justify-center mx-auto">
+              <div className="w-16 h-16 bg-olive/15 text-olive rounded-2xl flex items-center justify-center mx-auto">
                 <Heart className="w-8 h-8" />
               </div>
 
               <div className="space-y-2 max-w-md mx-auto">
-                <CardTitle className="text-2xl font-serif font-bold text-[#2A2A2A]">
+                <CardTitle className="text-2xl font-serif font-bold text-graphite">
                   {t('donate.comingSoonTitle')}
                 </CardTitle>
-                <p className="text-sm text-[#5A5A5A]">
+                <p className="text-sm text-charcoal">
                   {t('donate.comingSoonText')}
                 </p>
               </div>
 
               <a
                 href={`mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent('Donation to Peace Academy of West Texas')}`}
-                className="inline-flex items-center gap-2 bg-[#A64D32] hover:bg-[#8b3f28] text-white px-8 py-3.5 rounded-full text-xs font-bold uppercase tracking-widest transition-colors shadow-md"
+                className="inline-flex items-center gap-2 bg-terracotta hover:bg-terracotta-deep text-white px-8 py-3.5 rounded-full text-xs font-bold uppercase tracking-widest transition-colors shadow-md"
               >
                 <span>{CONTACT_EMAIL}</span>
                 <ArrowRight className="w-4 h-4" />
               </a>
 
-              <div className="flex items-center justify-center gap-2 text-xs text-[#5A5A5A] pt-2">
-                <ShieldCheck className="w-4 h-4 text-[#5B6346]" />
+              <div className="flex items-center justify-center gap-2 text-xs text-charcoal pt-2">
+                <ShieldCheck className="w-4 h-4 text-olive" />
                 <span>{t('donate.taxNote')}</span>
               </div>
             </div>
@@ -207,14 +207,14 @@ export const DonationWidget: React.FC<PageTitleProps> = ({ asPageTitle }) => {
             <form onSubmit={handleSubmit} className="space-y-8">
 
               {/* Frequency Selector Pills */}
-              <div className="grid grid-cols-2 gap-3 p-1.5 bg-[#FDFBF7] rounded-2xl border border-[#E5E0D8]">
+              <div className="grid grid-cols-2 gap-3 p-1.5 bg-parchment rounded-2xl border border-warm-taupe">
                 <button
                   type="button"
                   onClick={() => setFrequency('one_time')}
                   className={`py-3 rounded-xl font-bold text-xs sm:text-sm uppercase tracking-wider transition-all cursor-pointer ${
                     frequency === 'one_time'
-                      ? 'bg-[#A64D32] text-white shadow-sm'
-                      : 'text-[#5A5A5A] hover:text-[#2A2A2A]'
+                      ? 'bg-terracotta text-white shadow-sm'
+                      : 'text-charcoal hover:text-graphite'
                   }`}
                 >
                   {t('donate.frequencyOneTime')}
@@ -225,8 +225,8 @@ export const DonationWidget: React.FC<PageTitleProps> = ({ asPageTitle }) => {
                   onClick={() => setFrequency('monthly')}
                   className={`py-3 rounded-xl font-bold text-xs sm:text-sm uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                     frequency === 'monthly'
-                      ? 'bg-[#A64D32] text-white shadow-sm'
-                      : 'text-[#5A5A5A] hover:text-[#2A2A2A]'
+                      ? 'bg-terracotta text-white shadow-sm'
+                      : 'text-charcoal hover:text-graphite'
                   }`}
                 >
                   <Sparkles className="w-3.5 h-3.5" />
@@ -236,7 +236,7 @@ export const DonationWidget: React.FC<PageTitleProps> = ({ asPageTitle }) => {
 
               {/* Amount Presets */}
               <div className="space-y-3">
-                <label className="block text-xs font-bold uppercase tracking-[0.2em] text-[#5A5A5A]">
+                <label className="block text-xs font-bold uppercase tracking-[0.2em] text-charcoal">
                   Select Contribution Tier
                 </label>
 
@@ -253,8 +253,8 @@ export const DonationWidget: React.FC<PageTitleProps> = ({ asPageTitle }) => {
                         }}
                         className={`py-4 rounded-2xl border font-serif font-bold text-xl sm:text-2xl transition-all cursor-pointer ${
                           isSelected
-                            ? 'border-[#A64D32] bg-[#A64D32] text-white shadow-md scale-[1.02]'
-                            : 'border-[#E5E0D8] bg-[#FDFBF7] text-[#2A2A2A] hover:bg-white'
+                            ? 'border-terracotta bg-terracotta text-white shadow-md scale-[1.02]'
+                            : 'border-warm-taupe bg-parchment text-graphite hover:bg-white'
                         }`}
                       >
                         ${amount}
@@ -266,7 +266,7 @@ export const DonationWidget: React.FC<PageTitleProps> = ({ asPageTitle }) => {
                 {/* Custom Amount Input */}
                 <div className="pt-2">
                   <div className="relative">
-                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-lg font-bold text-[#5A5A5A]">
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-lg font-bold text-charcoal">
                       $
                     </span>
                     <input
@@ -278,23 +278,23 @@ export const DonationWidget: React.FC<PageTitleProps> = ({ asPageTitle }) => {
                         setCustomAmount(e.target.value);
                       }}
                       placeholder="Custom Amount"
-                      className="w-full bg-[#FDFBF7] border border-[#E5E0D8] rounded-2xl pl-8 pr-4 py-3 text-base font-bold text-[#2A2A2A] pawtx-focus focus:border-[#A64D32]"
+                      className="w-full bg-parchment border border-warm-taupe rounded-2xl pl-8 pr-4 py-3 text-base font-bold text-graphite pawtx-focus focus:border-terracotta"
                     />
                   </div>
                 </div>
               </div>
 
               {/* Impact Progress Meter Visualization */}
-              <div className="bg-[#FDFBF7] p-5 rounded-2xl border border-[#E5E0D8] space-y-3">
+              <div className="bg-parchment p-5 rounded-2xl border border-warm-taupe space-y-3">
                 <div className="flex items-center justify-between text-xs sm:text-sm">
-                  <div className="flex items-center gap-2 text-[#2A2A2A] font-bold">
-                    <Sparkles className="w-4 h-4 text-[#A64D32]" />
+                  <div className="flex items-center gap-2 text-graphite font-bold">
+                    <Sparkles className="w-4 h-4 text-terracotta" />
                     <span>Your Estimated Impact</span>
                   </div>
-                  <span className="font-serif font-bold text-[#A64D32]">${amountToDonate} {frequency === 'monthly' ? '/ mo' : ''}</span>
+                  <span className="font-serif font-bold text-terracotta">${amountToDonate} {frequency === 'monthly' ? '/ mo' : ''}</span>
                 </div>
 
-                <div className="text-xs sm:text-sm font-medium text-[#5A5A5A]">
+                <div className="text-xs sm:text-sm font-medium text-charcoal">
                   {getImpactLabel(amountToDonate)}
                 </div>
 
@@ -302,9 +302,9 @@ export const DonationWidget: React.FC<PageTitleProps> = ({ asPageTitle }) => {
                     tier's actual dollar amount, so they line up with where the
                     fill bar really reaches instead of being evenly spaced. */}
                 <div className="pt-1">
-                  <div className="w-full bg-[#E5E0D8] h-2.5 rounded-full overflow-hidden p-0.5">
+                  <div className="w-full bg-warm-taupe h-2.5 rounded-full overflow-hidden p-0.5">
                     <div
-                      className="bg-gradient-to-r from-[#5B6346] via-[#A64D32] to-[#8b3f28] h-full rounded-full transition-all duration-500 ease-out"
+                      className="bg-gradient-to-r from-olive via-terracotta to-terracotta-deep h-full rounded-full transition-all duration-500 ease-out"
                       style={{ width: `${meterFillPct}%` }}
                     />
                   </div>
@@ -323,10 +323,10 @@ export const DonationWidget: React.FC<PageTitleProps> = ({ asPageTitle }) => {
                           className={`absolute top-0 flex flex-col items-center gap-1 ${edgeAlign}`}
                           style={{ left: `${leftPct}%` }}
                         >
-                          <span className={`w-1 h-1.5 rounded-full shrink-0 ${isReached ? 'bg-[#A64D32]' : 'bg-[#D6D0C4]'}`} />
+                          <span className={`w-1 h-1.5 rounded-full shrink-0 ${isReached ? 'bg-terracotta' : 'bg-[#D6D0C4]'}`} />
                           <span
                             className={`text-[9px] sm:text-[10px] uppercase font-bold tracking-wider whitespace-nowrap ${rowOffset} ${
-                              isReached ? 'text-[#A64D32]' : 'text-charcoal'
+                              isReached ? 'text-terracotta' : 'text-charcoal'
                             }`}
                           >
                             ${tier.amount}{tier.amount === DONATION_TIERS[DONATION_TIERS.length - 1].amount ? '+' : ''} {tier.label}
@@ -341,7 +341,7 @@ export const DonationWidget: React.FC<PageTitleProps> = ({ asPageTitle }) => {
               {/* Donor Contact Details */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-bold uppercase tracking-[0.2em] text-[#5A5A5A] mb-1">
+                  <label className="block text-xs font-bold uppercase tracking-[0.2em] text-charcoal mb-1">
                     {t('donate.yourName')}
                   </label>
                   <input
@@ -349,12 +349,12 @@ export const DonationWidget: React.FC<PageTitleProps> = ({ asPageTitle }) => {
                     value={donorName}
                     onChange={(e) => setDonorName(e.target.value)}
                     placeholder="Jane Doe"
-                    className="w-full bg-[#FDFBF7] border border-[#E5E0D8] rounded-xl px-4 py-2.5 text-sm pawtx-focus focus:border-[#A64D32]"
+                    className="w-full bg-parchment border border-warm-taupe rounded-xl px-4 py-2.5 text-sm pawtx-focus focus:border-terracotta"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold uppercase tracking-[0.2em] text-[#5A5A5A] mb-1">
+                  <label className="block text-xs font-bold uppercase tracking-[0.2em] text-charcoal mb-1">
                     {t('donate.yourEmail')} *
                   </label>
                   <input
@@ -363,7 +363,7 @@ export const DonationWidget: React.FC<PageTitleProps> = ({ asPageTitle }) => {
                     value={donorEmail}
                     onChange={(e) => setDonorEmail(e.target.value)}
                     placeholder="jane@example.com"
-                    className="w-full bg-[#FDFBF7] border border-[#E5E0D8] rounded-xl px-4 py-2.5 text-sm pawtx-focus focus:border-[#A64D32]"
+                    className="w-full bg-parchment border border-warm-taupe rounded-xl px-4 py-2.5 text-sm pawtx-focus focus:border-terracotta"
                   />
                 </div>
               </div>
@@ -371,13 +371,13 @@ export const DonationWidget: React.FC<PageTitleProps> = ({ asPageTitle }) => {
               {/* Payment is handled entirely on Stripe's hosted page. This
                   form deliberately has no card field: collecting a card number
                   here would put the site inside PCI scope. */}
-              <div className="flex items-start gap-2.5 bg-[#5B6346]/8 border border-[#5B6346]/20 rounded-2xl px-4 py-3">
-                <Lock className="w-4 h-4 text-[#5B6346] shrink-0 mt-0.5" />
-                <span className="text-xs text-[#5A5A5A] leading-relaxed">{t('donate.secureNote')}</span>
+              <div className="flex items-start gap-2.5 bg-olive/8 border border-olive/20 rounded-2xl px-4 py-3">
+                <Lock className="w-4 h-4 text-olive shrink-0 mt-0.5" />
+                <span className="text-xs text-charcoal leading-relaxed">{t('donate.secureNote')}</span>
               </div>
 
               {checkoutError && (
-                <div className="flex items-start gap-2 bg-[#A64D32]/10 border border-[#A64D32]/30 rounded-2xl px-4 py-3 text-xs text-[#A64D32]">
+                <div className="flex items-start gap-2 bg-terracotta/10 border border-terracotta/30 rounded-2xl px-4 py-3 text-xs text-terracotta">
                   <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
                   <span>{checkoutError}</span>
                 </div>
@@ -388,7 +388,7 @@ export const DonationWidget: React.FC<PageTitleProps> = ({ asPageTitle }) => {
                 <button
                   type="submit"
                   disabled={isSubmitting || amountToDonate < 1}
-                  className="w-full bg-[#A64D32] hover:bg-[#8b3f28] text-white py-4 rounded-full font-bold text-xs uppercase tracking-widest transition-all shadow-lg shadow-[#A64D32]/20 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                  className="w-full bg-terracotta hover:bg-terracotta-deep text-white py-4 rounded-full font-bold text-xs uppercase tracking-widest transition-all shadow-lg shadow-terracotta/20 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
                 >
                   {isSubmitting ? (
                     <span>{t('donate.redirecting')}</span>
@@ -406,8 +406,8 @@ export const DonationWidget: React.FC<PageTitleProps> = ({ asPageTitle }) => {
               </div>
 
               {/* Tax Exemption Note */}
-              <div className="flex items-center justify-center gap-2 text-xs text-[#5A5A5A] pt-2">
-                <ShieldCheck className="w-4 h-4 text-[#5B6346]" />
+              <div className="flex items-center justify-center gap-2 text-xs text-charcoal pt-2">
+                <ShieldCheck className="w-4 h-4 text-olive" />
                 <span>{t('donate.taxNote')}</span>
               </div>
 
@@ -417,15 +417,15 @@ export const DonationWidget: React.FC<PageTitleProps> = ({ asPageTitle }) => {
                Every figure below comes from the recorded donation, not from
                the form state the visitor left behind. */
             <div className="text-center py-8 space-y-6 animate-fadeIn">
-              <div className="w-20 h-20 bg-[#5B6346]/20 text-[#5B6346] rounded-full flex items-center justify-center mx-auto shadow-md">
+              <div className="w-20 h-20 bg-olive/20 text-olive rounded-full flex items-center justify-center mx-auto shadow-md">
                 <CheckCircle2 className="w-12 h-12" />
               </div>
 
               <div className="space-y-2">
-                <h3 className="text-3xl font-serif font-bold text-[#2A2A2A]">
+                <h3 className="text-3xl font-serif font-bold text-graphite">
                   {t('donate.successTitle')}
                 </h3>
-                <p className="text-base text-[#5A5A5A] max-w-md mx-auto">
+                <p className="text-base text-charcoal max-w-md mx-auto">
                   {confirmedAmount !== null
                     ? t('donate.successText', { amount: confirmedAmount })
                     : t('donate.receiptPending')}
@@ -433,12 +433,12 @@ export const DonationWidget: React.FC<PageTitleProps> = ({ asPageTitle }) => {
               </div>
 
               {isConfirming && !confirmedDonation && (
-                <p className="text-xs text-[#5A5A5A]">{t('donate.confirming')}</p>
+                <p className="text-xs text-charcoal">{t('donate.confirming')}</p>
               )}
 
               {confirmedDonation && confirmedAmount !== null && (
-                <div className="bg-[#FDFBF7] p-6 rounded-2xl border border-[#E5E0D8] text-left max-w-sm mx-auto space-y-2 text-xs text-[#2A2A2A]">
-                  <div className="font-bold border-b border-[#E5E0D8] pb-2 text-sm font-serif">
+                <div className="bg-parchment p-6 rounded-2xl border border-warm-taupe text-left max-w-sm mx-auto space-y-2 text-xs text-graphite">
+                  <div className="font-bold border-b border-warm-taupe pb-2 text-sm font-serif">
                     {t('donate.receiptTitle')}
                   </div>
                   <div>{t('donate.receiptDonor')}: {confirmedDonation.donor_name || '—'}</div>
@@ -451,13 +451,13 @@ export const DonationWidget: React.FC<PageTitleProps> = ({ asPageTitle }) => {
                       emailed receipt, which the webhook renders from the real
                       EIN; printing a placeholder would forge an official
                       document. */}
-                  <div className="pt-1 text-[#5A5A5A]">{t('donate.receiptPending')}</div>
+                  <div className="pt-1 text-charcoal">{t('donate.receiptPending')}</div>
                 </div>
               )}
 
               <button
                 onClick={() => window.location.reload()}
-                className="bg-[#2A2A2A] hover:bg-black text-white px-8 py-3 rounded-full text-xs font-bold uppercase tracking-widest transition-colors cursor-pointer"
+                className="bg-graphite hover:bg-black text-white px-8 py-3 rounded-full text-xs font-bold uppercase tracking-widest transition-colors cursor-pointer"
               >
                 {t('donate.makeAnother')}
               </button>

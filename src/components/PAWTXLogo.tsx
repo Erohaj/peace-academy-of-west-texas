@@ -17,7 +17,7 @@ interface LogoProps {
 export const PAWTXLogo: React.FC<LogoProps> = ({
   className = "w-12 h-12",
   showText = false,
-  textColor = "text-[#2A2A2A]",
+  textColor = "text-graphite",
   decorative = false
 }) => {
   return (
@@ -37,7 +37,7 @@ export const PAWTXLogo: React.FC<LogoProps> = ({
           <span className={`block font-serif font-bold text-base tracking-tight leading-none ${textColor}`}>
             PEACE ACADEMY
           </span>
-          <span className="block text-[9px] font-bold uppercase tracking-[0.2em] text-[#A64D32]">
+          <span className="block text-[9px] font-bold uppercase tracking-[0.2em] text-terracotta">
             WEST TEXAS
           </span>
         </div>

@@ -61,7 +61,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenContact }) => {
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         isSolid
-          ? 'bg-[#FDFBF7]/95 backdrop-blur-md shadow-sm border-b border-[#E5E0D8]'
+          ? 'bg-parchment/95 backdrop-blur-md shadow-sm border-b border-warm-taupe'
           : 'bg-gradient-to-b from-black/80 via-black/40 to-transparent text-white'
       }`}
     >
@@ -112,9 +112,9 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenContact }) => {
                   onClick={() => handleNavClick(item.id)}
                   className={`px-3 py-2 rounded-full text-xs font-bold uppercase tracking-wider whitespace-nowrap transition-all cursor-pointer ${
                     isActive
-                      ? 'bg-[#A64D32] text-white shadow-sm'
+                      ? 'bg-terracotta text-white shadow-sm'
                       : isSolid
-                      ? 'text-[#2A2A2A] hover:bg-[#F4F1ED] hover:text-[#A64D32]'
+                      ? 'text-graphite hover:bg-aged-paper hover:text-terracotta'
                       : 'text-white/90 hover:text-white hover:bg-white/10'
                   }`}
                 >
@@ -128,7 +128,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenContact }) => {
                 onClick={onOpenContact}
                 className={`px-3 py-2 rounded-full text-xs font-bold uppercase tracking-wider whitespace-nowrap transition-all cursor-pointer ${
                   isSolid
-                    ? 'text-[#2A2A2A] hover:bg-[#F4F1ED] hover:text-[#A64D32]'
+                    ? 'text-graphite hover:bg-aged-paper hover:text-terracotta'
                     : 'text-white/90 hover:text-white hover:bg-white/10'
                 }`}
               >
@@ -150,7 +150,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenContact }) => {
               onClick={openSearch}
               className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all flex items-center gap-2 border cursor-pointer ${
                 isSolid
-                  ? 'border-[#E5E0D8] bg-[#FDFBF7] text-[#2A2A2A] hover:bg-[#F4F1ED] hover:border-[#A64D32]'
+                  ? 'border-warm-taupe bg-parchment text-graphite hover:bg-aged-paper hover:border-terracotta'
                   : 'border-white/40 bg-black/30 text-white hover:bg-black/50 hover:border-white'
               }`}
               title="Search (Cmd+K)"
@@ -161,9 +161,9 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenContact }) => {
               // the button does; the accessible name is on aria-label.
               aria-label={language === 'es' ? 'Buscar' : 'Search'}
             >
-              <Search className="w-3.5 h-3.5 text-[#A64D32]" />
+              <Search className="w-3.5 h-3.5 text-terracotta" />
               <kbd className={`px-1.5 py-0.5 rounded text-[10px] font-mono font-bold ${
-                isSolid ? 'bg-[#E5E0D8] text-[#5A5A5A]' : 'bg-white/20 text-white'
+                isSolid ? 'bg-warm-taupe text-charcoal' : 'bg-white/20 text-white'
               }`}>
                 ⌘K
               </kbd>
@@ -174,12 +174,12 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenContact }) => {
               onClick={toggleLanguage}
               className={`px-3.5 py-1.5 rounded-full text-xs font-bold tracking-wider transition-all flex items-center gap-1.5 border cursor-pointer ${
                 isSolid
-                  ? 'border-[#E5E0D8] bg-[#FDFBF7] text-[#2A2A2A] hover:bg-[#F4F1ED]'
+                  ? 'border-warm-taupe bg-parchment text-graphite hover:bg-aged-paper'
                   : 'border-white/40 bg-black/30 text-white hover:bg-black/50'
               }`}
               title="Switch Language"
             >
-              <Globe className="w-3.5 h-3.5 text-[#A64D32]" />
+              <Globe className="w-3.5 h-3.5 text-terracotta" />
               <span>{language.toUpperCase()}</span>
               {/* An explicit grey rather than opacity: at 60% this resolved to
                   #7E7E7C on parchment, which is 3.9:1 and fails AA for text
@@ -190,7 +190,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenContact }) => {
             {/* Quick Donate Button */}
             <button
               onClick={() => handleNavClick('donate')}
-              className="bg-[#A64D32] hover:bg-[#8b3f28] text-white px-5 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all shadow-md hover:scale-[1.02] flex items-center gap-2 cursor-pointer"
+              className="bg-terracotta hover:bg-terracotta-deep text-white px-5 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all shadow-md hover:scale-[1.02] flex items-center gap-2 cursor-pointer"
             >
               <Heart className="w-4 h-4 fill-white/20" />
               <span>{t('nav.donate')}</span>
@@ -200,7 +200,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenContact }) => {
             {isLoggedIn && (
               <button
                 onClick={() => handleNavClick('volunteer')}
-                className="bg-[#5B6346] text-white text-xs font-bold uppercase tracking-wider px-3.5 py-2 rounded-full flex items-center gap-1.5 cursor-pointer shadow-sm"
+                className="bg-olive text-white text-xs font-bold uppercase tracking-wider px-3.5 py-2 rounded-full flex items-center gap-1.5 cursor-pointer shadow-sm"
               >
                 <UserCheck className="w-3.5 h-3.5" />
                 <span className="max-w-[80px] truncate">{volunteer?.fullName.split(' ')[0]}</span>
@@ -215,17 +215,17 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenContact }) => {
             <button
               onClick={openSearch}
               className={`p-2 rounded-full border transition-colors sm:hidden ${
-                isSolid ? 'border-[#E5E0D8] text-[#2A2A2A]' : 'border-white/40 text-white'
+                isSolid ? 'border-warm-taupe text-graphite' : 'border-white/40 text-white'
               }`}
               title="Search"
             >
-              <Search className="w-4 h-4 text-[#A64D32]" />
+              <Search className="w-4 h-4 text-terracotta" />
             </button>
 
             <button
               onClick={toggleLanguage}
               className={`px-2.5 py-1 rounded-full text-xs font-bold border sm:hidden ${
-                isSolid ? 'border-[#E5E0D8] text-[#2A2A2A]' : 'border-white/40 text-white'
+                isSolid ? 'border-warm-taupe text-graphite' : 'border-white/40 text-white'
               }`}
             >
               {language.toUpperCase()}
@@ -234,7 +234,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenContact }) => {
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className={`p-2 rounded-lg transition-colors ${
-                isSolid ? 'text-[#2A2A2A] hover:bg-[#F4F1ED]' : 'text-white hover:bg-white/10'
+                isSolid ? 'text-graphite hover:bg-aged-paper' : 'text-white hover:bg-white/10'
               }`}
               aria-label="Toggle Navigation"
             >
@@ -247,7 +247,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenContact }) => {
 
       {/* Mobile Drawer Menu */}
       {mobileMenuOpen && (
-        <div className="xl:hidden bg-[#FDFBF7] border-b border-[#E5E0D8] shadow-xl px-4 pt-3 pb-6 space-y-2 animate-fadeIn">
+        <div className="xl:hidden bg-parchment border-b border-warm-taupe shadow-xl px-4 pt-3 pb-6 space-y-2 animate-fadeIn">
           {navItems.map((item) => {
             const isActive = activeTab === item.id;
             return (
@@ -256,8 +256,8 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenContact }) => {
                 onClick={() => handleNavClick(item.id)}
                 className={`w-full text-left px-4 py-3 rounded-xl font-bold text-xs uppercase tracking-wider transition-colors flex items-center gap-3 ${
                   isActive
-                    ? 'bg-[#A64D32] text-white'
-                    : 'text-[#2A2A2A] hover:bg-[#F4F1ED]'
+                    ? 'bg-terracotta text-white'
+                    : 'text-graphite hover:bg-aged-paper'
                 }`}
               >
                 {item.icon}
@@ -272,17 +272,17 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenContact }) => {
                 onOpenContact();
                 setMobileMenuOpen(false);
               }}
-              className="w-full text-left px-4 py-3 rounded-xl font-bold text-xs uppercase tracking-wider text-[#2A2A2A] hover:bg-[#F4F1ED] flex items-center gap-3"
+              className="w-full text-left px-4 py-3 rounded-xl font-bold text-xs uppercase tracking-wider text-graphite hover:bg-aged-paper flex items-center gap-3"
             >
-              <Mail className="w-4 h-4 text-[#A64D32]" />
+              <Mail className="w-4 h-4 text-terracotta" />
               {t('nav.contactUs')}
             </button>
           )}
 
-          <div className="pt-3 border-t border-[#E5E0D8] flex flex-col gap-2">
+          <div className="pt-3 border-t border-warm-taupe flex flex-col gap-2">
             <button
               onClick={() => handleNavClick('donate')}
-              className="w-full bg-[#A64D32] text-white py-3 rounded-full font-bold text-xs uppercase tracking-widest text-center flex items-center justify-center gap-2 shadow-sm"
+              className="w-full bg-terracotta text-white py-3 rounded-full font-bold text-xs uppercase tracking-widest text-center flex items-center justify-center gap-2 shadow-sm"
             >
               <Heart className="w-5 h-5 fill-white/20" />
               <span>{t('nav.donate')}</span>
@@ -290,9 +290,9 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenContact }) => {
 
             <button
               onClick={toggleLanguage}
-              className="w-full border border-[#E5E0D8] text-[#2A2A2A] py-2.5 rounded-full text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2"
+              className="w-full border border-warm-taupe text-graphite py-2.5 rounded-full text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2"
             >
-              <Globe className="w-4 h-4 text-[#A64D32]" />
+              <Globe className="w-4 h-4 text-terracotta" />
               <span>{t('nav.switchLanguage')}</span>
             </button>
           </div>

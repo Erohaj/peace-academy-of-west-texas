@@ -45,8 +45,8 @@ const BLANK_APPLICATION: SubmitApplicationInput = {
 };
 
 const field =
-  'w-full bg-white border border-[#E5E0D8] rounded-xl px-4 py-2.5 text-sm pawtx-focus focus:border-[#A64D32]';
-const label = 'block text-xs font-bold uppercase tracking-[0.2em] text-[#5A5A5A] mb-1';
+  'w-full bg-white border border-warm-taupe rounded-xl px-4 py-2.5 text-sm pawtx-focus focus:border-terracotta';
+const label = 'block text-xs font-bold uppercase tracking-[0.2em] text-charcoal mb-1';
 
 /**
  * The order these are signed in. `application` is deliberately absent — it is
@@ -167,7 +167,7 @@ export const OnboardingWizard: React.FC = () => {
 
   if (step.kind === 'loading') {
     return (
-      <div className="flex items-center gap-2 text-sm text-[#5A5A5A] py-12 justify-center">
+      <div className="flex items-center gap-2 text-sm text-charcoal py-12 justify-center">
         <Loader2 className="w-4 h-4 animate-spin" />
         <span>Loading your paperwork...</span>
       </div>
@@ -176,7 +176,7 @@ export const OnboardingWizard: React.FC = () => {
 
   if (step.kind === 'error') {
     return (
-      <div className="flex items-start gap-2 bg-[#A64D32]/10 border border-[#A64D32]/30 rounded-2xl px-4 py-3 text-xs text-[#A64D32]">
+      <div className="flex items-start gap-2 bg-terracotta/10 border border-terracotta/30 rounded-2xl px-4 py-3 text-xs text-terracotta">
         <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
         <span>{step.message}</span>
       </div>
@@ -239,11 +239,11 @@ const CompletedPaperwork: React.FC<{
 
   return (
     <div className="space-y-4">
-      <div className="bg-[#5B6346]/10 border border-[#5B6346]/30 rounded-2xl p-6 flex items-start gap-3">
-        <CheckCircle2 className="w-6 h-6 text-[#5B6346] shrink-0" />
+      <div className="bg-olive/10 border border-olive/30 rounded-2xl p-6 flex items-start gap-3">
+        <CheckCircle2 className="w-6 h-6 text-olive shrink-0" />
         <div>
-          <div className="font-bold text-[#2A2A2A]">All paperwork is on file</div>
-          <p className="text-xs text-[#5A5A5A] mt-1">
+          <div className="font-bold text-graphite">All paperwork is on file</div>
+          <p className="text-xs text-charcoal mt-1">
             Your application, agreement, release, code of conduct and media consent are all
             signed and dated. You're clear to take a shift.
           </p>
@@ -252,27 +252,27 @@ const CompletedPaperwork: React.FC<{
 
       {signatures.length > 0 && (
         <div className="space-y-2">
-          <h4 className="text-xs font-bold uppercase tracking-[0.2em] text-[#5A5A5A]">
+          <h4 className="text-xs font-bold uppercase tracking-[0.2em] text-charcoal">
             What you signed
           </h4>
           {signatures.map((sig) => (
-            <div key={sig.id} className="bg-white border border-[#E5E0D8] rounded-xl">
+            <div key={sig.id} className="bg-white border border-warm-taupe rounded-xl">
               <button
                 onClick={() =>
                   setExpandedSignatureId(expandedSignatureId === sig.id ? null : sig.id)
                 }
                 className="w-full flex items-center justify-between text-xs px-4 py-3 cursor-pointer text-left"
               >
-                <span className="font-bold text-[#2A2A2A]">{titleFor(sig.version_id)}</span>
-                <span className="flex items-center gap-3 text-[#5A5A5A]">
+                <span className="font-bold text-graphite">{titleFor(sig.version_id)}</span>
+                <span className="flex items-center gap-3 text-charcoal">
                   {new Date(sig.signed_at).toLocaleDateString('en-US', { dateStyle: 'medium' })}
-                  <span className="font-bold uppercase tracking-wider text-[#A64D32]">
+                  <span className="font-bold uppercase tracking-wider text-terracotta">
                     {expandedSignatureId === sig.id ? 'Hide' : 'View / print'}
                   </span>
                 </span>
               </button>
               {expandedSignatureId === sig.id && (
-                <div className="border-t border-[#E5E0D8] p-4">
+                <div className="border-t border-warm-taupe p-4">
                   <SignedDocumentView title={titleFor(sig.version_id)} signature={sig} />
                 </div>
               )}
@@ -327,7 +327,7 @@ const ApplicationForm: React.FC<{
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6 max-w-2xl">
-      <div className="flex items-start gap-2 bg-[#5B6346]/10 border border-[#5B6346]/30 rounded-xl px-4 py-3 text-xs text-[#5B6346]">
+      <div className="flex items-start gap-2 bg-olive/10 border border-olive/30 rounded-xl px-4 py-3 text-xs text-olive">
         <ShieldCheck className="w-4 h-4 shrink-0 mt-0.5" />
         <span>
           We ask for this to place you in a role that suits you and to reach someone on your
@@ -338,14 +338,14 @@ const ApplicationForm: React.FC<{
       </div>
 
       {error && (
-        <div className="flex items-start gap-2 bg-[#A64D32]/10 border border-[#A64D32]/30 rounded-xl px-4 py-3 text-xs text-[#A64D32]">
+        <div className="flex items-start gap-2 bg-terracotta/10 border border-terracotta/30 rounded-xl px-4 py-3 text-xs text-terracotta">
           <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
           <span>{error}</span>
         </div>
       )}
 
       <div className="space-y-4">
-        <h3 className="text-sm font-bold uppercase tracking-[0.2em] text-[#5A5A5A]">About you</h3>
+        <h3 className="text-sm font-bold uppercase tracking-[0.2em] text-charcoal">About you</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className={label}>Full legal name *</label>
@@ -389,7 +389,7 @@ const ApplicationForm: React.FC<{
         </div>
 
         {age !== null && age < 18 && (
-          <div className="flex items-start gap-2 bg-[#A64D32]/10 border border-[#A64D32]/30 rounded-xl px-4 py-3 text-xs text-[#A64D32]">
+          <div className="flex items-start gap-2 bg-terracotta/10 border border-terracotta/30 rounded-xl px-4 py-3 text-xs text-terracotta">
             <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
             <span>
               Because this application is for someone under 18, a parent or legal guardian will
@@ -400,13 +400,13 @@ const ApplicationForm: React.FC<{
         )}
 
         {needsGuardianOverride && (
-          <div className="bg-[#F4F1ED] border border-[#E5E0D8] rounded-xl px-4 py-3 space-y-2">
-            <p className="text-xs text-[#5A5A5A]">
+          <div className="bg-aged-paper border border-warm-taupe rounded-xl px-4 py-3 space-y-2">
+            <p className="text-xs text-charcoal">
               This portal is not set up for someone this young to register on their own. If you
               are that volunteer's parent or legal guardian, you can complete this form yourself
               on their behalf, entering their details above.
             </p>
-            <label className="flex items-start gap-2 text-xs font-bold text-[#2A2A2A] cursor-pointer">
+            <label className="flex items-start gap-2 text-xs font-bold text-graphite cursor-pointer">
               <input
                 type="checkbox"
                 className="mt-0.5"
@@ -458,10 +458,10 @@ const ApplicationForm: React.FC<{
       </div>
 
       <div className="space-y-4">
-        <h3 className="text-sm font-bold uppercase tracking-[0.2em] text-[#5A5A5A]">
+        <h3 className="text-sm font-bold uppercase tracking-[0.2em] text-charcoal">
           Emergency contact
         </h3>
-        <p className="text-xs text-[#5A5A5A]">
+        <p className="text-xs text-charcoal">
           We will only use this if you are hurt or taken ill while volunteering and we cannot
           reach you.
         </p>
@@ -497,7 +497,7 @@ const ApplicationForm: React.FC<{
       </div>
 
       <div className="space-y-4">
-        <h3 className="text-sm font-bold uppercase tracking-[0.2em] text-[#5A5A5A]">
+        <h3 className="text-sm font-bold uppercase tracking-[0.2em] text-charcoal">
           What would you like to do?
         </h3>
         <div>
@@ -519,7 +519,7 @@ const ApplicationForm: React.FC<{
             onChange={(e) => setForm({ ...form, availability: e.target.value })}
           />
         </div>
-        <label className="flex items-center gap-2 text-xs font-bold text-[#2A2A2A] cursor-pointer">
+        <label className="flex items-center gap-2 text-xs font-bold text-graphite cursor-pointer">
           <input
             type="checkbox"
             checked={form.interestedInYouthPrograms}
@@ -528,14 +528,14 @@ const ApplicationForm: React.FC<{
           <span>I'm interested in helping with youth programmes</span>
         </label>
         {form.interestedInYouthPrograms && (
-          <p className="text-[11px] text-[#5A5A5A] pl-6">
+          <p className="text-[11px] text-charcoal pl-6">
             Roles with unsupervised access to minors require screening before they begin — a
             staff member will follow up about what that involves.
           </p>
         )}
       </div>
 
-      <div className="flex items-start gap-2 bg-[#F4F1ED] border border-[#E5E0D8] rounded-xl px-4 py-3 text-xs text-[#5A5A5A]">
+      <div className="flex items-start gap-2 bg-aged-paper border border-warm-taupe rounded-xl px-4 py-3 text-xs text-charcoal">
         <FileText className="w-4 h-4 shrink-0 mt-0.5" />
         <span>
           Submitting this application does not make you a volunteer. Before your first shift
@@ -547,7 +547,7 @@ const ApplicationForm: React.FC<{
       <button
         type="submit"
         disabled={isSaving || (needsGuardianOverride && !guardianOverride)}
-        className="bg-[#A64D32] hover:bg-[#8b3f28] text-white px-6 py-3 rounded-full text-xs font-bold uppercase tracking-widest cursor-pointer disabled:opacity-50"
+        className="bg-terracotta hover:bg-terracotta-deep text-white px-6 py-3 rounded-full text-xs font-bold uppercase tracking-widest cursor-pointer disabled:opacity-50"
       >
         {isSaving ? 'Submitting...' : 'Submit application'}
       </button>
@@ -604,11 +604,11 @@ const SignStep: React.FC<{
   return (
     <form onSubmit={handleSign} className="space-y-6 max-w-2xl">
       <div>
-        <h3 className="text-xl font-serif font-bold text-[#2A2A2A]">{document.title}</h3>
-        <p className="text-xs text-[#5A5A5A] mt-1">Version {document.version}</p>
+        <h3 className="text-xl font-serif font-bold text-graphite">{document.title}</h3>
+        <p className="text-xs text-charcoal mt-1">Version {document.version}</p>
       </div>
 
-      <div className="bg-white border border-[#E5E0D8] rounded-2xl p-5 max-h-[28rem] overflow-y-auto">
+      <div className="bg-white border border-warm-taupe rounded-2xl p-5 max-h-[28rem] overflow-y-auto">
         <MarkdownDocument markdown={document.bodyMd} />
       </div>
 
@@ -624,7 +624,7 @@ const SignStep: React.FC<{
           ).map(([value, text]) => (
             <label
               key={value}
-              className="flex items-center gap-2 text-sm text-[#2A2A2A] cursor-pointer bg-[#F4F1ED] rounded-xl px-4 py-2.5"
+              className="flex items-center gap-2 text-sm text-graphite cursor-pointer bg-aged-paper rounded-xl px-4 py-2.5"
             >
               <input
                 type="radio"
@@ -638,7 +638,7 @@ const SignStep: React.FC<{
           ))}
         </div>
       ) : (
-        <label className="flex items-start gap-2 text-sm font-bold text-[#2A2A2A] cursor-pointer">
+        <label className="flex items-start gap-2 text-sm font-bold text-graphite cursor-pointer">
           <input
             type="checkbox"
             className="mt-0.5"
@@ -675,13 +675,13 @@ const SignStep: React.FC<{
       </div>
 
       {error && (
-        <div className="flex items-start gap-2 bg-[#A64D32]/10 border border-[#A64D32]/30 rounded-xl px-4 py-3 text-xs text-[#A64D32]">
+        <div className="flex items-start gap-2 bg-terracotta/10 border border-terracotta/30 rounded-xl px-4 py-3 text-xs text-terracotta">
           <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
           <span>{error}</span>
         </div>
       )}
 
-      <p className="text-[11px] text-[#5A5A5A]">
+      <p className="text-[11px] text-charcoal">
         By typing your name and submitting this form, you intend it as your electronic signature
         under the federal ESIGN Act and the Texas Uniform Electronic Transactions Act.
       </p>
@@ -689,7 +689,7 @@ const SignStep: React.FC<{
       <button
         type="submit"
         disabled={isSaving || (!isMediaConsent && !agreed)}
-        className="bg-[#A64D32] hover:bg-[#8b3f28] text-white px-6 py-3 rounded-full text-xs font-bold uppercase tracking-widest cursor-pointer disabled:opacity-50"
+        className="bg-terracotta hover:bg-terracotta-deep text-white px-6 py-3 rounded-full text-xs font-bold uppercase tracking-widest cursor-pointer disabled:opacity-50"
       >
         {isSaving ? 'Saving...' : isMediaConsent ? 'Save my choice' : 'Sign and continue'}
       </button>
@@ -744,14 +744,14 @@ const GuardianConsentStep: React.FC<{
   return (
     <form onSubmit={handleSign} className="space-y-6 max-w-2xl">
       <div>
-        <h3 className="text-xl font-serif font-bold text-[#2A2A2A]">{document.title}</h3>
-        <p className="text-xs text-[#5A5A5A] mt-1">
+        <h3 className="text-xl font-serif font-bold text-graphite">{document.title}</h3>
+        <p className="text-xs text-charcoal mt-1">
           This section is completed by <strong>{minorName}</strong>'s parent or legal guardian —
           not by {minorName} themselves.
         </p>
       </div>
 
-      <div className="bg-white border border-[#E5E0D8] rounded-2xl p-5 max-h-[28rem] overflow-y-auto">
+      <div className="bg-white border border-warm-taupe rounded-2xl p-5 max-h-[28rem] overflow-y-auto">
         <MarkdownDocument markdown={document.bodyMd} />
       </div>
 
@@ -787,7 +787,7 @@ const GuardianConsentStep: React.FC<{
         </div>
       </div>
 
-      <label className="flex items-start gap-2 text-sm font-bold text-[#2A2A2A] cursor-pointer">
+      <label className="flex items-start gap-2 text-sm font-bold text-graphite cursor-pointer">
         <input
           type="checkbox"
           className="mt-0.5"
@@ -801,13 +801,13 @@ const GuardianConsentStep: React.FC<{
       </label>
 
       {error && (
-        <div className="flex items-start gap-2 bg-[#A64D32]/10 border border-[#A64D32]/30 rounded-xl px-4 py-3 text-xs text-[#A64D32]">
+        <div className="flex items-start gap-2 bg-terracotta/10 border border-terracotta/30 rounded-xl px-4 py-3 text-xs text-terracotta">
           <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
           <span>{error}</span>
         </div>
       )}
 
-      <p className="text-[11px] text-[#5A5A5A] flex items-start gap-1.5">
+      <p className="text-[11px] text-charcoal flex items-start gap-1.5">
         <UserRound className="w-3.5 h-3.5 shrink-0 mt-0.5" />
         By typing your name and submitting this form, you intend it as your electronic signature
         under the federal ESIGN Act and the Texas Uniform Electronic Transactions Act, and you
@@ -817,7 +817,7 @@ const GuardianConsentStep: React.FC<{
       <button
         type="submit"
         disabled={isSaving || !agreed}
-        className="bg-[#A64D32] hover:bg-[#8b3f28] text-white px-6 py-3 rounded-full text-xs font-bold uppercase tracking-widest cursor-pointer disabled:opacity-50"
+        className="bg-terracotta hover:bg-terracotta-deep text-white px-6 py-3 rounded-full text-xs font-bold uppercase tracking-widest cursor-pointer disabled:opacity-50"
       >
         {isSaving ? 'Saving...' : 'Sign as parent/guardian'}
       </button>

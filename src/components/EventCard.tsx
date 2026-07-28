@@ -22,12 +22,12 @@ export const EventCard: React.FC<EventCardProps> = ({ event, asPageTitle }) => {
   const description = language === 'es' ? event.descriptionEs : event.description;
 
   return (
-    <div className="bg-[#F4F1ED] rounded-[24px] overflow-hidden border border-[#E5E0D8] shadow-sm hover:shadow-md transition-all flex flex-col h-full group">
+    <div className="bg-aged-paper rounded-[24px] overflow-hidden border border-warm-taupe shadow-sm hover:shadow-md transition-all flex flex-col h-full group">
       
       {/* Event Image & Badges */}
-      <div className="relative h-56 overflow-hidden bg-[#E5E0D8]">
+      <div className="relative h-56 overflow-hidden bg-warm-taupe">
         {!isImageLoaded && (
-          <div className="absolute inset-0 bg-[#E5E0D8] animate-pulse flex items-center justify-center z-10">
+          <div className="absolute inset-0 bg-warm-taupe animate-pulse flex items-center justify-center z-10">
             <div className="w-full h-full bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer" />
           </div>
         )}
@@ -51,7 +51,7 @@ export const EventCard: React.FC<EventCardProps> = ({ event, asPageTitle }) => {
               {t('events.waitlist')}
             </span>
           ) : (
-            <span className="bg-[#A64D32] text-white backdrop-blur-md px-3 py-1 rounded-full text-[11px] font-bold tracking-wider uppercase flex items-center gap-1.5 shadow-md">
+            <span className="bg-terracotta text-white backdrop-blur-md px-3 py-1 rounded-full text-[11px] font-bold tracking-wider uppercase flex items-center gap-1.5 shadow-md">
               <Users className="w-3.5 h-3.5" />
               {t('events.spotsLeft', { count: spotsLeft })}
             </span>
@@ -60,7 +60,7 @@ export const EventCard: React.FC<EventCardProps> = ({ event, asPageTitle }) => {
 
         {/* Category Pill */}
         <div className="absolute bottom-4 left-4 z-20">
-          <span className="bg-[#5B6346] text-white px-3 py-1 rounded-md text-[10px] font-bold uppercase tracking-[0.2em] shadow-sm">
+          <span className="bg-olive text-white px-3 py-1 rounded-md text-[10px] font-bold uppercase tracking-[0.2em] shadow-sm">
             {event.category}
           </span>
         </div>
@@ -70,28 +70,28 @@ export const EventCard: React.FC<EventCardProps> = ({ event, asPageTitle }) => {
       <div className="p-6 flex-1 flex flex-col justify-between space-y-4">
         
         <div className="space-y-3">
-          <CardTitle className="text-2xl font-serif font-bold text-[#2A2A2A] leading-snug group-hover:text-[#A64D32] transition-colors">
+          <CardTitle className="text-2xl font-serif font-bold text-graphite leading-snug group-hover:text-terracotta transition-colors">
             {title}
           </CardTitle>
 
-          <p className="text-[#5A5A5A] text-sm leading-relaxed line-clamp-3">
+          <p className="text-charcoal text-sm leading-relaxed line-clamp-3">
             {description}
           </p>
 
           {/* Date & Location Details */}
-          <div className="space-y-2 pt-2 border-t border-[#E5E0D8] text-xs sm:text-sm text-[#5A5A5A]">
+          <div className="space-y-2 pt-2 border-t border-warm-taupe text-xs sm:text-sm text-charcoal">
             <div className="flex items-center gap-2">
-              <Calendar className="w-4 h-4 text-[#A64D32] shrink-0" />
-              <span className="font-semibold text-[#2A2A2A]">{event.date}</span>
+              <Calendar className="w-4 h-4 text-terracotta shrink-0" />
+              <span className="font-semibold text-graphite">{event.date}</span>
             </div>
 
             <div className="flex items-center gap-2">
-              <Clock className="w-4 h-4 text-[#5B6346] shrink-0" />
+              <Clock className="w-4 h-4 text-olive shrink-0" />
               <span>{event.time}</span>
             </div>
 
             <div className="flex items-center gap-2">
-              <MapPin className="w-4 h-4 text-[#A64D32] shrink-0" />
+              <MapPin className="w-4 h-4 text-terracotta shrink-0" />
               <span className="truncate">{event.location}</span>
             </div>
           </div>
@@ -103,8 +103,8 @@ export const EventCard: React.FC<EventCardProps> = ({ event, asPageTitle }) => {
             onClick={() => openRsvpModal(event)}
             className={`w-full py-3 px-6 rounded-full font-bold text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-2 cursor-pointer shadow-sm ${
               isWaitlist
-                ? 'bg-[#2A2A2A] hover:bg-black text-white'
-                : 'bg-[#A64D32] hover:bg-[#8b3f28] text-white hover:scale-[1.01]'
+                ? 'bg-graphite hover:bg-black text-white'
+                : 'bg-terracotta hover:bg-terracotta-deep text-white hover:scale-[1.01]'
             }`}
           >
             <span>{isWaitlist ? t('events.joinWaitlist') : t('events.rsvpButton')}</span>

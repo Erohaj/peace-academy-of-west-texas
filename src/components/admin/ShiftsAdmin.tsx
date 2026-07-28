@@ -217,8 +217,8 @@ export const ShiftsAdmin: React.FC = () => {
   };
 
   const field =
-    'w-full bg-[#FDFBF7] border border-[#E5E0D8] rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#A64D32]';
-  const label = 'block text-xs font-bold uppercase tracking-[0.2em] text-[#5A5A5A] mb-1';
+    'w-full bg-parchment border border-warm-taupe rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-terracotta';
+  const label = 'block text-xs font-bold uppercase tracking-[0.2em] text-charcoal mb-1';
 
   return (
     <div className="space-y-6">
@@ -227,7 +227,7 @@ export const ShiftsAdmin: React.FC = () => {
         <h2 className="text-xl font-serif font-bold">Volunteer shifts</h2>
         <button
           onClick={startCreate}
-          className="flex items-center gap-2 bg-[#A64D32] hover:bg-[#8b3f28] text-white px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider cursor-pointer"
+          className="flex items-center gap-2 bg-terracotta hover:bg-terracotta-deep text-white px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider cursor-pointer"
         >
           <Plus className="w-4 h-4" />
           <span>New shift</span>
@@ -235,14 +235,14 @@ export const ShiftsAdmin: React.FC = () => {
       </div>
 
       {error && (
-        <div className="flex items-start gap-2 bg-[#A64D32]/10 border border-[#A64D32]/30 rounded-2xl px-4 py-3 text-xs text-[#A64D32]">
+        <div className="flex items-start gap-2 bg-terracotta/10 border border-terracotta/30 rounded-2xl px-4 py-3 text-xs text-terracotta">
           <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
           <span>{error}</span>
         </div>
       )}
 
       {editingId && (
-        <form onSubmit={handleSave} className="bg-[#F4F1ED] border border-[#E5E0D8] rounded-2xl p-6 space-y-4">
+        <form onSubmit={handleSave} className="bg-aged-paper border border-warm-taupe rounded-2xl p-6 space-y-4">
           <h3 className="font-serif font-bold text-lg">
             {editingId === 'new' ? 'New shift' : 'Edit shift'}
           </h3>
@@ -285,7 +285,7 @@ export const ShiftsAdmin: React.FC = () => {
                   <option key={value} value={value}>{value}</option>
                 ))}
               </select>
-              <p className="text-[11px] text-[#5A5A5A] mt-1.5">
+              <p className="text-[11px] text-charcoal mt-1.5">
                 Shown in Spanish as “{roleLabelEs(form.role)}”.
               </p>
             </div>
@@ -294,13 +294,13 @@ export const ShiftsAdmin: React.FC = () => {
               <input required type="number" min={1} className={field} value={form.spots_total}
                 onChange={(e) => setForm({ ...form, spots_total: Number(e.target.value) })} />
               {editingRow && editingRow.spots_filled > 0 && (
-                <p className="text-[11px] text-[#5A5A5A] mt-1.5">
+                <p className="text-[11px] text-charcoal mt-1.5">
                   {editingRow.spots_filled} already claimed.
                 </p>
               )}
             </div>
             <div className="flex items-end pb-2.5">
-              <label className="flex items-center gap-2 text-xs font-bold text-[#5A5A5A] cursor-pointer">
+              <label className="flex items-center gap-2 text-xs font-bold text-charcoal cursor-pointer">
                 <input type="checkbox" checked={form.published}
                   onChange={(e) => setForm({ ...form, published: e.target.checked })} />
                 Published
@@ -318,7 +318,7 @@ export const ShiftsAdmin: React.FC = () => {
               <label className={label}>Ends (Central Time) *</label>
               <input required type="datetime-local" className={field} value={form.ends_at}
                 onChange={(e) => setForm({ ...form, ends_at: e.target.value })} />
-              <p className="text-[11px] text-[#5A5A5A] mt-1.5">
+              <p className="text-[11px] text-charcoal mt-1.5">
                 {previewHours === null
                   ? 'Volunteers see the length of the shift here.'
                   : `Counts as ${previewHours} hours of service.`}
@@ -341,14 +341,14 @@ export const ShiftsAdmin: React.FC = () => {
             <button
               type="submit"
               disabled={isSaving}
-              className="bg-[#A64D32] hover:bg-[#8b3f28] text-white px-6 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider cursor-pointer disabled:opacity-50"
+              className="bg-terracotta hover:bg-terracotta-deep text-white px-6 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider cursor-pointer disabled:opacity-50"
             >
               {isSaving ? 'Saving...' : 'Save shift'}
             </button>
             <button
               type="button"
               onClick={() => setEditingId(null)}
-              className="border border-[#E5E0D8] hover:bg-[#FDFBF7] px-6 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider cursor-pointer"
+              className="border border-warm-taupe hover:bg-parchment px-6 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider cursor-pointer"
             >
               Cancel
             </button>
@@ -367,16 +367,16 @@ export const ShiftsAdmin: React.FC = () => {
       )}
 
       {isLoading ? (
-        <p className="text-sm text-[#5A5A5A]">Loading shifts...</p>
+        <p className="text-sm text-charcoal">Loading shifts...</p>
       ) : rows.length === 0 ? (
-        <p className="text-sm text-[#5A5A5A]">
+        <p className="text-sm text-charcoal">
           No shifts yet. Volunteers see an empty portal until you open one.
         </p>
       ) : (
-        <div className="bg-[#F4F1ED] border border-[#E5E0D8] rounded-2xl overflow-hidden">
+        <div className="bg-aged-paper border border-warm-taupe rounded-2xl overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
-              <thead className="bg-[#FDFBF7] text-xs uppercase tracking-wider text-[#5A5A5A]">
+              <thead className="bg-parchment text-xs uppercase tracking-wider text-charcoal">
                 <tr>
                   <th className="text-left p-4">Shift</th>
                   <th className="text-left p-4">Starts</th>
@@ -387,17 +387,17 @@ export const ShiftsAdmin: React.FC = () => {
               </thead>
               <tbody>
                 {rows.map((row) => (
-                  <tr key={row.id} className="border-t border-[#E5E0D8]">
+                  <tr key={row.id} className="border-t border-warm-taupe">
                     <td className="p-4">
                       <div className="font-bold">{row.title}</div>
-                      <div className="text-xs text-[#5A5A5A]">{row.role}</div>
+                      <div className="text-xs text-charcoal">{row.role}</div>
                       {!row.published && (
-                        <span className="inline-block mt-1 text-[10px] font-bold uppercase tracking-wider bg-[#5A5A5A]/15 text-[#5A5A5A] px-2 py-0.5 rounded-full">
+                        <span className="inline-block mt-1 text-[10px] font-bold uppercase tracking-wider bg-charcoal/15 text-charcoal px-2 py-0.5 rounded-full">
                           Draft
                         </span>
                       )}
                     </td>
-                    <td className="p-4 text-xs text-[#5A5A5A] whitespace-nowrap">
+                    <td className="p-4 text-xs text-charcoal whitespace-nowrap">
                       {new Date(row.starts_at).toLocaleString('en-US', {
                         dateStyle: 'medium',
                         timeStyle: 'short',
@@ -407,7 +407,7 @@ export const ShiftsAdmin: React.FC = () => {
                     <td className="p-4 text-xs whitespace-nowrap">{Number(row.duration_hours)}</td>
                     <td className="p-4 text-xs whitespace-nowrap">
                       <span className="inline-flex items-center gap-1.5">
-                        <Users className="w-3.5 h-3.5 text-[#5A5A5A]" />
+                        <Users className="w-3.5 h-3.5 text-charcoal" />
                         {row.spots_filled} / {row.spots_total}
                       </span>
                     </td>
@@ -416,28 +416,28 @@ export const ShiftsAdmin: React.FC = () => {
                         <button
                           onClick={() => setRosterShiftId(rosterShiftId === row.id ? null : row.id)}
                           title="Roster and hours"
-                          className="p-2 rounded-lg hover:bg-[#FDFBF7] text-[#5A5A5A] cursor-pointer"
+                          className="p-2 rounded-lg hover:bg-parchment text-charcoal cursor-pointer"
                         >
                           <ClipboardCheck className="w-4 h-4" />
                         </button>
                         <button
                           onClick={() => togglePublished(row)}
                           title={row.published ? 'Unpublish' : 'Publish'}
-                          className="p-2 rounded-lg hover:bg-[#FDFBF7] text-[#5A5A5A] cursor-pointer"
+                          className="p-2 rounded-lg hover:bg-parchment text-charcoal cursor-pointer"
                         >
                           {row.published ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
                         </button>
                         <button
                           onClick={() => startEdit(row)}
                           title="Edit"
-                          className="p-2 rounded-lg hover:bg-[#FDFBF7] text-[#5A5A5A] cursor-pointer"
+                          className="p-2 rounded-lg hover:bg-parchment text-charcoal cursor-pointer"
                         >
                           <Pencil className="w-4 h-4" />
                         </button>
                         <button
                           onClick={() => handleDelete(row)}
                           title="Delete"
-                          className="p-2 rounded-lg hover:bg-[#A64D32]/10 text-[#A64D32] cursor-pointer"
+                          className="p-2 rounded-lg hover:bg-terracotta/10 text-terracotta cursor-pointer"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>

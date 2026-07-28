@@ -61,17 +61,17 @@ export const CertificateVerify: React.FC<Props> = ({ initialNumber }) => {
     });
 
   return (
-    <section className="py-16 bg-[#FDFBF7] min-h-[80vh] text-[#2A2A2A]">
+    <section className="py-16 bg-parchment min-h-[80vh] text-graphite">
       <div className="max-w-2xl mx-auto px-4 sm:px-6 space-y-8">
 
         <div className="text-center space-y-3">
-          <div className="w-14 h-14 bg-[#5B6346]/10 text-[#5B6346] rounded-2xl flex items-center justify-center mx-auto">
+          <div className="w-14 h-14 bg-olive/10 text-olive rounded-2xl flex items-center justify-center mx-auto">
             <ShieldCheck className="w-7 h-7" />
           </div>
           <h1 className="text-3xl sm:text-4xl font-serif font-bold">
             {isEs ? 'Verificación de constancia' : 'Verify a certificate of service'}
           </h1>
-          <p className="text-sm text-[#5A5A5A]">
+          <p className="text-sm text-charcoal">
             {isEs
               ? `Introduce el número impreso en la constancia para confirmar que ${SITE_NAME} la emitió y sigue siendo válida.`
               : `Enter the number printed on the certificate to confirm that ${SITE_NAME} issued it and that it is still valid.`}
@@ -95,12 +95,12 @@ export const CertificateVerify: React.FC<Props> = ({ initialNumber }) => {
             placeholder="PAWTX-XXXX-XXXX"
             autoComplete="off"
             spellCheck={false}
-            className="flex-1 bg-white border border-[#E5E0D8] rounded-xl px-4 py-3 text-base font-mono tracking-wider pawtx-focus focus:border-[#A64D32]"
+            className="flex-1 bg-white border border-warm-taupe rounded-xl px-4 py-3 text-base font-mono tracking-wider pawtx-focus focus:border-terracotta"
           />
           <button
             type="submit"
             disabled={outcome.state === 'checking'}
-            className="bg-[#A64D32] hover:bg-[#8b3f28] text-white px-6 py-3 rounded-full text-xs font-bold uppercase tracking-widest cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
+            className="bg-terracotta hover:bg-terracotta-deep text-white px-6 py-3 rounded-full text-xs font-bold uppercase tracking-widest cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
           >
             {outcome.state === 'checking' ? (
               <Loader2 className="w-4 h-4 animate-spin" />
@@ -115,13 +115,13 @@ export const CertificateVerify: React.FC<Props> = ({ initialNumber }) => {
           <div
             className={`rounded-2xl border p-6 space-y-5 ${
               outcome.record.isValid
-                ? 'bg-[#5B6346]/5 border-[#5B6346]/40'
-                : 'bg-[#A64D32]/5 border-[#A64D32]/40'
+                ? 'bg-olive/5 border-olive/40'
+                : 'bg-terracotta/5 border-terracotta/40'
             }`}
           >
             <div
               className={`flex items-center gap-3 font-bold ${
-                outcome.record.isValid ? 'text-[#5B6346]' : 'text-[#A64D32]'
+                outcome.record.isValid ? 'text-olive' : 'text-terracotta'
               }`}
             >
               {outcome.record.isValid ? (
@@ -141,7 +141,7 @@ export const CertificateVerify: React.FC<Props> = ({ initialNumber }) => {
             </div>
 
             {!outcome.record.isValid && outcome.record.revokedAt && (
-              <p className="text-xs text-[#A64D32]">
+              <p className="text-xs text-terracotta">
                 {isEs
                   ? `Esta constancia fue retirada por la organización el ${formatDate(outcome.record.revokedAt.slice(0, 10))} y ya no debe aceptarse.`
                   : `This certificate was withdrawn by the organisation on ${formatDate(outcome.record.revokedAt.slice(0, 10))} and should no longer be accepted.`}
@@ -150,19 +150,19 @@ export const CertificateVerify: React.FC<Props> = ({ initialNumber }) => {
 
             <dl className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
               <div>
-                <dt className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#5A5A5A]">
+                <dt className="text-[11px] font-bold uppercase tracking-[0.2em] text-charcoal">
                   {isEs ? 'Voluntario' : 'Volunteer'}
                 </dt>
                 <dd className="font-bold mt-0.5">{outcome.record.recipientName}</dd>
               </div>
               <div>
-                <dt className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#5A5A5A]">
+                <dt className="text-[11px] font-bold uppercase tracking-[0.2em] text-charcoal">
                   {isEs ? 'Horas verificadas' : 'Verified hours'}
                 </dt>
                 <dd className="font-bold mt-0.5">{outcome.record.totalHours}</dd>
               </div>
               <div>
-                <dt className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#5A5A5A]">
+                <dt className="text-[11px] font-bold uppercase tracking-[0.2em] text-charcoal">
                   {isEs ? 'Periodo de servicio' : 'Service period'}
                 </dt>
                 <dd className="mt-0.5">
@@ -170,26 +170,26 @@ export const CertificateVerify: React.FC<Props> = ({ initialNumber }) => {
                 </dd>
               </div>
               <div>
-                <dt className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#5A5A5A]">
+                <dt className="text-[11px] font-bold uppercase tracking-[0.2em] text-charcoal">
                   {isEs ? 'Emitida por' : 'Issued by'}
                 </dt>
                 <dd className="mt-0.5">
                   {outcome.record.issuedByName}
                   {outcome.record.issuedByTitle ? `, ${outcome.record.issuedByTitle}` : ''}
-                  <span className="block text-xs text-[#5A5A5A]">
+                  <span className="block text-xs text-charcoal">
                     {formatDate(outcome.record.issuedAt.slice(0, 10))}
                   </span>
                 </dd>
               </div>
               <div className="sm:col-span-2">
-                <dt className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#5A5A5A]">
+                <dt className="text-[11px] font-bold uppercase tracking-[0.2em] text-charcoal">
                   {isEs ? 'Número' : 'Certificate number'}
                 </dt>
                 <dd className="font-mono tracking-wider mt-0.5">{outcome.record.certificateNo}</dd>
               </div>
             </dl>
 
-            <p className="text-[11px] text-[#5A5A5A] border-t border-[#E5E0D8] pt-4">
+            <p className="text-[11px] text-charcoal border-t border-warm-taupe pt-4">
               {isEs
                 ? `Las horas mostradas fueron registradas por personal de ${SITE_NAME} después de cada turno, con base en la asistencia observada.`
                 : `The hours shown were recorded by ${SITE_NAME} staff after each shift, on the basis of attendance observed on the day.`}
@@ -198,19 +198,19 @@ export const CertificateVerify: React.FC<Props> = ({ initialNumber }) => {
         )}
 
         {outcome.state === 'missing' && (
-          <div className="rounded-2xl border border-[#A64D32]/40 bg-[#A64D32]/5 p-6 space-y-2">
-            <div className="flex items-center gap-3 text-[#A64D32] font-bold">
+          <div className="rounded-2xl border border-terracotta/40 bg-terracotta/5 p-6 space-y-2">
+            <div className="flex items-center gap-3 text-terracotta font-bold">
               <ShieldAlert className="w-6 h-6 shrink-0" />
               <span className="text-lg">{isEs ? 'No encontrada' : 'No matching certificate'}</span>
             </div>
-            <p className="text-sm text-[#5A5A5A]">
+            <p className="text-sm text-charcoal">
               {isEs
                 ? 'Ningún registro coincide con ese número. Revisa que esté escrito exactamente como aparece impreso — el cero y la letra O son distintos.'
                 : 'No record matches that number. Check it against the printed copy — note that the alphabet used excludes the letters I, L, O and U, so a character that looks like one of those is a digit.'}
             </p>
-            <p className="text-sm text-[#5A5A5A]">
+            <p className="text-sm text-charcoal">
               {isEs ? 'Si el problema persiste, escribe a ' : 'If it still does not match, write to '}
-              <a href={`mailto:${ORG_EMAIL}`} className="text-[#A64D32] font-bold hover:underline">
+              <a href={`mailto:${ORG_EMAIL}`} className="text-terracotta font-bold hover:underline">
                 {ORG_EMAIL}
               </a>
               .
@@ -219,14 +219,14 @@ export const CertificateVerify: React.FC<Props> = ({ initialNumber }) => {
         )}
 
         {outcome.state === 'error' && (
-          <div className="rounded-2xl border border-[#A64D32]/40 bg-[#A64D32]/5 p-6 text-sm text-[#A64D32]">
+          <div className="rounded-2xl border border-terracotta/40 bg-terracotta/5 p-6 text-sm text-terracotta">
             {isEs
               ? 'No pudimos comprobar la constancia en este momento. Inténtalo de nuevo en unos minutos.'
               : 'We could not check the certificate just now. Please try again in a few minutes.'}
           </div>
         )}
 
-        <div className="text-center text-[11px] text-[#5A5A5A] space-y-1 pt-4">
+        <div className="text-center text-[11px] text-charcoal space-y-1 pt-4">
           <p className="font-bold">{SITE_NAME}</p>
           <p>{ORG_ADDRESS}</p>
           <p>

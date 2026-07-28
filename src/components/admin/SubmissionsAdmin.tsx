@@ -42,7 +42,7 @@ const MEDIA_CONSENT_BADGE: Record<string, { label: string; hint: string; classNa
   yes: {
     label: 'Yes',
     hint: 'Consented to photography and recording, and to it being shared publicly.',
-    className: 'bg-[#5B6346]/15 text-[#3F462F] border border-[#5B6346]/30'
+    className: 'bg-olive/15 text-[#3F462F] border border-olive/30'
   },
   photos_only: {
     label: 'Photos only',
@@ -57,7 +57,7 @@ const MEDIA_CONSENT_BADGE: Record<string, { label: string; hint: string; classNa
   unasked: {
     label: '—',
     hint: 'This event did not ask. Treat as no permission rather than assuming consent.',
-    className: 'bg-[#E5E0D8] text-[#5A5A5A] border border-[#D6D0C4]'
+    className: 'bg-warm-taupe text-charcoal border border-[#D6D0C4]'
   }
 };
 
@@ -188,20 +188,20 @@ export const SubmissionsAdmin: React.FC<SubmissionsAdminProps> = ({ view }) => {
   const exportButton = (onClick: () => void) => (
     <button
       onClick={onClick}
-      className="flex items-center gap-2 border border-[#E5E0D8] bg-[#FDFBF7] hover:bg-white px-4 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider cursor-pointer"
+      className="flex items-center gap-2 border border-warm-taupe bg-parchment hover:bg-white px-4 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider cursor-pointer"
     >
       <Download className="w-4 h-4" />
       <span>Export CSV</span>
     </button>
   );
 
-  if (isLoading) return <p className="text-sm text-[#5A5A5A]">Loading...</p>;
+  if (isLoading) return <p className="text-sm text-charcoal">Loading...</p>;
 
   return (
     <div className="space-y-8">
 
       {error && (
-        <div className="flex items-start gap-2 bg-[#A64D32]/10 border border-[#A64D32]/30 rounded-2xl px-4 py-3 text-xs text-[#A64D32]">
+        <div className="flex items-start gap-2 bg-terracotta/10 border border-terracotta/30 rounded-2xl px-4 py-3 text-xs text-terracotta">
           <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
           <span>{error}</span>
         </div>
@@ -215,11 +215,11 @@ export const SubmissionsAdmin: React.FC<SubmissionsAdminProps> = ({ view }) => {
           </div>
 
           {donations.length === 0 ? (
-            <p className="text-sm text-[#5A5A5A]">No donations recorded yet.</p>
+            <p className="text-sm text-charcoal">No donations recorded yet.</p>
           ) : (
-            <div className="bg-[#F4F1ED] border border-[#E5E0D8] rounded-2xl overflow-x-auto">
+            <div className="bg-aged-paper border border-warm-taupe rounded-2xl overflow-x-auto">
               <table className="w-full text-sm">
-                <thead className="bg-[#FDFBF7] text-xs uppercase tracking-wider text-[#5A5A5A]">
+                <thead className="bg-parchment text-xs uppercase tracking-wider text-charcoal">
                   <tr>
                     <th className="text-left p-4">Date</th>
                     <th className="text-left p-4">Donor</th>
@@ -229,25 +229,25 @@ export const SubmissionsAdmin: React.FC<SubmissionsAdminProps> = ({ view }) => {
                 </thead>
                 <tbody>
                   {donations.map((donation) => (
-                    <tr key={donation.id} className="border-t border-[#E5E0D8]">
+                    <tr key={donation.id} className="border-t border-warm-taupe">
                       <td className="p-4 text-xs whitespace-nowrap">{formatDateTime(donation.created_at)}</td>
                       <td className="p-4">
                         <div className="font-bold text-sm">{donation.donor_name || 'Anonymous'}</div>
-                        <div className="text-xs text-[#5A5A5A]">{donation.donor_email || '—'}</div>
+                        <div className="text-xs text-charcoal">{donation.donor_email || '—'}</div>
                       </td>
                       <td className="p-4 whitespace-nowrap font-bold">
                         {formatMoney(donation.amount_cents)}
                         {donation.frequency === 'monthly' && (
-                          <span className="text-xs font-normal text-[#5A5A5A]"> / mo</span>
+                          <span className="text-xs font-normal text-charcoal"> / mo</span>
                         )}
                       </td>
                       <td className="p-4">
                         <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-full ${
                           donation.status === 'paid'
-                            ? 'bg-[#5B6346]/20 text-[#5B6346]'
+                            ? 'bg-olive/20 text-olive'
                             : donation.status === 'pending'
-                              ? 'bg-[#5A5A5A]/15 text-[#5A5A5A]'
-                              : 'bg-[#A64D32]/15 text-[#A64D32]'
+                              ? 'bg-charcoal/15 text-charcoal'
+                              : 'bg-terracotta/15 text-terracotta'
                         }`}>
                           {donation.status}
                         </span>
@@ -268,11 +268,11 @@ export const SubmissionsAdmin: React.FC<SubmissionsAdminProps> = ({ view }) => {
             </div>
 
             {rsvps.length === 0 ? (
-              <p className="text-sm text-[#5A5A5A]">No registrations yet.</p>
+              <p className="text-sm text-charcoal">No registrations yet.</p>
             ) : (
-              <div className="bg-[#F4F1ED] border border-[#E5E0D8] rounded-2xl overflow-x-auto">
+              <div className="bg-aged-paper border border-warm-taupe rounded-2xl overflow-x-auto">
                 <table className="w-full text-sm">
-                  <thead className="bg-[#FDFBF7] text-xs uppercase tracking-wider text-[#5A5A5A]">
+                  <thead className="bg-parchment text-xs uppercase tracking-wider text-charcoal">
                     <tr>
                       <th className="text-left p-4">Event</th>
                       <th className="text-left p-4">Attendee</th>
@@ -285,12 +285,12 @@ export const SubmissionsAdmin: React.FC<SubmissionsAdminProps> = ({ view }) => {
                     {rsvps.map((rsvp) => {
                       const consent = MEDIA_CONSENT_BADGE[rsvp.media_consent ?? 'unasked'];
                       return (
-                        <tr key={rsvp.id} className="border-t border-[#E5E0D8]">
+                        <tr key={rsvp.id} className="border-t border-warm-taupe">
                           <td className="p-4 text-xs">{eventTitles.get(rsvp.event_id) ?? '—'}</td>
                           <td className="p-4">
                             <div className="font-bold text-sm">{rsvp.full_name}</div>
-                            <div className="text-xs text-[#5A5A5A]">{rsvp.email}</div>
-                            {rsvp.phone && <div className="text-xs text-[#5A5A5A]">{rsvp.phone}</div>}
+                            <div className="text-xs text-charcoal">{rsvp.email}</div>
+                            {rsvp.phone && <div className="text-xs text-charcoal">{rsvp.phone}</div>}
                           </td>
                           <td className="p-4 text-xs whitespace-nowrap">{rsvp.guest_count + 1}</td>
                           <td className="p-4 whitespace-nowrap">
@@ -315,23 +315,23 @@ export const SubmissionsAdmin: React.FC<SubmissionsAdminProps> = ({ view }) => {
             <h2 className="text-xl font-serif font-bold">Contact messages</h2>
 
             {messages.length === 0 ? (
-              <p className="text-sm text-[#5A5A5A]">No messages yet.</p>
+              <p className="text-sm text-charcoal">No messages yet.</p>
             ) : (
               <div className="space-y-3">
                 {messages.map((message) => (
                   <div
                     key={message.id}
-                    className={`bg-[#F4F1ED] border rounded-2xl p-4 ${
-                      message.handled ? 'border-[#E5E0D8] opacity-60' : 'border-[#A64D32]/30'
+                    className={`bg-aged-paper border rounded-2xl p-4 ${
+                      message.handled ? 'border-warm-taupe opacity-60' : 'border-terracotta/30'
                     }`}
                   >
                     <div className="flex items-start justify-between gap-4">
                       <div className="min-w-0">
                         <div className="font-bold text-sm">{message.full_name}</div>
-                        <a href={`mailto:${message.email}`} className="text-xs text-[#A64D32] hover:underline">
+                        <a href={`mailto:${message.email}`} className="text-xs text-terracotta hover:underline">
                           {message.email}
                         </a>
-                        <div className="text-xs text-[#5A5A5A] mt-0.5">
+                        <div className="text-xs text-charcoal mt-0.5">
                           {formatDateTime(message.created_at)}
                         </div>
                       </div>
@@ -339,20 +339,20 @@ export const SubmissionsAdmin: React.FC<SubmissionsAdminProps> = ({ view }) => {
                         <button
                           onClick={() => toggleHandled(message)}
                           title={message.handled ? 'Mark as unread' : 'Mark as handled'}
-                          className="p-2 rounded-lg hover:bg-[#FDFBF7] text-[#5A5A5A] cursor-pointer"
+                          className="p-2 rounded-lg hover:bg-parchment text-charcoal cursor-pointer"
                         >
                           {message.handled ? <MailOpen className="w-4 h-4" /> : <Mail className="w-4 h-4" />}
                         </button>
                         <button
                           onClick={() => handleDeleteMessage(message)}
                           title="Delete permanently"
-                          className="p-2 rounded-lg hover:bg-[#A64D32]/10 text-[#A64D32] cursor-pointer"
+                          className="p-2 rounded-lg hover:bg-terracotta/10 text-terracotta cursor-pointer"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
                       </div>
                     </div>
-                    <p className="text-sm text-[#2A2A2A] mt-3 whitespace-pre-wrap break-words">
+                    <p className="text-sm text-graphite mt-3 whitespace-pre-wrap break-words">
                       {message.message}
                     </p>
                   </div>

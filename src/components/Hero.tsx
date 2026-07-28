@@ -39,15 +39,15 @@ export const Hero: React.FC = () => {
           decoding="async"
         />
         <div className="absolute inset-0 bg-gradient-to-r from-black/65 via-black/45 to-black/60" />
-        <div className="absolute inset-0 bg-[#a64d32]/10 mix-blend-overlay" />
+        <div className="absolute inset-0 bg-terracotta/10 mix-blend-overlay" />
       </div>
 
       {/* Hero Content */}
       <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-white space-y-8">
         
         {/* Tagline Badge */}
-        <div className="inline-flex items-center gap-2 bg-[#F4F1ED]/95 text-[#A64D32] backdrop-blur-md px-4 py-1.5 rounded-full text-xs font-bold tracking-[0.2em] uppercase border border-[#E5E0D8] shadow-lg animate-fadeIn">
-          <Compass className="w-3.5 h-3.5 text-[#A64D32]" />
+        <div className="inline-flex items-center gap-2 bg-aged-paper/95 text-terracotta backdrop-blur-md px-4 py-1.5 rounded-full text-xs font-bold tracking-[0.2em] uppercase border border-warm-taupe shadow-lg animate-fadeIn">
+          <Compass className="w-3.5 h-3.5 text-terracotta" />
           <span>EST. 2018 — Midland & Odessa, TX</span>
         </div>
 
@@ -63,7 +63,7 @@ export const Hero: React.FC = () => {
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 pt-3">
           <button
             onClick={() => setActiveTab('donate')}
-            className="w-full sm:w-auto bg-[#A64D32] hover:bg-[#8b3f28] text-white px-7 py-3.5 rounded-full font-bold text-xs sm:text-sm tracking-widest uppercase transition-all transform hover:scale-[1.03] shadow-xl shadow-[#A64D32]/20 flex items-center justify-center gap-3 cursor-pointer group"
+            className="w-full sm:w-auto bg-terracotta hover:bg-terracotta-deep text-white px-7 py-3.5 rounded-full font-bold text-xs sm:text-sm tracking-widest uppercase transition-all transform hover:scale-[1.03] shadow-xl shadow-terracotta/20 flex items-center justify-center gap-3 cursor-pointer group"
           >
             <Heart className="w-4 h-4 fill-white/20 group-hover:scale-110 transition-transform" />
             <span>{t('hero.donateCta')}</span>
@@ -72,9 +72,9 @@ export const Hero: React.FC = () => {
 
           <button
             onClick={() => setActiveTab('events')}
-            className="w-full sm:w-auto bg-[#FDFBF7] hover:bg-white text-[#2A2A2A] px-7 py-3.5 rounded-full font-bold text-xs sm:text-sm tracking-widest uppercase transition-all transform hover:scale-[1.03] shadow-lg flex items-center justify-center gap-3 cursor-pointer border border-[#E5E0D8]"
+            className="w-full sm:w-auto bg-parchment hover:bg-white text-graphite px-7 py-3.5 rounded-full font-bold text-xs sm:text-sm tracking-widest uppercase transition-all transform hover:scale-[1.03] shadow-lg flex items-center justify-center gap-3 cursor-pointer border border-warm-taupe"
           >
-            <Calendar className="w-4 h-4 text-[#A64D32]" />
+            <Calendar className="w-4 h-4 text-terracotta" />
             <span>{t('hero.eventsCta')}</span>
           </button>
 
@@ -89,7 +89,7 @@ export const Hero: React.FC = () => {
 
         {/* Real-time Impact Statistics */}
         <div className="pt-8 grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 max-w-4xl mx-auto">
-          <div className="bg-black/40 hover:bg-black/50 backdrop-blur-md rounded-2xl p-6 border border-white/20 hover:border-amber-300/50 transition-all duration-300 text-center text-[#FDFBF7] shadow-xl group">
+          <div className="bg-black/40 hover:bg-black/50 backdrop-blur-md rounded-2xl p-6 border border-white/20 hover:border-amber-300/50 transition-all duration-300 text-center text-parchment shadow-xl group">
             <div className="w-10 h-10 rounded-full bg-amber-400/10 border border-amber-300/30 flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
               <Users className="w-5 h-5 text-amber-300" />
             </div>
@@ -97,7 +97,7 @@ export const Hero: React.FC = () => {
             <div className="text-[11px] tracking-[0.2em] uppercase font-bold text-amber-100/90 mt-1.5">{t('hero.statServed')}</div>
           </div>
 
-          <div className="bg-black/40 hover:bg-black/50 backdrop-blur-md rounded-2xl p-6 border border-white/20 hover:border-amber-300/50 transition-all duration-300 text-center text-[#FDFBF7] shadow-xl group">
+          <div className="bg-black/40 hover:bg-black/50 backdrop-blur-md rounded-2xl p-6 border border-white/20 hover:border-amber-300/50 transition-all duration-300 text-center text-parchment shadow-xl group">
             <div className="w-10 h-10 rounded-full bg-amber-400/10 border border-amber-300/30 flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
               <Award className="w-5 h-5 text-amber-300" />
             </div>
@@ -105,7 +105,7 @@ export const Hero: React.FC = () => {
             <div className="text-[11px] tracking-[0.2em] uppercase font-bold text-amber-100/90 mt-1.5">{t('hero.statEvents')}</div>
           </div>
 
-          <div className="bg-black/40 hover:bg-black/50 backdrop-blur-md rounded-2xl p-6 border border-white/20 hover:border-amber-300/50 transition-all duration-300 text-center text-[#FDFBF7] shadow-xl group">
+          <div className="bg-black/40 hover:bg-black/50 backdrop-blur-md rounded-2xl p-6 border border-white/20 hover:border-amber-300/50 transition-all duration-300 text-center text-parchment shadow-xl group">
             <div className="w-10 h-10 rounded-full bg-amber-400/10 border border-amber-300/30 flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
               <Heart className="w-5 h-5 text-amber-300 fill-amber-300/20" />
             </div>

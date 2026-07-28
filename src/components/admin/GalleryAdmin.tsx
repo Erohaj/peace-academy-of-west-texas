@@ -160,8 +160,8 @@ export const GalleryAdmin: React.FC = () => {
     }
   };
 
-  const field = 'w-full bg-[#FDFBF7] border border-[#E5E0D8] rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#A64D32]';
-  const label = 'block text-xs font-bold uppercase tracking-[0.2em] text-[#5A5A5A] mb-1';
+  const field = 'w-full bg-parchment border border-warm-taupe rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-terracotta';
+  const label = 'block text-xs font-bold uppercase tracking-[0.2em] text-charcoal mb-1';
 
   return (
     <div className="space-y-6">
@@ -170,7 +170,7 @@ export const GalleryAdmin: React.FC = () => {
         <h2 className="text-xl font-serif font-bold">Gallery</h2>
         <button
           onClick={() => { setEditingId('new'); setForm(BLANK_FORM); }}
-          className="flex items-center gap-2 bg-[#A64D32] hover:bg-[#8b3f28] text-white px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider cursor-pointer"
+          className="flex items-center gap-2 bg-terracotta hover:bg-terracotta-deep text-white px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider cursor-pointer"
         >
           <Plus className="w-4 h-4" />
           <span>Add Photo</span>
@@ -178,14 +178,14 @@ export const GalleryAdmin: React.FC = () => {
       </div>
 
       {error && (
-        <div className="flex items-start gap-2 bg-[#A64D32]/10 border border-[#A64D32]/30 rounded-2xl px-4 py-3 text-xs text-[#A64D32]">
+        <div className="flex items-start gap-2 bg-terracotta/10 border border-terracotta/30 rounded-2xl px-4 py-3 text-xs text-terracotta">
           <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
           <span>{error}</span>
         </div>
       )}
 
       {editingId && (
-        <form onSubmit={handleSave} className="bg-[#F4F1ED] border border-[#E5E0D8] rounded-2xl p-6 space-y-4">
+        <form onSubmit={handleSave} className="bg-aged-paper border border-warm-taupe rounded-2xl p-6 space-y-4">
           <h3 className="font-serif font-bold text-lg">
             {editingId === 'new' ? 'Add photo' : 'Edit photo'}
           </h3>
@@ -240,7 +240,7 @@ export const GalleryAdmin: React.FC = () => {
                 onChange={(e) => setForm({ ...form, sort_order: Number(e.target.value) })} />
             </div>
             <div className="flex items-end pb-2.5">
-              <label className="flex items-center gap-2 text-xs font-bold text-[#5A5A5A] cursor-pointer">
+              <label className="flex items-center gap-2 text-xs font-bold text-charcoal cursor-pointer">
                 <input type="checkbox" checked={form.published}
                   onChange={(e) => setForm({ ...form, published: e.target.checked })} />
                 Published
@@ -261,10 +261,10 @@ export const GalleryAdmin: React.FC = () => {
                 <img
                   src={resolveImage(form.image_key, form.image_url)}
                   alt=""
-                  className="w-24 h-16 object-cover rounded-xl border border-[#E5E0D8]"
+                  className="w-24 h-16 object-cover rounded-xl border border-warm-taupe"
                 />
               )}
-              <label className="flex items-center gap-2 border border-[#E5E0D8] bg-[#FDFBF7] hover:bg-white px-4 py-2.5 rounded-xl text-xs font-bold cursor-pointer">
+              <label className="flex items-center gap-2 border border-warm-taupe bg-parchment hover:bg-white px-4 py-2.5 rounded-xl text-xs font-bold cursor-pointer">
                 <Upload className="w-4 h-4" />
                 <span>{isUploading ? 'Uploading...' : 'Upload photo'}</span>
                 <input
@@ -285,14 +285,14 @@ export const GalleryAdmin: React.FC = () => {
             <button
               type="submit"
               disabled={isSaving || isUploading}
-              className="bg-[#A64D32] hover:bg-[#8b3f28] text-white px-6 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider cursor-pointer disabled:opacity-50"
+              className="bg-terracotta hover:bg-terracotta-deep text-white px-6 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider cursor-pointer disabled:opacity-50"
             >
               {isSaving ? 'Saving...' : 'Save photo'}
             </button>
             <button
               type="button"
               onClick={() => setEditingId(null)}
-              className="border border-[#E5E0D8] hover:bg-[#FDFBF7] px-6 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider cursor-pointer"
+              className="border border-warm-taupe hover:bg-parchment px-6 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider cursor-pointer"
             >
               Cancel
             </button>
@@ -301,13 +301,13 @@ export const GalleryAdmin: React.FC = () => {
       )}
 
       {isLoading ? (
-        <p className="text-sm text-[#5A5A5A]">Loading gallery...</p>
+        <p className="text-sm text-charcoal">Loading gallery...</p>
       ) : rows.length === 0 ? (
-        <p className="text-sm text-[#5A5A5A]">No photos yet.</p>
+        <p className="text-sm text-charcoal">No photos yet.</p>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
           {rows.map((row) => (
-            <div key={row.id} className="bg-[#F4F1ED] border border-[#E5E0D8] rounded-2xl overflow-hidden">
+            <div key={row.id} className="bg-aged-paper border border-warm-taupe rounded-2xl overflow-hidden">
               <img
                 src={resolveImage(row.image_key, row.image_url)}
                 alt={row.title}
@@ -316,23 +316,23 @@ export const GalleryAdmin: React.FC = () => {
               />
               <div className="p-4 space-y-2">
                 <div className="font-bold text-sm">{row.title}</div>
-                <div className="text-xs text-[#5A5A5A]">{row.location}</div>
+                <div className="text-xs text-charcoal">{row.location}</div>
                 {!row.published && (
-                  <span className="inline-block text-[10px] font-bold uppercase tracking-wider bg-[#5A5A5A]/15 text-[#5A5A5A] px-2 py-0.5 rounded-full">
+                  <span className="inline-block text-[10px] font-bold uppercase tracking-wider bg-charcoal/15 text-charcoal px-2 py-0.5 rounded-full">
                     Hidden
                   </span>
                 )}
                 <div className="flex items-center gap-1 pt-1">
                   <button onClick={() => togglePublished(row)} title={row.published ? 'Hide' : 'Show'}
-                    className="p-2 rounded-lg hover:bg-[#FDFBF7] text-[#5A5A5A] cursor-pointer">
+                    className="p-2 rounded-lg hover:bg-parchment text-charcoal cursor-pointer">
                     {row.published ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
                   </button>
                   <button onClick={() => startEdit(row)} title="Edit"
-                    className="p-2 rounded-lg hover:bg-[#FDFBF7] text-[#5A5A5A] cursor-pointer">
+                    className="p-2 rounded-lg hover:bg-parchment text-charcoal cursor-pointer">
                     <Pencil className="w-4 h-4" />
                   </button>
                   <button onClick={() => handleDelete(row)} title="Delete"
-                    className="p-2 rounded-lg hover:bg-[#A64D32]/10 text-[#A64D32] cursor-pointer">
+                    className="p-2 rounded-lg hover:bg-terracotta/10 text-terracotta cursor-pointer">
                     <Trash2 className="w-4 h-4" />
                   </button>
                 </div>

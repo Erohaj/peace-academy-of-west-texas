@@ -83,22 +83,22 @@ export const Gallery: React.FC<PageTitleProps> = ({ asPageTitle }) => {
   ];
 
   return (
-    <section className="py-20 bg-[#FDFBF7] text-[#2A2A2A] min-h-screen">
+    <section className="py-20 bg-parchment text-graphite min-h-screen">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
         
         {/* Gallery Title Header */}
         <AnimatedSection direction="up" delayMs={50}>
           <div className="text-center max-w-3xl mx-auto space-y-4">
-            <div className="inline-flex items-center gap-2 text-[#5B6346] font-bold text-xs uppercase tracking-[0.2em] bg-[#5B6346]/10 px-4 py-1.5 rounded-full border border-[#5B6346]/20">
-              <Camera className="w-3.5 h-3.5 text-[#5B6346]" />
+            <div className="inline-flex items-center gap-2 text-olive font-bold text-xs uppercase tracking-[0.2em] bg-olive/10 px-4 py-1.5 rounded-full border border-olive/20">
+              <Camera className="w-3.5 h-3.5 text-olive" />
               <span>PAWTX Visual History</span>
             </div>
 
-            <Title className="text-3xl sm:text-5xl font-serif font-bold text-[#2A2A2A]">
+            <Title className="text-3xl sm:text-5xl font-serif font-bold text-graphite">
               {t('gallery.title')}
             </Title>
 
-            <p className="text-base sm:text-lg text-[#5A5A5A]">
+            <p className="text-base sm:text-lg text-charcoal">
               {t('gallery.subtitle')}
             </p>
           </div>
@@ -106,7 +106,7 @@ export const Gallery: React.FC<PageTitleProps> = ({ asPageTitle }) => {
 
         {/* Faceted Search & Filters */}
         <AnimatedSection direction="up" delayMs={100}>
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4 bg-[#F4F1ED] p-4 rounded-3xl border border-[#E5E0D8]">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4 bg-aged-paper p-4 rounded-3xl border border-warm-taupe">
             
             <div className="flex items-center gap-2 overflow-x-auto w-full md:w-auto pb-2 md:pb-0 scrollbar-none md:flex-wrap md:overflow-visible">
               {categories.map((cat) => {
@@ -117,8 +117,8 @@ export const Gallery: React.FC<PageTitleProps> = ({ asPageTitle }) => {
                     onClick={() => setSelectedCategory(cat.id)}
                     className={`px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all cursor-pointer whitespace-nowrap ${
                       isActive
-                        ? 'bg-[#A64D32] text-white shadow-sm'
-                        : 'bg-[#FDFBF7] text-[#2A2A2A] hover:bg-white border border-[#E5E0D8]'
+                        ? 'bg-terracotta text-white shadow-sm'
+                        : 'bg-parchment text-graphite hover:bg-white border border-warm-taupe'
                     }`}
                   >
                     {t(cat.labelKey)}
@@ -128,13 +128,13 @@ export const Gallery: React.FC<PageTitleProps> = ({ asPageTitle }) => {
             </div>
 
             <div className="relative w-full md:w-72">
-              <Search className="w-4 h-4 text-[#5A5A5A] absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <Search className="w-4 h-4 text-charcoal absolute left-3.5 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder={t('gallery.searchPlaceholder')}
-                className="w-full bg-[#FDFBF7] border border-[#E5E0D8] rounded-full pl-10 pr-4 py-2 text-xs text-[#2A2A2A] pawtx-focus focus:border-[#A64D32]"
+                className="w-full bg-parchment border border-warm-taupe rounded-full pl-10 pr-4 py-2 text-xs text-graphite pawtx-focus focus:border-terracotta"
               />
             </div>
 
@@ -164,11 +164,11 @@ export const Gallery: React.FC<PageTitleProps> = ({ asPageTitle }) => {
                     type="button"
                     onClick={() => openLightbox(originalIndex)}
                     aria-label={title}
-                    className="group relative block w-full text-left rounded-3xl overflow-hidden cursor-pointer shadow-sm border border-[#E5E0D8] bg-[#F4F1ED] transform transition-all duration-300 hover:-translate-y-1 hover:shadow-xl h-full pawtx-focus"
+                    className="group relative block w-full text-left rounded-3xl overflow-hidden cursor-pointer shadow-sm border border-warm-taupe bg-aged-paper transform transition-all duration-300 hover:-translate-y-1 hover:shadow-xl h-full pawtx-focus"
                   >
-                    <div className="aspect-4/3 overflow-hidden bg-[#E5E0D8] relative">
+                    <div className="aspect-4/3 overflow-hidden bg-warm-taupe relative">
                       {!isLoaded && (
-                        <div className="absolute inset-0 bg-[#E5E0D8] animate-pulse">
+                        <div className="absolute inset-0 bg-warm-taupe animate-pulse">
                           <div className="w-full h-full bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer" />
                         </div>
                       )}
@@ -186,7 +186,7 @@ export const Gallery: React.FC<PageTitleProps> = ({ asPageTitle }) => {
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-80 group-hover:opacity-95 transition-opacity" />
 
                   <div className="absolute bottom-0 left-0 right-0 p-5 text-white space-y-1">
-                    <span className="text-[10px] font-bold uppercase tracking-[0.2em] bg-[#5B6346] text-white px-2.5 py-0.5 rounded-md inline-block mb-1">
+                    <span className="text-[10px] font-bold uppercase tracking-[0.2em] bg-olive text-white px-2.5 py-0.5 rounded-md inline-block mb-1">
                       {item.category}
                     </span>
                     <CardTitle className="text-lg font-serif font-bold leading-tight text-white group-hover:text-amber-200 transition-colors">
@@ -247,7 +247,7 @@ export const Gallery: React.FC<PageTitleProps> = ({ asPageTitle }) => {
           </button>
 
           {/* Lightbox Content Container */}
-          <div className="max-w-4xl w-full max-h-[85vh] flex flex-col md:flex-row bg-[#2A2A2A] rounded-3xl overflow-hidden border border-white/20 shadow-2xl">
+          <div className="max-w-4xl w-full max-h-[85vh] flex flex-col md:flex-row bg-graphite rounded-3xl overflow-hidden border border-white/20 shadow-2xl">
             
             {/* Image View */}
             <div className="md:w-2/3 bg-black flex items-center justify-center p-2 relative">
@@ -261,7 +261,7 @@ export const Gallery: React.FC<PageTitleProps> = ({ asPageTitle }) => {
             {/* Image Meta details */}
             <div className="md:w-1/3 p-6 sm:p-8 flex flex-col justify-between text-white space-y-4">
               <div className="space-y-3">
-                <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-white bg-[#5B6346] px-3 py-1 rounded-md inline-block">
+                <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-white bg-olive px-3 py-1 rounded-md inline-block">
                   {activeItem.category}
                 </span>
 
@@ -276,12 +276,12 @@ export const Gallery: React.FC<PageTitleProps> = ({ asPageTitle }) => {
 
               <div className="pt-4 border-t border-white/10 text-xs text-stone-400 space-y-2 font-sans">
                 <div className="flex items-center gap-2">
-                  <Calendar className="w-4 h-4 text-[#A64D32]" />
+                  <Calendar className="w-4 h-4 text-terracotta" />
                   <span>{t('gallery.lightboxDate')}: {activeItem.date}</span>
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <MapPin className="w-4 h-4 text-[#5B6346]" />
+                  <MapPin className="w-4 h-4 text-olive" />
                   <span>{t('gallery.lightboxLocation')}: {activeItem.location}</span>
                 </div>
               </div>
