@@ -129,6 +129,20 @@
   #root {
     display: none !important;
   }
+
+  /*
+   * Browsers default "background graphics" to off in the print dialog, which
+   * drops every tinted box in a printed document. The one that matters is the
+   * express-negligence paragraph in the release: MarkdownDocument gives it a
+   * bordered, tinted treatment to satisfy Texas's conspicuousness requirement.
+   * The border and the icon print either way, so the clause does not stop
+   * being conspicuous without this — but it should look on paper the way it
+   * looked on screen when the volunteer signed it.
+   */
+  #print-root {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
 }
 
 

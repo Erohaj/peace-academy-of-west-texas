@@ -9,14 +9,12 @@ import { BrochureShowcase } from './components/BrochureShowcase';
 import { EventFeed } from './components/EventFeed';
 import { SocialMediaFeed } from './components/SocialMediaFeed';
 import { Gallery } from './components/Gallery';
-import { VolunteerPortal } from './components/VolunteerPortal';
 import { DonationWidget } from './components/DonationWidget';
 import { RSVPModal } from './components/RSVPModal';
 import { ContactModal } from './components/ContactModal';
 import { SearchModal } from './components/SearchModal';
 import { Footer } from './components/Footer';
 import { ErrorBoundary } from './components/ErrorBoundary';
-import { CertificateVerify } from './components/CertificateVerify';
 import { readDonationReturn } from './lib/donationReturn';
 import { SITE_NAME, SITE_TITLE } from './lib/seo';
 import { ActiveTab } from './types';
@@ -25,6 +23,18 @@ import { ActiveTab } from './types';
 // keeps it out of the bundle every ordinary visitor downloads.
 const AdminPanel = lazy(() =>
   import('./components/admin/AdminPanel').then((module) => ({ default: module.AdminPanel }))
+);
+
+// Same reasoning, one step further out: the volunteer portal pulls in the
+// onboarding wizard, the markdown renderer for the legal documents and the
+// certificate view — none of which a visitor reading about the events needs.
+const VolunteerPortal = lazy(() =>
+  import('./components/VolunteerPortal').then((module) => ({ default: module.VolunteerPortal }))
+);
+
+// Reached only by scanning the QR code on a printed certificate.
+const CertificateVerify = lazy(() =>
+  import('./components/CertificateVerify').then((module) => ({ default: module.CertificateVerify }))
 );
 
 /** Tabs that may be opened straight from a URL hash. */
@@ -175,6 +185,21 @@ export const App: React.FC = () => {
     document.documentElement.lang = language;
   }, [activeTab, language, t]);
 
+  /**
+   * Wraps the three lazily-loaded tabs.
+   *
+   * A volunteer clicking the magic link in their email lands straight on
+   * #volunteer, so this fallback — not the portal — is the first thing they
+   * see. It says "loading" rather than showing an empty page.
+   */
+  const lazyTab = (node: React.ReactNode) => (
+    <Suspense
+      fallback={<div className="py-20 text-center text-sm text-[#5A5A5A]">{t('common.loading')}</div>}
+    >
+      {node}
+    </Suspense>
+  );
+
   return (
     <div className="min-h-screen bg-[#fef9ef] font-sans antialiased text-[#292930] flex flex-col selection:bg-[#b05a36] selection:text-white">
       {/* Sticky Top Navigation */}
@@ -237,21 +262,14 @@ export const App: React.FC = () => {
 
           {activeTab === 'gallery' && <Gallery asPageTitle />}
 
-          {activeTab === 'volunteer' && <VolunteerPortal />}
+          {activeTab === 'volunteer' && lazyTab(<VolunteerPortal />)}
 
           {activeTab === 'donate' && <DonationWidget asPageTitle />}
 
-          {activeTab === 'verify' && <CertificateVerify initialNumber={verifyRequest ?? undefined} />}
+          {activeTab === 'verify' &&
+            lazyTab(<CertificateVerify initialNumber={verifyRequest ?? undefined} />)}
 
-          {activeTab === 'admin' && (
-            <Suspense
-              fallback={
-                <div className="py-20 text-center text-sm text-[#5A5A5A]">{t('common.loading')}</div>
-              }
-            >
-              <AdminPanel />
-            </Suspense>
-          )}
+          {activeTab === 'admin' && lazyTab(<AdminPanel />)}
         </ErrorBoundary>
       </main>
 

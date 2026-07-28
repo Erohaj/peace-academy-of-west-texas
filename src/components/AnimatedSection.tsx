@@ -1,5 +1,32 @@
 import React, { useEffect, useRef, useState } from 'react';
 
+const REDUCED_MOTION = '(prefers-reduced-motion: reduce)';
+
+/**
+ * Whether the visitor has asked their OS to reduce motion.
+ *
+ * This is read in JavaScript rather than left to the
+ * `@media (prefers-reduced-motion: reduce)` block in index.css because the
+ * reveal below sets its duration with an inline style, which that block
+ * cannot override without `!important`. The block still covers the
+ * hand-written keyframe classes; this covers the scroll reveal, which is
+ * every section of the home page.
+ */
+const usePrefersReducedMotion = () => {
+  const [prefersReduced, setPrefersReduced] = useState(
+    () => typeof window !== 'undefined' && window.matchMedia(REDUCED_MOTION).matches
+  );
+
+  useEffect(() => {
+    const query = window.matchMedia(REDUCED_MOTION);
+    const onChange = () => setPrefersReduced(query.matches);
+    query.addEventListener('change', onChange);
+    return () => query.removeEventListener('change', onChange);
+  }, []);
+
+  return prefersReduced;
+};
+
 interface AnimatedSectionProps {
   children: React.ReactNode;
   className?: string;
@@ -19,6 +46,7 @@ export const AnimatedSection: React.FC<AnimatedSectionProps> = ({
 }) => {
   const [isVisible, setIsVisible] = useState(false);
   const sectionRef = useRef<HTMLDivElement>(null);
+  const prefersReducedMotion = usePrefersReducedMotion();
 
   useEffect(() => {
     const el = sectionRef.current;
@@ -67,6 +95,13 @@ export const AnimatedSection: React.FC<AnimatedSectionProps> = ({
         return 'opacity-0';
     }
   };
+
+  // Reduced motion gets the finished layout immediately — not a faster reveal,
+  // and not a hidden section waiting on an observer that a screen reader user
+  // scrolling with the keyboard may never trigger the way a mouse does.
+  if (prefersReducedMotion) {
+    return <div className={className}>{children}</div>;
+  }
 
   return (
     <div
