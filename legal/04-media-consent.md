@@ -40,8 +40,8 @@ The Organization will **not**:
 - publish my image in a way that suggests I endorse a commercial product, a
   political candidate, or a religious position;
 - sell or license my image to a third party for their own advertising;
-- publish an image of a minor without the consent recorded under
-  `05-guardian-consent.md`.
+- publish an image of a minor without the consent recorded under the
+  Parent/Guardian Consent document.
 
 ## 4. Choose one
 
@@ -69,8 +69,8 @@ so. Archived material held for the Organization's own records may be retained.
 ## 6. Minors
 
 Where the person recorded is under 18, this consent has no effect unless a
-parent or guardian has signed `05-guardian-consent.md`. **For minors the
-default is no.**
+parent or guardian has signed the Parent/Guardian Consent document. **For
+minors the default is no.**
 
 ---
 

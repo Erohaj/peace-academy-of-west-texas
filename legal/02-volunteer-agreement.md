@@ -44,7 +44,7 @@ cost rather than payment for time.
 
 - To arrive when I have said I will, and to give as much notice as I can when I
   cannot — a shift left unfilled is usually a service that does not happen.
-- To follow the Code of Conduct (`06-code-of-conduct.md`), which I have read.
+- To follow the Code of Conduct, which I have read.
 - To follow the reasonable instructions of my supervisor, and safety rules in
   particular.
 - To work within the role I have been given, and to ask before doing anything
@@ -73,8 +73,9 @@ discrepancy promptly, while it can still be checked.
 
 ## 6. Media
 
-Photography and video consent is given separately, in `04-media-consent.md`. It
-is optional, and declining it does not affect my ability to volunteer.
+Photography and video consent is given separately, in the Photo and Media
+Consent document. It is optional, and declining it does not affect my ability
+to volunteer.
 
 ## 7. Ending the arrangement
 
@@ -82,7 +83,7 @@ Either of us may end this arrangement at any time, with or without reason and
 without notice. The Organization may also suspend or remove me from an activity
 immediately where it believes there is a risk to a participant, another
 volunteer, or the Organization. Sections 4 (Confidentiality) and any obligation
-under `03-release-and-waiver.md` survive.
+under the Release, Waiver of Liability, and Assumption of Risk survive.
 
 ## 8. Equal opportunity
 

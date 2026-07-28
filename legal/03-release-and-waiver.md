@@ -3,10 +3,10 @@
 **Peace Academy of West Texas** — a Texas non-profit corporation, 3411 Brentwood
 Drive, Odessa, Texas 79762 (the "Organization").
 
-> **Draft — not for use until reviewed by a Texas-licensed attorney.** See
-> `legal/README.md`. If the signer is under 18, this document is signed by the
-> volunteer *and* by a parent or guardian under `05-guardian-consent.md`, and
-> the limits described there apply.
+> **Draft — not for use until reviewed by a Texas-licensed attorney.** If the
+> signer is under 18, this document is signed by the volunteer *and* by a
+> parent or guardian under the Parent/Guardian Consent document, and the
+> limits described there apply.
 
 **Read this before signing. It affects your legal rights.**
 

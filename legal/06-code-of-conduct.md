@@ -47,7 +47,7 @@ These are not suggestions. They are the conditions of working with minors.
 - **No transport alone**, and none at all without written parental
   authorisation.
 - **No photographs on personal devices**, and none published anywhere without
-  the consent recorded under `04-media-consent.md`.
+  the consent recorded under the Photo and Media Consent document.
 - **No physical discipline**, and no physical contact beyond what is ordinary,
   brief and in view of others.
 - **No gifts** to an individual child outside a programme.

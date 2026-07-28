@@ -13,7 +13,7 @@
 > Adding one would not make the Organization safer. It would add a clause a
 > court strikes, and invite the argument that the document as a whole was
 > written to overreach. What protects minors here is insurance, supervision
-> and screening — not paperwork. See `legal/README.md`.
+> and screening — not paperwork.
 
 ---
 
@@ -28,13 +28,12 @@ indoor and outdoor events, assembling and distributing relief packages,
 assisting the public, and supporting youth and sports programming.
 
 I understand the Minor will be supervised by Organization staff or approved
-adult volunteers, and I have discussed the Code of Conduct
-(`06-code-of-conduct.md`) with them.
+adult volunteers, and I have discussed the Code of Conduct with them.
 
 ## 2. Acknowledgement of risk
 
-I have read the description of risks in the Release and Waiver
-(`03-release-and-waiver.md`) and I understand them. They include, among others,
+I have read the description of risks in the Release and Waiver and I
+understand them. They include, among others,
 injuries from kitchen equipment and hand tools, lifting injuries, heat illness
 during outdoor events in West Texas, allergic reactions, communicable illness,
 and injury caused by other people present.
@@ -81,10 +80,10 @@ arising from the Minor's own wrongful act.
 
 ## 6. Media
 
-Consent to photography and video of the Minor is given separately, in
-`04-media-consent.md`, and may be declined without affecting the Minor's ability
-to volunteer. **Consent for a minor is off by default and requires this
-signature.**
+Consent to photography and video of the Minor is given separately, in the
+Photo and Media Consent document, and may be declined without affecting the
+Minor's ability to volunteer. **Consent for a minor is off by default and
+requires this signature.**
 
 ## 7. Communication
 
