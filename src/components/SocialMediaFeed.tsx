@@ -261,11 +261,11 @@ export const SocialMediaFeed: React.FC<PageTitleProps> = ({ asPageTitle }) => {
   };
 
   const platformsList: { id: SocialPlatform; labelKey: string; icon: React.ReactNode }[] = [
-    { id: 'all', labelKey: 'social.allPlatforms', icon: <SlidersHorizontal className="w-3.5 h-3.5" /> },
-    { id: 'instagram', labelKey: 'social.instagram', icon: <Instagram className="w-3.5 h-3.5" /> },
-    { id: 'facebook', labelKey: 'social.facebook', icon: <Facebook className="w-3.5 h-3.5" /> },
-    { id: 'youtube', labelKey: 'social.youtube', icon: <Youtube className="w-3.5 h-3.5" /> },
-    { id: 'x', labelKey: 'social.x', icon: <Twitter className="w-3.5 h-3.5" /> }
+    { id: 'all', labelKey: 'social.allPlatforms', icon: <SlidersHorizontal className="w-4 h-4" /> },
+    { id: 'instagram', labelKey: 'social.instagram', icon: <Instagram className="w-4 h-4" /> },
+    { id: 'facebook', labelKey: 'social.facebook', icon: <Facebook className="w-4 h-4" /> },
+    { id: 'youtube', labelKey: 'social.youtube', icon: <Youtube className="w-4 h-4" /> },
+    { id: 'x', labelKey: 'social.x', icon: <Twitter className="w-4 h-4" /> }
   ];
 
   return (
@@ -420,23 +420,29 @@ export const SocialMediaFeed: React.FC<PageTitleProps> = ({ asPageTitle }) => {
           </AnimatedSection>
         )}
 
-        {/* Platform Channel Filter Tabs */}
+        {/* Platform Channel Filter Tabs — icon-only, so they read as controls
+            rather than a second set of links next to the follow banner above.
+            The channel name stays in title/aria-label: without a visible label
+            these buttons are otherwise unidentifiable to a screen reader. */}
         <AnimatedSection direction="up" delayMs={50}>
           <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
             {platformsList.map((plat) => {
               const isActive = selectedPlatform === plat.id;
+              const label = t(plat.labelKey);
               return (
                 <button
                   key={plat.id}
                   onClick={() => setSelectedPlatform(plat.id)}
-                  className={`px-4 py-2 rounded-full text-xs font-bold transition-all cursor-pointer flex items-center gap-2 whitespace-nowrap ${
+                  title={label}
+                  aria-label={label}
+                  aria-pressed={isActive}
+                  className={`p-2.5 rounded-full transition-all cursor-pointer flex items-center justify-center shrink-0 ${
                     isActive
                       ? 'bg-[#A64D32] text-white shadow-sm'
-                      : 'bg-[#FDFBF7] text-[#5A5A5A] hover:bg-white border border-[#E5E0D8]'
+                      : 'bg-[#FDFBF7] text-[#5A5A5A] hover:bg-white hover:text-[#A64D32] border border-[#E5E0D8]'
                   }`}
                 >
                   {plat.icon}
-                  <span>{t(plat.labelKey)}</span>
                 </button>
               );
             })}
