@@ -55,8 +55,15 @@ export const MissionSection: React.FC = () => {
             </AnimatedSection>
           </div>
 
-          {/* Right Image Showcase */}
-          <div className="lg:col-span-5 relative">
+          {/* Right Image Showcase.
+              `overflow-x-clip`, not `overflow-hidden`: the card below is
+              rotated, so its bounding box is wider than its own width and
+              poked ~19px past a 390px viewport — `overflow-x: hidden` on body
+              did not contain it and the document scrolled sideways on a phone.
+              Clipping both axes would have cut off the "EST. 2018" badge,
+              which deliberately overhangs the bottom of the photo; `clip` on
+              one axis leaves the other visible, which `hidden` cannot do. */}
+          <div className="lg:col-span-5 relative overflow-x-clip">
             <AnimatedSection direction="left" delayMs={200}>
               <div className="relative rounded-3xl overflow-hidden shadow-2xl border-4 border-parchment transform rotate-1 hover:rotate-0 transition-transform duration-300">
                 <img
