@@ -269,10 +269,10 @@ export const SocialMediaFeed: React.FC<PageTitleProps> = ({ asPageTitle }) => {
   ];
 
   return (
-    <section id="social-feed-section" className="py-20 bg-[#fef9ef] relative overflow-hidden border-t border-[#E5E0D8]">
+    <section id="social-feed-section" className="py-20 bg-parchment relative overflow-hidden border-t border-[#E5E0D8]">
       {/* Toast Notification */}
       {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-50 bg-[#2A2A2A] text-white px-5 py-3 rounded-full shadow-2xl flex items-center gap-3 text-xs font-semibold border border-[#3A3A3A] animate-bounce">
+        <div className="fixed bottom-6 right-6 z-50 bg-[#2A2A2A] text-white px-5 py-3 rounded-full shadow-2xl flex items-center gap-3 text-xs font-semibold border border-graphite animate-bounce">
           <CheckCircle2 className="w-4 h-4 text-emerald-400" />
           <span>{toastMessage}</span>
         </div>
@@ -405,7 +405,7 @@ export const SocialMediaFeed: React.FC<PageTitleProps> = ({ asPageTitle }) => {
                     <Sparkles className="w-4 h-4 text-amber-600" />
                     <span>{t('social.aiSummaryTitle')}</span>
                   </div>
-                  <div className="text-sm text-[#3A3A3A] space-y-2 whitespace-pre-line leading-relaxed font-sans">
+                  <div className="text-sm text-graphite space-y-2 whitespace-pre-line leading-relaxed font-sans">
                     {aiSummary}
                   </div>
                 </div>
@@ -524,7 +524,7 @@ export const SocialMediaFeed: React.FC<PageTitleProps> = ({ asPageTitle }) => {
 
                   {/* Post Content Body */}
                   <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
-                    <p className="text-xs text-[#3A3A3A] leading-relaxed font-sans whitespace-pre-line">
+                    <p className="text-xs text-graphite leading-relaxed font-sans whitespace-pre-line">
                       {contentText}
                     </p>
 
@@ -611,13 +611,13 @@ export const SocialMediaFeed: React.FC<PageTitleProps> = ({ asPageTitle }) => {
                               <div key={comm.id} className="bg-white p-2.5 rounded-xl border border-[#E5E0D8]/60 space-y-1">
                                 <div className="flex items-center justify-between font-bold text-[#2A2A2A]">
                                   <span>{comm.authorName}</span>
-                                  <span className="text-[9px] text-[#8A8A8A] font-normal">{comm.createdAt}</span>
+                                  <span className="text-[9px] text-charcoal font-normal">{comm.createdAt}</span>
                                 </div>
-                                <p className="text-[#4A4A4A]">{comm.text}</p>
+                                <p className="text-graphite">{comm.text}</p>
                               </div>
                             ))
                           ) : (
-                            <p className="text-[#8A8A8A] italic">{t('social.noCommentsYet')}</p>
+                            <p className="text-charcoal italic">{t('social.noCommentsYet')}</p>
                           )}
                         </div>
 
@@ -633,7 +633,7 @@ export const SocialMediaFeed: React.FC<PageTitleProps> = ({ asPageTitle }) => {
                           />
                           <button
                             onClick={() => handleAddComment(post.id)}
-                            className="p-1.5 bg-[#A64D32] text-white rounded-full hover:bg-[#8e412a] transition-colors cursor-pointer"
+                            className="p-1.5 bg-[#A64D32] text-white rounded-full hover:bg-terracotta-deep transition-colors cursor-pointer"
                           >
                             <Send className="w-3.5 h-3.5" />
                           </button>
@@ -691,14 +691,14 @@ export const SocialMediaFeed: React.FC<PageTitleProps> = ({ asPageTitle }) => {
                     href={previewMediaPost.postUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="px-4 py-2 rounded-full bg-[#A64D32] text-white text-xs font-bold flex items-center gap-2 hover:bg-[#8e412a] transition-colors"
+                    className="px-4 py-2 rounded-full bg-[#A64D32] text-white text-xs font-bold flex items-center gap-2 hover:bg-terracotta-deep transition-colors"
                   >
                     <span>{t('social.viewPost')}</span>
                     <ExternalLink className="w-3.5 h-3.5" />
                   </a>
                 </div>
 
-                <p className="text-xs text-[#3A3A3A] leading-relaxed">
+                <p className="text-xs text-graphite leading-relaxed">
                   {language === 'es' ? previewMediaPost.contentEs : previewMediaPost.content}
                 </p>
               </div>

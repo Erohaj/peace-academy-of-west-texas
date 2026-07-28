@@ -12,8 +12,8 @@ export const EventCardSkeleton: React.FC = () => {
         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer" />
         
         {/* Badge Skeletons */}
-        <div className="absolute top-4 right-4 w-28 h-6 bg-[#D8D2C7] rounded-full" />
-        <div className="absolute bottom-4 left-4 w-20 h-5 bg-[#D8D2C7] rounded-md" />
+        <div className="absolute top-4 right-4 w-28 h-6 bg-taupe-deep rounded-full" />
+        <div className="absolute bottom-4 left-4 w-20 h-5 bg-taupe-deep rounded-md" />
       </div>
 
       {/* Content Skeleton */}
@@ -33,15 +33,15 @@ export const EventCardSkeleton: React.FC = () => {
           {/* Date, Time, Location Details */}
           <div className="space-y-2.5 pt-3 border-t border-[#E5E0D8]">
             <div className="flex items-center gap-2">
-              <div className="w-4 h-4 bg-[#D8D2C7] rounded-full shrink-0" />
+              <div className="w-4 h-4 bg-taupe-deep rounded-full shrink-0" />
               <div className="h-3.5 bg-[#E5E0D8] rounded-md w-32" />
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-4 h-4 bg-[#D8D2C7] rounded-full shrink-0" />
+              <div className="w-4 h-4 bg-taupe-deep rounded-full shrink-0" />
               <div className="h-3.5 bg-[#E5E0D8] rounded-md w-24" />
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-4 h-4 bg-[#D8D2C7] rounded-full shrink-0" />
+              <div className="w-4 h-4 bg-taupe-deep rounded-full shrink-0" />
               <div className="h-3.5 bg-[#E5E0D8] rounded-md w-40" />
             </div>
           </div>
@@ -49,7 +49,7 @@ export const EventCardSkeleton: React.FC = () => {
 
         {/* RSVP Button Skeleton */}
         <div className="pt-2">
-          <div className="h-11 bg-[#D8D2C7] rounded-full w-full" />
+          <div className="h-11 bg-taupe-deep rounded-full w-full" />
         </div>
       </div>
     </div>
@@ -82,7 +82,7 @@ export const CalendarSkeleton: React.FC = () => {
             <div className="w-10 h-10 bg-[#E5E0D8] rounded-2xl" />
             <div className="space-y-2">
               <div className="h-6 w-36 bg-[#E5E0D8] rounded-md" />
-              <div className="h-3 w-28 bg-[#D8D2C7] rounded-md" />
+              <div className="h-3 w-28 bg-taupe-deep rounded-md" />
             </div>
           </div>
 
@@ -94,7 +94,7 @@ export const CalendarSkeleton: React.FC = () => {
 
         {/* Quick Month Jump Chips Skeleton */}
         <div className="flex items-center gap-2 overflow-hidden pt-2 border-t border-[#E5E0D8]">
-          <div className="w-20 h-4 bg-[#D8D2C7] rounded-md shrink-0" />
+          <div className="w-20 h-4 bg-taupe-deep rounded-md shrink-0" />
           <div className="w-20 h-6 bg-[#E5E0D8] rounded-full shrink-0" />
           <div className="w-20 h-6 bg-[#E5E0D8] rounded-full shrink-0" />
           <div className="w-20 h-6 bg-[#E5E0D8] rounded-full shrink-0" />
@@ -121,7 +121,7 @@ export const CalendarSkeleton: React.FC = () => {
                 <div className="h-4 bg-[#E5E0D8] rounded-md w-full mt-2" />
               )}
               {i % 7 === 2 && (
-                <div className="h-4 bg-[#D8D2C7] rounded-md w-full mt-1" />
+                <div className="h-4 bg-taupe-deep rounded-md w-full mt-1" />
               )}
             </div>
           ))}
@@ -148,9 +148,9 @@ export const GalleryCardSkeleton: React.FC = () => {
     <div className="rounded-3xl overflow-hidden shadow-sm border border-[#E5E0D8] bg-[#F4F1ED] animate-pulse h-72 relative">
       <div className="w-full h-full bg-[#E5E0D8]" />
       <div className="absolute bottom-0 left-0 right-0 p-5 space-y-2">
-        <div className="h-4 w-16 bg-[#D8D2C7] rounded-md" />
-        <div className="h-6 w-3/4 bg-[#D8D2C7] rounded-md" />
-        <div className="h-3 w-1/2 bg-[#D8D2C7] rounded-md" />
+        <div className="h-4 w-16 bg-taupe-deep rounded-md" />
+        <div className="h-6 w-3/4 bg-taupe-deep rounded-md" />
+        <div className="h-3 w-1/2 bg-taupe-deep rounded-md" />
       </div>
     </div>
   );

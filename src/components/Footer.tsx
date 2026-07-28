@@ -49,7 +49,7 @@ export const Footer: React.FC<FooterProps> = ({ onOpenContact }) => {
 
           {/* Quick Links */}
           <div className="space-y-3">
-            <h2 className="text-xs font-bold uppercase tracking-[0.2em] text-[#DE8A6B]">
+            <h2 className="text-xs font-bold uppercase tracking-[0.2em] text-terracotta-soft">
               Navigation
             </h2>
             <ul className="space-y-2 text-xs text-[#E5E0D8]/80">
@@ -78,7 +78,7 @@ export const Footer: React.FC<FooterProps> = ({ onOpenContact }) => {
 
           {/* Regional Reach */}
           <div className="space-y-3">
-            <h2 className="text-xs font-bold uppercase tracking-[0.2em] text-[#DE8A6B]">
+            <h2 className="text-xs font-bold uppercase tracking-[0.2em] text-terracotta-soft">
               Community Outreach
             </h2>
             <div className="space-y-2 text-xs text-[#E5E0D8]/80">
@@ -106,7 +106,7 @@ export const Footer: React.FC<FooterProps> = ({ onOpenContact }) => {
 
           {/* Language & Contact */}
           <div className="space-y-4">
-            <h2 className="text-xs font-bold uppercase tracking-[0.2em] text-[#DE8A6B]">
+            <h2 className="text-xs font-bold uppercase tracking-[0.2em] text-terracotta-soft">
               Language / Idioma
             </h2>
 

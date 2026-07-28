@@ -1,19 +1,6 @@
 @import "tailwindcss";
 
 @layer base {
-  :root {
-    --color-terracotta: #A64D32;
-    --color-olive: #5B6346;
-    --color-parchment: #FDFBF7;
-    --color-aged-paper: #F4F1ED;
-    --color-porcelain: #F8F5F2;
-    --color-graphite: #2A2A2A;
-    --color-charcoal: #5A5A5A;
-    --color-warm-taupe: #E5E0D8;
-    --color-ash: #E5E0D8;
-    --color-muted-text: #A5A5A5;
-  }
-
   body {
     background-color: var(--color-parchment);
     color: var(--color-graphite);
@@ -28,8 +15,27 @@
   }
 }
 
+/*
+ * The palette, and the only place it is written down.
+ *
+ * These same ten colors used to be declared twice — once as plain custom
+ * properties in the :root block above and once here — so `body` read one copy
+ * and every utility read the other. There is one copy now; `body` below reads
+ * the variables Tailwind generates from this block.
+ *
+ * Use the generated utilities (`bg-terracotta`, `text-charcoal`,
+ * `border-warm-taupe`) rather than `bg-[#A64D32]`. They compile to the same
+ * declaration, but a hex spelled out in a component is invisible to a search
+ * for "where is this color used", and a rebrand or a contrast correction
+ * would have to find all 1400 of them by hand.
+ */
 @theme {
   --color-terracotta: #A64D32;
+  /* The hover shade under almost every terracotta button. It has been in use
+     34 times over without a name. */
+  --color-terracotta-deep: #8B3F28;
+  /* Light enough to read on the graphite footer, where terracotta does not. */
+  --color-terracotta-soft: #DE8A6B;
   --color-olive: #5B6346;
   --color-parchment: #FDFBF7;
   --color-aged-paper: #F4F1ED;
@@ -37,18 +43,31 @@
   --color-graphite: #2A2A2A;
   --color-charcoal: #5A5A5A;
   --color-warm-taupe: #E5E0D8;
-  --color-ash: #E5E0D8;
+  /* One step down from warm-taupe: the skeleton placeholders. */
+  --color-taupe-deep: #D8D2C7;
   --color-muted-text: #A5A5A5;
 
   --font-display: 'Playfair Display', Georgia, serif;
   --font-serif: 'Playfair Display', Georgia, serif;
   --font-inter: 'Inter', ui-sans-serif, system-ui, sans-serif;
 
+  /* Eyebrows, badges and timestamps sit below Tailwind's 12px `text-xs`
+     floor. Named here so 77 hand-written `text-[10px]`/`text-[11px]` stop
+     being a per-component decision. Adding the names does not change any
+     size — see the comments at SearchModal and Navbar for two places where
+     the exact value is a deliberate contrast decision. */
+  --text-2xs: 11px;
+  --text-3xs: 10px;
+
+  /* CAUTION: these three override Tailwind's built-in scale rather than
+     extending it — `rounded-lg` is 24px here, not 8px, which is why the
+     `p-2 rounded-lg` icon buttons in the admin panels render as circles.
+     Re-scaling them is a visual change across 43 call sites and belongs in
+     its own commit, not in a token cleanup. */
   --radius-sm: 8px;
   --radius-md: 12px;
   --radius-lg: 24px;
-  --radius-pill: 40px;
-  
+
   --shadow-modal: rgba(42, 42, 42, 0.1) 12px 32px 80px 0px;
 }
 

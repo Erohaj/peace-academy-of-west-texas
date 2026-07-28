@@ -201,7 +201,11 @@ export const App: React.FC = () => {
   );
 
   return (
-    <div className="min-h-screen bg-[#fef9ef] font-sans antialiased text-[#292930] flex flex-col selection:bg-[#b05a36] selection:text-white">
+    /* `bg-[#fef9ef]` here was overriding the parchment index.css already sets
+       on body, and it is a shade off — which is what put a visible seam
+       between the social feed and the gallery. The text and selection colors
+       were hand-typed approximations of graphite and terracotta. */
+    <div className="min-h-screen bg-parchment font-sans antialiased text-graphite flex flex-col selection:bg-terracotta selection:text-white">
       {/* Sticky Top Navigation */}
       <Navbar onOpenContact={() => setIsContactOpen(true)} />
 

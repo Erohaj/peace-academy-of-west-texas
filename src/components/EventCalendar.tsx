@@ -324,7 +324,7 @@ export const EventCalendar: React.FC<EventCalendarProps> = ({ events, selectedCa
                   setSelectedDateIso(cell.isoDate);
                 }}
                 className={`min-h-[90px] sm:min-h-[120px] p-1.5 sm:p-2.5 transition-all cursor-pointer flex flex-col justify-between group relative ${
-                  !cell.isCurrentMonth ? 'bg-[#F9F8F5]/60 text-[#A0A0A0]' : 'bg-white text-[#2A2A2A]'
+                  !cell.isCurrentMonth ? 'bg-porcelain/60 text-muted-text' : 'bg-white text-[#2A2A2A]'
                 } ${isSelected ? 'ring-2 ring-inset ring-[#A64D32] bg-[#A64D32]/5' : 'hover:bg-[#F4F1ED]/50'}`}
               >
                 {/* Cell Header: Day Number & Event Badge Count */}

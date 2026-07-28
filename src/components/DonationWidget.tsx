@@ -326,7 +326,7 @@ export const DonationWidget: React.FC<PageTitleProps> = ({ asPageTitle }) => {
                           <span className={`w-1 h-1.5 rounded-full shrink-0 ${isReached ? 'bg-[#A64D32]' : 'bg-[#D6D0C4]'}`} />
                           <span
                             className={`text-[9px] sm:text-[10px] uppercase font-bold tracking-wider whitespace-nowrap ${rowOffset} ${
-                              isReached ? 'text-[#A64D32]' : 'text-[#8A8A8A]'
+                              isReached ? 'text-[#A64D32]' : 'text-charcoal'
                             }`}
                           >
                             ${tier.amount}{tier.amount === DONATION_TIERS[DONATION_TIERS.length - 1].amount ? '+' : ''} {tier.label}
