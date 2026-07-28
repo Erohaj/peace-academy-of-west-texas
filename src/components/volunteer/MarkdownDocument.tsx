@@ -5,7 +5,22 @@ import { AlertTriangle, Info } from 'lucide-react';
 // screens that render a legal document — lazy, like the QR encoder and the
 // Gemini SDK, so it stays out of the bundle everyone else downloads.
 const ReactMarkdown = lazy(() => import('react-markdown'));
-const remarkGfmPromise = import('remark-gfm').then((m) => m.default);
+
+// Cached at module scope, outside any component's state, because this file
+// gets mounted a second time for printing (see usePrintPortal): that second
+// mount's own useState/useEffect would otherwise restart the "loading"
+// window from null, even though the plugin was already fetched for the
+// on-screen copy moments earlier. window.print() is called synchronously
+// right after the print mount, with no tick left for a fresh effect's
+// `.then()` to land — so the reprint showed the title and signed-by line
+// (plain JSX) but a blank body where ReactMarkdown would have gone. Reading
+// this cache in useState's initializer makes a second mount synchronous
+// instead of suspended-on-nothing.
+let cachedRemarkGfm: (() => unknown) | null = null;
+const remarkGfmPromise = import('remark-gfm').then((m) => {
+  cachedRemarkGfm = m.default;
+  return m.default;
+});
 
 interface Props {
   markdown: string;
@@ -119,9 +134,10 @@ const components: ComponentProps<typeof ReactMarkdown>['components'] = {
 export const MarkdownDocument: React.FC<Props> = ({ markdown }) => {
   const [remarkGfm, setRemarkGfm] = React.useState<
     (() => unknown) | null
-  >(null);
+  >(() => cachedRemarkGfm);
 
   React.useEffect(() => {
+    if (remarkGfm) return;
     let cancelled = false;
     remarkGfmPromise.then((plugin) => {
       if (!cancelled) setRemarkGfm(() => plugin);
@@ -129,7 +145,7 @@ export const MarkdownDocument: React.FC<Props> = ({ markdown }) => {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [remarkGfm]);
 
   return (
     <Suspense
