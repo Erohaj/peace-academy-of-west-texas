@@ -167,7 +167,7 @@ export const App: React.FC = () => {
       case 'admin':
         return `${t('footer.adminPanel')} | ${SITE_NAME}`;
       case 'verify':
-        return `Verify a certificate | ${SITE_NAME}`;
+        return `${t('common.verifyTab')} | ${SITE_NAME}`;
       case 'home':
       default:
         return SITE_TITLE;

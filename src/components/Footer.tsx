@@ -38,19 +38,19 @@ export const Footer: React.FC<FooterProps> = ({ onOpenContact }) => {
             </button>
 
             <p className="text-xs text-warm-taupe/80 leading-relaxed">
-              Bridging West Texas cultures through authentic culinary heritage, cross-cultural dialogue, and compassionate volunteer outreach.
+              {t('footer.blurb')}
             </p>
 
             <div className="inline-flex items-center gap-1.5 bg-white/5 border border-white/10 px-3 py-1 rounded-full text-[11px] text-olive/80 font-bold">
               <ShieldCheck className="w-3.5 h-3.5 text-olive" />
-              <span className="text-warm-taupe">501(c)(3) Non-Profit Organization</span>
+              <span className="text-warm-taupe">{t('footer.nonprofitBadge')}</span>
             </div>
           </div>
 
           {/* Quick Links */}
           <div className="space-y-3">
             <h2 className="text-xs font-bold uppercase tracking-[0.2em] text-terracotta-soft">
-              Navigation
+              {t('footer.navigationHeading')}
             </h2>
             <ul className="space-y-2 text-xs text-warm-taupe/80">
               <li>
@@ -79,7 +79,7 @@ export const Footer: React.FC<FooterProps> = ({ onOpenContact }) => {
           {/* Regional Reach */}
           <div className="space-y-3">
             <h2 className="text-xs font-bold uppercase tracking-[0.2em] text-terracotta-soft">
-              Community Outreach
+              {t('footer.outreachHeading')}
             </h2>
             <div className="space-y-2 text-xs text-warm-taupe/80">
               <a
@@ -99,7 +99,7 @@ export const Footer: React.FC<FooterProps> = ({ onOpenContact }) => {
                 <span>{ORG_EMAIL}</span>
               </a>
               <p className="pt-2 text-[11px] text-white/50">
-                Serving Ector & Midland Counties with cultural education and food security programs.
+                {t('footer.outreachNote')}
               </p>
             </div>
           </div>
@@ -107,7 +107,7 @@ export const Footer: React.FC<FooterProps> = ({ onOpenContact }) => {
           {/* Language & Contact */}
           <div className="space-y-4">
             <h2 className="text-xs font-bold uppercase tracking-[0.2em] text-terracotta-soft">
-              Language / Idioma
+              {t('footer.languageHeading')}
             </h2>
 
             <div className="flex items-center gap-2">
@@ -149,7 +149,7 @@ export const Footer: React.FC<FooterProps> = ({ onOpenContact }) => {
         {/* Bottom Bar */}
         <div className="pt-8 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-warm-taupe/70">
           <p className="flex items-center gap-3">
-            <span>© {new Date().getFullYear()} Peace Academy of West Texas. All rights reserved.</span>
+            <span>{t('footer.copyright', { year: new Date().getFullYear() })}</span>
 
             {/* Shown only to staff accounts. This is a convenience, not a
                 security control — the panel's writes are gated by RLS on

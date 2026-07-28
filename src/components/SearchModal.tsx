@@ -253,7 +253,7 @@ export const SearchModal: React.FC = () => {
             <button
               onClick={() => setQuery('')}
               className="p-1 rounded-full hover:bg-aged-paper text-charcoal transition-colors cursor-pointer"
-              title="Clear search"
+              title={isEs ? 'Borrar búsqueda' : 'Clear search'}
             >
               <X className="w-4 h-4" />
             </button>

@@ -15,7 +15,8 @@ import {
 } from 'lucide-react';
 import { PAWTXEvent, EventCategory } from '../types';
 import { useAppStore } from '../store/useAppStore';
-import { getEventDateParts, getGoogleCalendarUrl } from '../lib/eventDates';
+import { getEventDateParts, getGoogleCalendarUrl, getTodayParts } from '../lib/eventDates';
+import { categoryBadgeClass, categoryLabelKey } from '../lib/eventCategory';
 
 interface EventCalendarProps {
   events: PAWTXEvent[];
@@ -127,8 +128,13 @@ export const EventCalendar: React.FC<EventCalendarProps> = ({ events, selectedCa
     setCurrentDate(new Date(year, month + 1, 1));
   };
 
+  // "Today" means today. This was pinned to August 2026 back when the seed
+  // data lived there, and stayed pinned after the rest of the component
+  // learned to derive its month from the schedule.
   const handleToday = () => {
-    setCurrentDate(new Date(2026, 7, 1)); // Default back to August 2026 schedule root
+    const today = getTodayParts();
+    setCurrentDate(new Date(today.year, today.month, 1));
+    setSelectedDateIso(today.isoDate);
   };
 
   // Weekday header names
@@ -136,21 +142,9 @@ export const EventCalendar: React.FC<EventCalendarProps> = ({ events, selectedCa
     ? ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb']
     : ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
-  // Helper for category badge styling
-  const getCategoryBadgeStyle = (cat: EventCategory) => {
-    switch (cat) {
-      case 'cooking':
-        return 'bg-terracotta text-white border-terracotta-deep';
-      case 'cultural':
-        return 'bg-olive text-white border-[#474e36]';
-      case 'seminars':
-        return 'bg-[#C27D38] text-white border-[#a0642a]';
-      case 'relief':
-        return 'bg-[#8C3A2B] text-white border-[#6e2a1e]';
-      default:
-        return 'bg-graphite text-white border-black';
-    }
-  };
+  // This ramp used to live here and nowhere else, which is why the same event
+  // was terracotta in the calendar and olive in the grid. See lib/eventCategory.
+  const getCategoryBadgeStyle = categoryBadgeClass;
 
   // Build grid day items
   const gridCells = useMemo(() => {
@@ -229,7 +223,7 @@ export const EventCalendar: React.FC<EventCalendarProps> = ({ events, selectedCa
                 {monthName}
               </h3>
               <p className="text-xs text-charcoal font-medium">
-                {filteredEvents.length} {isSpanish ? 'eventos programados' : 'scheduled events'}
+                {t('events.scheduledEvents', { count: filteredEvents.length })}
               </p>
             </div>
           </div>
@@ -343,7 +337,7 @@ export const EventCalendar: React.FC<EventCalendarProps> = ({ events, selectedCa
 
                   {hasEvents && (
                     <span className="text-[10px] font-extrabold uppercase px-1.5 py-0.5 rounded-full bg-terracotta text-white shadow-2xs">
-                      {cell.events.length} {cell.events.length === 1 ? 'event' : 'events'}
+                      {t(cell.events.length === 1 ? 'events.dayEventCount' : 'events.dayEventCountPlural', { count: cell.events.length })}
                     </span>
                   )}
                 </div>
@@ -371,8 +365,8 @@ export const EventCalendar: React.FC<EventCalendarProps> = ({ events, selectedCa
                             {title}
                           </span>
                           {isFull && (
-                            <span className="shrink-0 text-[8px] bg-red-600 text-white font-bold px-1 rounded">
-                              FULL
+                            <span className="shrink-0 text-[8px] bg-red-600 text-white font-bold px-1 rounded uppercase">
+                              {t('events.full')}
                             </span>
                           )}
                         </div>

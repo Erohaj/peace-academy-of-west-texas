@@ -145,7 +145,10 @@ export const CalendarSkeleton: React.FC = () => {
  */
 export const GalleryCardSkeleton: React.FC = () => {
   return (
-    <div className="rounded-3xl overflow-hidden shadow-sm border border-warm-taupe bg-aged-paper animate-pulse h-72 relative">
+    // aspect-4/3, matching the real tile in Gallery.tsx. A fixed h-72 was
+    // right at exactly one column width and made every photo visibly jump
+    // size the moment it loaded on any other.
+    <div className="rounded-3xl overflow-hidden shadow-sm border border-warm-taupe bg-aged-paper animate-pulse aspect-4/3 relative">
       <div className="w-full h-full bg-warm-taupe" />
       <div className="absolute bottom-0 left-0 right-0 p-5 space-y-2">
         <div className="h-4 w-16 bg-taupe-deep rounded-md" />

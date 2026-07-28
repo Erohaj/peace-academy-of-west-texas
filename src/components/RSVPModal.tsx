@@ -399,9 +399,9 @@ export const RSVPModal: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setStep(1)}
-                  className="w-1/3 border border-warm-taupe py-3 rounded-full text-xs font-bold uppercase tracking-wider text-charcoal hover:bg-aged-paper cursor-pointer"
+                  className="w-1/3 border border-warm-taupe py-3 rounded-full text-xs font-bold uppercase tracking-wider text-charcoal hover:bg-aged-paper cursor-pointer pawtx-focus"
                 >
-                  Back
+                  {t('common.back')}
                 </button>
 
                 <button

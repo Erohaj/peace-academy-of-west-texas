@@ -41,6 +41,25 @@ export function getEventDateParts(
   };
 }
 
+/**
+ * The same parts for today, resolved in the venue's timezone.
+ *
+ * Not `new Date()` read with getMonth(): a visitor in Tokyo late on a Friday
+ * evening Central time is already on Saturday locally, and the calendar's
+ * "Today" button should land on the day the venue is having.
+ */
+export function getTodayParts(): { year: number; month: number; day: number; isoDate: string } {
+  const isoDate = new Intl.DateTimeFormat('en-CA', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    timeZone: EVENT_TIME_ZONE
+  }).format(new Date());
+
+  const [year, month, day] = isoDate.split('-').map(Number);
+  return { year, month: month - 1, day, isoDate };
+}
+
 // Google Calendar's local-time format: YYYYMMDDTHHMMSS (no trailing Z, so it
 // is read as wall-clock time in the `ctz` zone rather than UTC).
 function toCalendarStamp(date: Date): string {

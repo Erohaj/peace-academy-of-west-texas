@@ -118,7 +118,13 @@ interface AppState {
   // Gallery
   gallery: GalleryItem[];
   lightboxItemIndex: number | null;
-  openLightbox: (index: number) => void;
+  /**
+   * Positions in `gallery` the arrows may step through. Set by the gallery to
+   * whatever its filters left visible; null means the whole gallery, which is
+   * what the search palette wants when it jumps straight to one photo.
+   */
+  lightboxScope: number[] | null;
+  openLightbox: (index: number, scope?: number[]) => void;
   closeLightbox: () => void;
   nextLightbox: () => void;
   prevLightbox: () => void;
@@ -141,6 +147,31 @@ interface AppState {
  * register two auth listeners.
  */
 let initialized = false;
+
+/**
+ * Moves the lightbox one photo along, within whatever set it was opened over.
+ *
+ * The arrows used to step through `gallery` itself, so filtering to "Cooking"
+ * and pressing right walked straight out of the filter and into a relief
+ * drive. If the current photo is not in the scope — the filter changed while
+ * the lightbox was open — start from the beginning of the scope rather than
+ * getting stuck.
+ */
+function stepLightbox(
+  state: Pick<AppState, 'lightboxItemIndex' | 'lightboxScope' | 'gallery'>,
+  delta: 1 | -1
+): Partial<AppState> {
+  const { lightboxItemIndex, lightboxScope, gallery } = state;
+  if (lightboxItemIndex === null || gallery.length === 0) return {};
+
+  const scope =
+    lightboxScope && lightboxScope.length > 0 ? lightboxScope : gallery.map((_, index) => index);
+
+  const at = scope.indexOf(lightboxItemIndex);
+  if (at === -1) return { lightboxItemIndex: scope[0] };
+
+  return { lightboxItemIndex: scope[(at + delta + scope.length) % scope.length] };
+}
 
 export const useAppStore = create<AppState>((set, get) => ({
   // Search
@@ -287,18 +318,11 @@ export const useAppStore = create<AppState>((set, get) => ({
   // Gallery
   gallery: [],
   lightboxItemIndex: null,
-  openLightbox: (index) => set({ lightboxItemIndex: index }),
-  closeLightbox: () => set({ lightboxItemIndex: null }),
-  nextLightbox: () => {
-    const { lightboxItemIndex, gallery } = get();
-    if (lightboxItemIndex === null || gallery.length === 0) return;
-    set({ lightboxItemIndex: (lightboxItemIndex + 1) % gallery.length });
-  },
-  prevLightbox: () => {
-    const { lightboxItemIndex, gallery } = get();
-    if (lightboxItemIndex === null || gallery.length === 0) return;
-    set({ lightboxItemIndex: (lightboxItemIndex - 1 + gallery.length) % gallery.length });
-  },
+  lightboxScope: null,
+  openLightbox: (index, scope) => set({ lightboxItemIndex: index, lightboxScope: scope ?? null }),
+  closeLightbox: () => set({ lightboxItemIndex: null, lightboxScope: null }),
+  nextLightbox: () => set(stepLightbox(get(), 1)),
+  prevLightbox: () => set(stepLightbox(get(), -1)),
 
   // Volunteer Portal & Auth
   volunteer: null,

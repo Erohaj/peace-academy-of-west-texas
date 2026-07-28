@@ -7,6 +7,7 @@ import { GalleryCategory } from '../types';
 import { AnimatedSection } from './AnimatedSection';
 import { GalleryGridSkeleton } from './Skeletons';
 import { useDialog } from '../lib/useDialog';
+import { categoryBadgeClass, categoryLabelKey } from '../lib/eventCategory';
 
 const LIGHTBOX_TITLE_ID = 'gallery-lightbox-title';
 
@@ -51,6 +52,12 @@ export const Gallery: React.FC<PageTitleProps> = ({ asPageTitle }) => {
     });
   }, [gallery, selectedCategory, searchQuery, language]);
 
+  /** Positions of the visible photos in `gallery` — the lightbox's scope. */
+  const filteredIndices = useMemo(
+    () => filteredGallery.map((item) => gallery.findIndex((g) => g.id === item.id)),
+    [filteredGallery, gallery]
+  );
+
   // Arrow-key navigation. Escape, the scroll lock, the focus trap and the
   // dialog semantics come from useDialog below — the lightbox does not use
   // ModalShell because its panel is full-bleed black with the prev/next
@@ -83,7 +90,10 @@ export const Gallery: React.FC<PageTitleProps> = ({ asPageTitle }) => {
   ];
 
   return (
-    <section className="py-20 bg-parchment text-graphite min-h-screen">
+    /* min-h-screen only when this section is the whole page. Stacked sixth of
+       seven on home, it left a tall parchment gap before the donate block
+       whenever the gallery was sparse. */
+    <section className={`py-20 bg-parchment text-graphite ${asPageTitle ? 'min-h-screen' : ''}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
         
         {/* Gallery Title Header */}
@@ -91,7 +101,7 @@ export const Gallery: React.FC<PageTitleProps> = ({ asPageTitle }) => {
           <div className="text-center max-w-3xl mx-auto space-y-4">
             <div className="inline-flex items-center gap-2 text-olive font-bold text-xs uppercase tracking-[0.2em] bg-olive/10 px-4 py-1.5 rounded-full border border-olive/20">
               <Camera className="w-3.5 h-3.5 text-olive" />
-              <span>PAWTX Visual History</span>
+              <span>{t('gallery.eyebrow')}</span>
             </div>
 
             <Title className="text-3xl sm:text-5xl font-serif font-bold text-graphite">
@@ -145,6 +155,27 @@ export const Gallery: React.FC<PageTitleProps> = ({ asPageTitle }) => {
             grid on the first paint. */}
         {isLoadingGallery && <GalleryGridSkeleton count={6} />}
 
+        {/* Filtered down to nothing. This used to render an empty grid and
+            nothing else, leaving the visitor to guess whether the search had
+            failed or the gallery was empty. Same shape as EventFeed's. */}
+        {!isLoadingGallery && filteredGallery.length === 0 && (
+          <AnimatedSection direction="fade" delayMs={100}>
+            <div className="text-center py-16 bg-aged-paper rounded-3xl border border-warm-taupe space-y-3">
+              <Camera className="w-8 h-8 text-terracotta mx-auto opacity-50" />
+              <p className="text-base text-charcoal font-medium">{t('common.empty')}</p>
+              <button
+                onClick={() => {
+                  setSelectedCategory('all');
+                  setSearchQuery('');
+                }}
+                className="text-xs text-terracotta font-bold uppercase tracking-widest underline hover:text-terracotta-deep pawtx-focus"
+              >
+                {t('common.resetFilters')}
+              </button>
+            </div>
+          </AnimatedSection>
+        )}
+
         {/* Gallery Image Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredGallery.map((item, idx) => {
@@ -162,7 +193,11 @@ export const Gallery: React.FC<PageTitleProps> = ({ asPageTitle }) => {
                       of twenty photos this one is. */}
                   <button
                     type="button"
-                    onClick={() => openLightbox(originalIndex)}
+                    // The second argument is the filtered set. Without it the
+                    // lightbox arrows walked the whole gallery: filter to
+                    // "Cooking", open a photo, press right, and you were
+                    // looking at a relief drive.
+                    onClick={() => openLightbox(originalIndex, filteredIndices)}
                     aria-label={title}
                     className="group relative block w-full text-left rounded-3xl overflow-hidden cursor-pointer shadow-sm border border-warm-taupe bg-aged-paper transform transition-all duration-300 hover:-translate-y-1 hover:shadow-xl h-full pawtx-focus"
                   >
@@ -186,8 +221,10 @@ export const Gallery: React.FC<PageTitleProps> = ({ asPageTitle }) => {
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-80 group-hover:opacity-95 transition-opacity" />
 
                   <div className="absolute bottom-0 left-0 right-0 p-5 text-white space-y-1">
-                    <span className="text-[10px] font-bold uppercase tracking-[0.2em] bg-olive text-white px-2.5 py-0.5 rounded-md inline-block mb-1">
-                      {item.category}
+                    <span
+                      className={`text-3xs font-bold uppercase tracking-[0.2em] px-2.5 py-0.5 rounded-md inline-block mb-1 border ${categoryBadgeClass(item.category)}`}
+                    >
+                      {t(categoryLabelKey(item.category))}
                     </span>
                     <CardTitle className="text-lg font-serif font-bold leading-tight text-white group-hover:text-amber-200 transition-colors">
                       {title}
@@ -253,7 +290,7 @@ export const Gallery: React.FC<PageTitleProps> = ({ asPageTitle }) => {
             <div className="md:w-2/3 bg-black flex items-center justify-center p-2 relative">
               <img
                 src={activeItem.imageUrl}
-                alt={activeItem.title}
+                alt={language === 'es' ? activeItem.titleEs : activeItem.title}
                 className="max-h-[60vh] md:max-h-[80vh] w-auto object-contain rounded-xl"
               />
             </div>
@@ -261,8 +298,10 @@ export const Gallery: React.FC<PageTitleProps> = ({ asPageTitle }) => {
             {/* Image Meta details */}
             <div className="md:w-1/3 p-6 sm:p-8 flex flex-col justify-between text-white space-y-4">
               <div className="space-y-3">
-                <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-white bg-olive px-3 py-1 rounded-md inline-block">
-                  {activeItem.category}
+                <span
+                  className={`text-3xs font-bold uppercase tracking-[0.2em] px-3 py-1 rounded-md inline-block border ${categoryBadgeClass(activeItem.category)}`}
+                >
+                  {t(categoryLabelKey(activeItem.category))}
                 </span>
 
                 <h3 id={LIGHTBOX_TITLE_ID} className="text-2xl font-serif font-bold leading-snug">

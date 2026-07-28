@@ -37,6 +37,13 @@
   /* Light enough to read on the graphite footer, where terracotta does not. */
   --color-terracotta-soft: #DE8A6B;
   --color-olive: #5B6346;
+  --color-olive-deep: #474E36;
+  /* The other two rungs of the event-category ramp — see lib/eventCategory.ts,
+     which is the only thing that decides what colour a category is. */
+  --color-ochre: #C27D38;
+  --color-ochre-deep: #A0642A;
+  --color-rust: #8C3A2B;
+  --color-rust-deep: #6E2A1E;
   --color-parchment: #FDFBF7;
   --color-aged-paper: #F4F1ED;
   --color-porcelain: #F8F5F2;

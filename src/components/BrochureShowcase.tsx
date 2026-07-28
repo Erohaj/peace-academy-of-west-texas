@@ -53,37 +53,37 @@ export const BrochureShowcase: React.FC = () => {
       title: isEs ? 'Festival Cultural de Tejas' : 'West Texas Cultural Festival',
       desc: isEs ? 'Un evento emblemático que reúne a docenas de comunidades para celebrar la diversidad.' : 'A flagship gathering bringing dozens of cultural heritage groups together under one roof.',
       image: IMAGES.communitySign,
-      category: 'Festival'
+      category: isEs ? 'Festival' : 'Festival'
     },
     {
       title: isEs ? 'Campamentos de Fútbol y Baloncesto' : 'Youth Soccer & Basketball Camps',
       desc: isEs ? 'Desarrollo de habilidades deportivas y trabajo en equipo para jóvenes de Midland y Odessa.' : 'Building athletic skills, camaraderie, and leadership for West Texas youth.',
       image: IMAGES.sportsCamp,
-      category: 'Sports'
+      category: isEs ? 'Deportes' : 'Sports'
     },
     {
       title: isEs ? 'Club de Cocina Internacional' : 'International Cooking Club',
       desc: isEs ? 'Aprende a preparar platos de Turquía, Italia, México, Medio Oriente y más.' : 'Hands-on cooking workshops sharing recipes and stories from around the globe.',
       image: IMAGES.cookingWorkshop,
-      category: 'Culinary'
+      category: isEs ? 'Cocina' : 'Culinary'
     },
     {
       title: isEs ? 'Noche de Café para Mujeres' : "Ladies' Coffee & Culture Night",
       desc: isEs ? 'Un espacio acogedor para que las mujeres conversen, aprendan y creen lazos de amistad.' : 'A warm, welcoming space for women to connect, converse, and build friendships.',
       image: IMAGES.coffeeNight,
-      category: 'Community'
+      category: isEs ? 'Comunidad' : 'Community'
     },
     {
       title: isEs ? 'Acción de Gracias con Héroes Locales' : 'Thanksgiving with Local Heroes',
       desc: isEs ? 'Honrando a bomberos, policías y personal de emergencia con cenas comunitarias.' : 'Honoring first responders, police, firefighters, and healthcare workers with warm dinners.',
       image: IMAGES.heroDinner,
-      category: 'Gratitude'
+      category: isEs ? 'Gratitud' : 'Gratitude'
     },
     {
       title: isEs ? 'Pozos de Agua Limpia en África' : 'Clean Water-Well Initiative in Africa',
       desc: isEs ? 'Proyectos caritativos internacionales financiados por el apoyo de la comunidad de Permian Basin.' : 'Charitable international relief providing sustainable clean water to underserved villages.',
       image: IMAGES.waterWell,
-      category: 'Global Aid'
+      category: isEs ? 'Ayuda Global' : 'Global Aid'
     }
   ];
 
@@ -169,7 +169,7 @@ export const BrochureShowcase: React.FC = () => {
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-                    <span className="absolute top-4 left-4 bg-olive text-white px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider shadow-sm">
+                    <span className="absolute top-4 left-4 bg-olive text-white px-3 py-1 rounded-full text-3xs font-bold uppercase tracking-wider shadow-sm">
                       {act.category}
                     </span>
                   </div>

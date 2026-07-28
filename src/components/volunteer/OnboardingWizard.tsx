@@ -1,13 +1,16 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   AlertCircle,
   CheckCircle2,
   FileText,
+  Languages,
   Loader2,
   ShieldCheck,
   UserRound
 } from 'lucide-react';
 import { useAppStore } from '../../store/useAppStore';
+import { CONTACT_EMAIL } from '../../lib/features';
 import { MarkdownDocument } from './MarkdownDocument';
 import {
   fetchCurrentDocuments,
@@ -52,6 +55,43 @@ const BLANK_APPLICATION: SubmitApplicationInput = {
  * why age is read from the frozen application rather than recomputed.
  */
 const SIGNABLE_KINDS = ['agreement', 'release', 'code_of_conduct', 'media_consent'] as const;
+
+/**
+ * Says plainly, in Spanish, that the paperwork is not.
+ *
+ * The six documents in legal/ are English, attorney-reviewed, and hashed into
+ * document_signatures.body_hash. Translating the wizard chrome around them
+ * would produce a Spanish-looking flow that asks someone to sign a document
+ * they cannot read — worse than an honestly monolingual one. Real Spanish
+ * paperwork needs Spanish drafts, a second Texas attorney review and a
+ * per-language version lineage; until then, this notice and a way to ask for
+ * help are what we owe a Spanish-reading volunteer.
+ */
+const EnglishOnlyNotice: React.FC = () => {
+  const { t } = useTranslation();
+  const { language } = useAppStore();
+
+  if (language !== 'es') return null;
+
+  return (
+    <div className="pawtx-callout-olive">
+      <Languages className="w-4 h-4 shrink-0 mt-0.5" aria-hidden="true" />
+      <span>
+        {t('volunteer.formsEnglishOnly')}{' '}
+        <a href={`mailto:${CONTACT_EMAIL}`} className="font-bold underline pawtx-focus">
+          {CONTACT_EMAIL}
+        </a>
+      </span>
+    </div>
+  );
+};
+
+const withEnglishOnlyNotice = (node: React.ReactNode) => (
+  <div className="space-y-4">
+    <EnglishOnlyNotice />
+    {node}
+  </div>
+);
 
 type WizardStep =
   | { kind: 'loading' }
@@ -180,7 +220,7 @@ export const OnboardingWizard: React.FC = () => {
   }
 
   if (step.kind === 'application') {
-    return (
+    return withEnglishOnlyNotice(
       <ApplicationForm
         userId={userId!}
         defaultEmail={volunteer?.email ?? ''}
@@ -191,7 +231,7 @@ export const OnboardingWizard: React.FC = () => {
   }
 
   if (step.kind === 'sign') {
-    return (
+    return withEnglishOnlyNotice(
       <SignStep
         key={step.document.versionId}
         userId={userId!}
@@ -205,7 +245,7 @@ export const OnboardingWizard: React.FC = () => {
   }
 
   if (step.kind === 'guardian-consent') {
-    return (
+    return withEnglishOnlyNotice(
       <GuardianConsentStep
         key={step.document.versionId}
         userId={userId!}

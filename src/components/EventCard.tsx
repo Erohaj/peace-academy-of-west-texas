@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { Calendar, MapPin, Clock, Users, ArrowRight, AlertCircle } from 'lucide-react';
 import { PAWTXEvent } from '../types';
 import { useAppStore } from '../store/useAppStore';
+import { categoryBadgeClass, categoryLabelKey } from '../lib/eventCategory';
 
 interface EventCardProps extends PageTitleProps {
   event: PAWTXEvent;
@@ -58,10 +59,13 @@ export const EventCard: React.FC<EventCardProps> = ({ event, asPageTitle }) => {
           )}
         </div>
 
-        {/* Category Pill */}
+        {/* Category Pill. Coloured and labelled by lib/eventCategory, so this
+            event looks the same here as it does in the calendar view. */}
         <div className="absolute bottom-4 left-4 z-20">
-          <span className="bg-olive text-white px-3 py-1 rounded-md text-[10px] font-bold uppercase tracking-[0.2em] shadow-sm">
-            {event.category}
+          <span
+            className={`px-3 py-1 rounded-md text-3xs font-bold uppercase tracking-[0.2em] shadow-sm border ${categoryBadgeClass(event.category)}`}
+          >
+            {t(categoryLabelKey(event.category))}
           </span>
         </div>
       </div>
@@ -70,7 +74,10 @@ export const EventCard: React.FC<EventCardProps> = ({ event, asPageTitle }) => {
       <div className="p-6 flex-1 flex flex-col justify-between space-y-4">
         
         <div className="space-y-3">
-          <CardTitle className="pawtx-card-heading leading-snug group-hover:text-terracotta transition-colors">
+          {/* Clamped like the description below it: an untruncated title runs
+              to three lines in Spanish and pushes this card taller than the
+              two beside it in the grid. */}
+          <CardTitle className="pawtx-card-heading leading-snug line-clamp-2 group-hover:text-terracotta transition-colors">
             {title}
           </CardTitle>
 

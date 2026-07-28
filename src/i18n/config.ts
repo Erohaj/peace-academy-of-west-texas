@@ -63,7 +63,15 @@ const resources = {
         selectDayEvents: "Events on {{date}}",
         noEventsOnDay: "No events scheduled for this date.",
         quickJump: "Quick Month Jump",
-        addToCalendar: "Add to Calendar"
+        addToCalendar: "Add to Calendar",
+        eyebrow: "Community Gatherings & Workshops",
+        // Singular/plural as two keys and a ternary at the call site, matching
+        // rsvpModal.guestsCount — i18next's plural suffixes are not wired up
+        // in this project and only 1 is singular in both languages anyway.
+        dayEventCount: "{{count}} event",
+        dayEventCountPlural: "{{count}} events",
+        scheduledEvents: "{{count}} scheduled events",
+        full: "Full"
       },
       rsvpModal: {
         step1Title: "Reserve Your Spot",
@@ -123,7 +131,8 @@ const resources = {
         lightboxDate: "Event Date",
         prev: "Previous",
         next: "Next",
-        close: "Close Lightbox"
+        close: "Close Lightbox",
+        eyebrow: "PAWTX Visual History"
       },
       donate: {
         title: "Support Peace Academy",
@@ -177,6 +186,10 @@ const resources = {
         close: "Close"
       },
       volunteer: {
+        // Only ever rendered in Spanish (see EnglishOnlyNotice), but kept in
+        // both bundles so the key is not a special case.
+        formsEnglishOnly:
+          "The volunteer forms are available in English only for now — they are legal documents reviewed by a Texas attorney, and an unreviewed translation would not be valid. If you would like help reading them, write to us:",
         portalTitle: "Volunteer Portal",
         portalSubtitle: "Join our team of dedicated community volunteers. Book shifts, log your service hours, and track your impact.",
         continueWithGoogle: "Continue with Google",
@@ -272,7 +285,16 @@ const resources = {
         phone: "(432) 555-PAWT",
         quickLinks: "Quick Navigation",
         rights: "All rights reserved. Built with warmth in West Texas.",
-        adminPanel: "Staff Admin"
+        adminPanel: "Staff Admin",
+        blurb:
+          "Bridging West Texas cultures through authentic culinary heritage, cross-cultural dialogue, and compassionate volunteer outreach.",
+        nonprofitBadge: "501(c)(3) Non-Profit Organization",
+        navigationHeading: "Navigation",
+        outreachHeading: "Community Outreach",
+        outreachNote:
+          "Serving Ector & Midland Counties with cultural education and food security programs.",
+        languageHeading: "Language / Idioma",
+        copyright: "© {{year}} Peace Academy of West Texas. All rights reserved."
       },
       common: {
         loading: "Loading...",
@@ -281,7 +303,20 @@ const resources = {
         notConfiguredTitle: "The site backend isn't connected yet",
         notConfiguredText: "Content, registrations and donations will appear once the backend is configured.",
         retry: "Try Again",
-        empty: "Nothing here yet — check back soon."
+        empty: "Nothing here yet — check back soon.",
+        resetFilters: "Reset Filters",
+        back: "Back",
+        verifyTab: "Verify a certificate"
+      },
+      // Short chip labels. The per-section category keys above are the filter
+      // buttons ("Cooking Classes") and are too long for a badge. Before this,
+      // badges rendered the raw database enum — in both languages.
+      categories: {
+        all: "All",
+        cooking: "Cooking",
+        cultural: "Cultural",
+        seminars: "Seminar",
+        relief: "Relief"
       }
     }
   },
@@ -346,7 +381,12 @@ const resources = {
         selectDayEvents: "Eventos el {{date}}",
         noEventsOnDay: "No hay eventos programados para esta fecha.",
         quickJump: "Ir a Mes",
-        addToCalendar: "Añadir al Calendario"
+        addToCalendar: "Añadir al Calendario",
+        eyebrow: "Encuentros y Talleres Comunitarios",
+        dayEventCount: "{{count}} evento",
+        dayEventCountPlural: "{{count}} eventos",
+        scheduledEvents: "{{count}} eventos programados",
+        full: "Lleno"
       },
       rsvpModal: {
         step1Title: "Reserva tu Lugar",
@@ -406,7 +446,8 @@ const resources = {
         lightboxDate: "Fecha del Evento",
         prev: "Anterior",
         next: "Siguiente",
-        close: "Cerrar Galería"
+        close: "Cerrar Galería",
+        eyebrow: "Historia Visual de PAWTX"
       },
       donate: {
         title: "Apoya a Peace Academy",
@@ -460,6 +501,8 @@ const resources = {
         close: "Cerrar"
       },
       volunteer: {
+        formsEnglishOnly:
+          "Los formularios de voluntariado están disponibles únicamente en inglés por ahora: son documentos legales revisados por un abogado de Tejas, y una traducción sin revisar no tendría validez. Si necesitas ayuda para leerlos, escríbenos:",
         portalTitle: "Portal de Voluntarios",
         portalSubtitle: "Únete a nuestro equipo de voluntarios. Reserva turnos, registra tus horas de servicio y mira tu impacto.",
         continueWithGoogle: "Continuar con Google",
@@ -555,7 +598,16 @@ const resources = {
         phone: "(432) 555-PAWT",
         quickLinks: "Navegación Rápida",
         rights: "Todos los derechos reservados. Hecho con calidez en el oeste de Tejas.",
-        adminPanel: "Administración"
+        adminPanel: "Administración",
+        blurb:
+          "Uniendo las culturas del oeste de Tejas a través de la herencia culinaria, el diálogo intercultural y el voluntariado solidario.",
+        nonprofitBadge: "Organización Sin Fines de Lucro 501(c)(3)",
+        navigationHeading: "Navegación",
+        outreachHeading: "Alcance Comunitario",
+        outreachNote:
+          "Al servicio de los condados de Ector y Midland con programas de educación cultural y seguridad alimentaria.",
+        languageHeading: "Idioma / Language",
+        copyright: "© {{year}} Peace Academy of West Texas. Todos los derechos reservados."
       },
       common: {
         loading: "Cargando...",
@@ -564,7 +616,17 @@ const resources = {
         notConfiguredTitle: "El backend del sitio aún no está conectado",
         notConfiguredText: "El contenido, los registros y las donaciones aparecerán cuando se configure el backend.",
         retry: "Reintentar",
-        empty: "Todavía no hay nada aquí — vuelve pronto."
+        empty: "Todavía no hay nada aquí — vuelve pronto.",
+        resetFilters: "Quitar Filtros",
+        back: "Atrás",
+        verifyTab: "Verificar un certificado"
+      },
+      categories: {
+        all: "Todas",
+        cooking: "Cocina",
+        cultural: "Cultural",
+        seminars: "Seminario",
+        relief: "Ayuda"
       }
     }
   }

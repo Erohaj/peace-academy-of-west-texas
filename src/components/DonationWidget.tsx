@@ -12,11 +12,13 @@ import { clearDonationParams, readDonationReturn } from '../lib/donationReturn';
 import { CONTACT_EMAIL, donationsEnabled } from '../lib/features';
 
 // Shared by the preset buttons and the impact meter below so both stay in sync.
+// The labels carry a Spanish counterpart like every other display string in
+// this file — a donor reading Spanish was otherwise shown "$100 Community".
 const DONATION_TIERS = [
-  { amount: 25, label: 'Seed' },
-  { amount: 50, label: 'Scholar' },
-  { amount: 100, label: 'Community' },
-  { amount: 250, label: 'Benefactor' },
+  { amount: 25, label: 'Seed', labelEs: 'Semilla' },
+  { amount: 50, label: 'Scholar', labelEs: 'Becario' },
+  { amount: 100, label: 'Community', labelEs: 'Comunidad' },
+  { amount: 250, label: 'Benefactor', labelEs: 'Benefactor' },
 ] as const;
 
 /** How long to keep polling for the webhook to confirm a fresh donation. */
@@ -26,7 +28,7 @@ const RECEIPT_POLL_INTERVAL_MS = 1500;
 export const DonationWidget: React.FC<PageTitleProps> = ({ asPageTitle }) => {
   const Title = titleTag(asPageTitle);
   const CardTitle = subTitleTag(asPageTitle);
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const [frequency, setFrequency] = useState<'one_time' | 'monthly'>('one_time');
   const [selectedPreset, setSelectedPreset] = useState<number | 'custom'>(50);
@@ -329,7 +331,7 @@ export const DonationWidget: React.FC<PageTitleProps> = ({ asPageTitle }) => {
                               isReached ? 'text-terracotta' : 'text-charcoal'
                             }`}
                           >
-                            ${tier.amount}{tier.amount === DONATION_TIERS[DONATION_TIERS.length - 1].amount ? '+' : ''} {tier.label}
+                            ${tier.amount}{tier.amount === DONATION_TIERS[DONATION_TIERS.length - 1].amount ? '+' : ''} {i18n.language === 'es' ? tier.labelEs : tier.label}
                           </span>
                         </div>
                       );

@@ -51,7 +51,7 @@ export const EventFeed: React.FC<PageTitleProps> = ({ asPageTitle }) => {
           <div className="text-center max-w-3xl mx-auto space-y-4">
             <div className="inline-flex items-center gap-2 text-olive font-bold text-xs uppercase tracking-[0.2em] bg-olive/10 px-4 py-1.5 rounded-full border border-olive/20">
               <Sparkles className="w-3.5 h-3.5 text-olive" />
-              <span>Community Gatherings & Workshops</span>
+              <span>{t('events.eyebrow')}</span>
             </div>
 
             <Title className="text-3xl sm:text-5xl font-serif font-bold text-graphite">
@@ -169,7 +169,7 @@ export const EventFeed: React.FC<PageTitleProps> = ({ asPageTitle }) => {
                 }}
                 className="text-xs text-terracotta font-bold uppercase tracking-widest underline hover:text-terracotta-deep"
               >
-                Reset Filters
+                {t('common.resetFilters')}
               </button>
             </div>
           </AnimatedSection>
