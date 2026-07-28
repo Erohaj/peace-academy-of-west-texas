@@ -36,7 +36,8 @@ export function mapEventRow(row: EventRow, language: 'en' | 'es'): PAWTXEvent {
     reservedSpots: row.reserved_spots,
     imageUrl: resolveImage(row.image_key, row.image_url),
     status: row.status,
-    featured: row.featured
+    featured: row.featured,
+    collectMediaConsent: row.collect_media_consent
   };
 }
 

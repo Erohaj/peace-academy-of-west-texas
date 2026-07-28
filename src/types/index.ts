@@ -1,5 +1,12 @@
 export type EventCategory = 'all' | 'cooking' | 'cultural' | 'seminars' | 'relief';
 
+/**
+ * Photo/video permission, using the same three answers as the media-consent
+ * document volunteers sign. `null` on an RSVP means the question was never
+ * asked — treat it as "do not publish", not as consent.
+ */
+export type MediaConsent = 'yes' | 'photos_only' | 'no';
+
 export interface PAWTXEvent {
   id: string;
   title: string;
@@ -23,6 +30,8 @@ export interface PAWTXEvent {
   imageUrl: string;
   status: 'upcoming' | 'ongoing' | 'past';
   featured?: boolean;
+  /** When true, the RSVP form asks for photo/video permission and requires it. */
+  collectMediaConsent: boolean;
 }
 
 export interface RSVP {
@@ -33,6 +42,7 @@ export interface RSVP {
   phone: string;
   guestCount: number;
   optionalDonation?: number;
+  mediaConsent?: MediaConsent | null;
   createdAt: string;
 }
 
@@ -128,6 +138,7 @@ export type ActionError =
   | 'already_registered'
   | 'event_not_found'
   | 'invalid_guest_count'
+  | 'media_consent_required'
   | 'shift_full'
   | 'not_configured'
   | 'unauthenticated'

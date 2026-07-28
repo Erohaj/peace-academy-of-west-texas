@@ -13,6 +13,7 @@ const SQLSTATE_TO_ACTION_ERROR: Record<string, ActionError> = {
   PA002: 'already_registered',
   PA003: 'event_not_found',
   PA004: 'invalid_guest_count',
+  PA005: 'media_consent_required',
   // A shift signup that would exceed spots_total trips the
   // shifts_not_overbooked CHECK constraint inside the sync trigger.
   '23514': 'shift_full',

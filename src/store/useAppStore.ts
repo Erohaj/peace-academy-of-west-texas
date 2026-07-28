@@ -5,6 +5,7 @@ import {
   ActiveTab,
   DataStatus,
   GalleryItem,
+  MediaConsent,
   PAWTXEvent,
   Shift,
   VolunteerProfile
@@ -111,6 +112,7 @@ interface AppState {
     phone: string;
     guestCount: number;
     optionalDonation?: number;
+    mediaConsent?: MediaConsent | null;
   }) => Promise<ActionResult>;
 
   // Gallery
@@ -257,7 +259,8 @@ export const useAppStore = create<AppState>((set, get) => ({
         email: data.email,
         phone: data.phone,
         guestCount: data.guestCount,
-        optionalDonation: data.optionalDonation
+        optionalDonation: data.optionalDonation,
+        mediaConsent: data.mediaConsent
       });
     } catch (error) {
       return { ok: false, error: reportError('RSVP failed', error) };

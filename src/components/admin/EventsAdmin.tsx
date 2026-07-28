@@ -23,6 +23,7 @@ interface EventForm {
   image_key: string | null;
   featured: boolean;
   published: boolean;
+  collect_media_consent: boolean;
 }
 
 const BLANK_FORM: EventForm = {
@@ -38,7 +39,8 @@ const BLANK_FORM: EventForm = {
   image_url: null,
   image_key: null,
   featured: false,
-  published: true
+  published: true,
+  collect_media_consent: false
 };
 
 /**
@@ -101,7 +103,8 @@ export const EventsAdmin: React.FC = () => {
       image_url: row.image_url,
       image_key: row.image_key,
       featured: row.featured,
-      published: row.published
+      published: row.published,
+      collect_media_consent: row.collect_media_consent
     });
   };
 
@@ -144,7 +147,8 @@ export const EventsAdmin: React.FC = () => {
       image_url: form.image_url,
       image_key: form.image_key,
       featured: form.featured,
-      published: form.published
+      published: form.published,
+      collect_media_consent: form.collect_media_consent
     };
 
     try {
@@ -297,6 +301,31 @@ export const EventsAdmin: React.FC = () => {
                 Published
               </label>
             </div>
+          </div>
+
+          {/* Its own row rather than a third inline checkbox: this one changes
+              what the public form asks for, and the consequence is worth
+              spelling out where it is turned on. */}
+          <div className="bg-[#FDFBF7] border border-[#E5E0D8] rounded-xl p-4">
+            <label className="flex items-start gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                className="mt-0.5"
+                checked={form.collect_media_consent}
+                onChange={(e) => setForm({ ...form, collect_media_consent: e.target.checked })}
+              />
+              <span className="space-y-1">
+                <span className="block text-xs font-bold text-[#2A2A2A]">
+                  Ask attendees for photo &amp; video permission
+                </span>
+                <span className="block text-xs text-[#5A5A5A] leading-relaxed">
+                  Adds a required question to this event's RSVP form — consent, photographs
+                  only, or decline — using the same wording as the media-consent document
+                  volunteers sign. Answers appear with the RSVPs under Submissions. Leave it
+                  off for events you will not be photographing.
+                </span>
+              </span>
+            </label>
           </div>
 
           <div>

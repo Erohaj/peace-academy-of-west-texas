@@ -40,6 +40,12 @@ export type ApplicationStatusRow =
   | 'declined'
   | 'withdrawn';
 export type SignerRoleRow = 'volunteer' | 'guardian';
+/**
+ * Photo/video permission. Shared by `document_signatures.choice` (volunteers,
+ * answered when signing the media-consent document) and `rsvps.media_consent`
+ * (attendees, answered on the RSVP form) so the two can be read together.
+ */
+export type MediaConsentRow = 'yes' | 'photos_only' | 'no';
 
 export interface Database {
   public: {
@@ -92,6 +98,7 @@ export interface Database {
           status: EventStatusRow;
           featured: boolean;
           published: boolean;
+          collect_media_consent: boolean;
           created_at: string;
           updated_at: string;
         };
@@ -111,6 +118,7 @@ export interface Database {
           status?: EventStatusRow;
           featured?: boolean;
           published?: boolean;
+          collect_media_consent?: boolean;
         };
         // `reserved_spots` is revoked from `authenticated` — only create_rsvp()
         // may change it — so it is not updatable from the admin panel either.
@@ -129,6 +137,7 @@ export interface Database {
           status?: EventStatusRow;
           featured?: boolean;
           published?: boolean;
+          collect_media_consent?: boolean;
         };
         Relationships: [];
       };
@@ -142,6 +151,10 @@ export interface Database {
           phone: string | null;
           guest_count: number;
           optional_donation: number;
+          // Null means the question was never put to this attendee — the event
+          // had the toggle off, or the row predates the column. Not a "no", and
+          // emphatically not a yes.
+          media_consent: MediaConsentRow | null;
           created_at: string;
         };
         // Direct inserts are revoked; RSVPs are created through create_rsvp().
@@ -616,6 +629,9 @@ export interface Database {
           p_phone?: string | null;
           p_guest_count?: number;
           p_optional_donation?: number;
+          // Required by the function when the event has collect_media_consent
+          // on; ignored when it does not.
+          p_media_consent?: MediaConsentRow | null;
         };
         Returns: Database['public']['Tables']['rsvps']['Row'];
       };

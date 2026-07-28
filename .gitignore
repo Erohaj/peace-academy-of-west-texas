@@ -6,3 +6,8 @@ coverage/
 *.log
 .env*
 !.env.example
+
+# Supabase CLI scratch state (cached versions, pooler URL, project ref). Local
+# to whoever ran the CLI last; linked-project.json is tracked deliberately and
+# stays so — .gitignore does not affect files already in the index.
+supabase/.temp/

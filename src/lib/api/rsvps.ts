@@ -1,4 +1,5 @@
 import type { Tables } from '../database.types';
+import type { MediaConsent } from '../../types';
 import { requireSupabase } from '../supabaseClient';
 
 export type RsvpRow = Tables<'rsvps'>;
@@ -10,6 +11,8 @@ export interface CreateRsvpInput {
   phone?: string;
   guestCount: number;
   optionalDonation?: number;
+  /** Required when the event has `collect_media_consent` on; the function rejects the booking otherwise. */
+  mediaConsent?: MediaConsent | null;
 }
 
 /**
@@ -30,7 +33,8 @@ export async function createRsvp(input: CreateRsvpInput): Promise<RsvpRow> {
     p_email: input.email,
     p_phone: input.phone ?? null,
     p_guest_count: input.guestCount,
-    p_optional_donation: input.optionalDonation ?? 0
+    p_optional_donation: input.optionalDonation ?? 0,
+    p_media_consent: input.mediaConsent ?? null
   });
 
   if (error) throw error;

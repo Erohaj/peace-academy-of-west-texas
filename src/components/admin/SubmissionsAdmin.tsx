@@ -32,6 +32,36 @@ const formatMoney = (cents: number) =>
   (cents / 100).toLocaleString('en-US', { style: 'currency', currency: 'USD' });
 
 /**
+ * Photo/video permission, as a badge someone can scan a roster for.
+ *
+ * A refusal is the one value that must never be missed, so it is the only red
+ * thing in the table. "Not asked" is deliberately not green: the event simply
+ * never put the question, which is not permission to publish anyone.
+ */
+const MEDIA_CONSENT_BADGE: Record<string, { label: string; hint: string; className: string }> = {
+  yes: {
+    label: 'Yes',
+    hint: 'Consented to photography and recording, and to it being shared publicly.',
+    className: 'bg-[#5B6346]/15 text-[#3F462F] border border-[#5B6346]/30'
+  },
+  photos_only: {
+    label: 'Photos only',
+    hint: 'Still photography only — no video or audio recording.',
+    className: 'bg-amber-100 text-amber-900 border border-amber-300'
+  },
+  no: {
+    label: 'Do not photograph',
+    hint: 'Declined. Do not include this person in anything intended for publication.',
+    className: 'bg-red-100 text-red-800 border border-red-300'
+  },
+  unasked: {
+    label: '—',
+    hint: 'This event did not ask. Treat as no permission rather than assuming consent.',
+    className: 'bg-[#E5E0D8] text-[#5A5A5A] border border-[#D6D0C4]'
+  }
+};
+
+/**
  * Read-only views over the submissions tables, with CSV export.
  *
  * These rows hold attendee and donor personal data. They are only reachable
@@ -87,6 +117,9 @@ export const SubmissionsAdmin: React.FC<SubmissionsAdminProps> = ({ view }) => {
       guests: rsvp.guest_count,
       party_size: rsvp.guest_count + 1,
       optional_donation: rsvp.optional_donation,
+      // Exported as the raw value, not the badge label: this column is the
+      // record someone may have to rely on later.
+      media_consent: rsvp.media_consent ?? 'not_asked',
       registered_at: formatDateTime(rsvp.created_at)
     }));
 
@@ -94,7 +127,7 @@ export const SubmissionsAdmin: React.FC<SubmissionsAdminProps> = ({ view }) => {
       `pawtx-rsvps-${new Date().toISOString().slice(0, 10)}.csv`,
       toCsv(rows, [
         'event', 'name', 'email', 'phone', 'guests', 'party_size',
-        'optional_donation', 'registered_at'
+        'optional_donation', 'media_consent', 'registered_at'
       ])
     );
   };
@@ -244,22 +277,34 @@ export const SubmissionsAdmin: React.FC<SubmissionsAdminProps> = ({ view }) => {
                       <th className="text-left p-4">Event</th>
                       <th className="text-left p-4">Attendee</th>
                       <th className="text-left p-4">Party</th>
+                      <th className="text-left p-4">Photos</th>
                       <th className="text-left p-4">Registered</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {rsvps.map((rsvp) => (
-                      <tr key={rsvp.id} className="border-t border-[#E5E0D8]">
-                        <td className="p-4 text-xs">{eventTitles.get(rsvp.event_id) ?? '—'}</td>
-                        <td className="p-4">
-                          <div className="font-bold text-sm">{rsvp.full_name}</div>
-                          <div className="text-xs text-[#5A5A5A]">{rsvp.email}</div>
-                          {rsvp.phone && <div className="text-xs text-[#5A5A5A]">{rsvp.phone}</div>}
-                        </td>
-                        <td className="p-4 text-xs whitespace-nowrap">{rsvp.guest_count + 1}</td>
-                        <td className="p-4 text-xs whitespace-nowrap">{formatDateTime(rsvp.created_at)}</td>
-                      </tr>
-                    ))}
+                    {rsvps.map((rsvp) => {
+                      const consent = MEDIA_CONSENT_BADGE[rsvp.media_consent ?? 'unasked'];
+                      return (
+                        <tr key={rsvp.id} className="border-t border-[#E5E0D8]">
+                          <td className="p-4 text-xs">{eventTitles.get(rsvp.event_id) ?? '—'}</td>
+                          <td className="p-4">
+                            <div className="font-bold text-sm">{rsvp.full_name}</div>
+                            <div className="text-xs text-[#5A5A5A]">{rsvp.email}</div>
+                            {rsvp.phone && <div className="text-xs text-[#5A5A5A]">{rsvp.phone}</div>}
+                          </td>
+                          <td className="p-4 text-xs whitespace-nowrap">{rsvp.guest_count + 1}</td>
+                          <td className="p-4 whitespace-nowrap">
+                            <span
+                              title={consent.hint}
+                              className={`px-2.5 py-1 rounded-full text-[11px] font-bold ${consent.className}`}
+                            >
+                              {consent.label}
+                            </span>
+                          </td>
+                          <td className="p-4 text-xs whitespace-nowrap">{formatDateTime(rsvp.created_at)}</td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>

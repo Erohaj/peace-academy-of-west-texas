@@ -94,6 +94,14 @@ const resources = {
         errorDuplicateText: "This email address is already on the list for this event.",
         errorGenericTitle: "Something went wrong",
         errorGenericText: "We couldn't save your registration. Please try again.",
+        errorConsentTitle: "One more question",
+        errorConsentText: "This event now asks about photo and video permission. Please try again and choose an option.",
+        mediaConsentTitle: "Photos & video",
+        mediaConsentIntro: "We sometimes photograph or film our events and share the results publicly, including on social media. Choosing \"no\" will not affect your registration in any way.",
+        mediaConsentYes: "Yes — I consent to being photographed and recorded, and to that material being shared publicly.",
+        mediaConsentPhotosOnly: "Photographs only — I consent to still photography but not to video or audio recording.",
+        mediaConsentNo: "No — please do not include me in photographs or recordings intended for publication.",
+        mediaConsentRequired: "Please choose one of the three options.",
         tryAgain: "Try Again"
       },
       gallery: {
@@ -363,6 +371,14 @@ const resources = {
         errorDuplicateText: "Este correo electrónico ya está en la lista para este evento.",
         errorGenericTitle: "Algo salió mal",
         errorGenericText: "No pudimos guardar tu registro. Inténtalo de nuevo.",
+        errorConsentTitle: "Una pregunta más",
+        errorConsentText: "Este evento ahora pregunta sobre el permiso de fotos y video. Inténtalo de nuevo y elige una opción.",
+        mediaConsentTitle: "Fotos y video",
+        mediaConsentIntro: "A veces fotografiamos o grabamos nuestros eventos y compartimos el resultado públicamente, incluso en redes sociales. Elegir \"no\" no afectará tu registro de ninguna manera.",
+        mediaConsentYes: "Sí — doy mi consentimiento para ser fotografiado y grabado, y para que ese material se comparta públicamente.",
+        mediaConsentPhotosOnly: "Solo fotografías — doy mi consentimiento para fotografía fija, pero no para grabación de video o audio.",
+        mediaConsentNo: "No — por favor no me incluyan en fotografías ni grabaciones destinadas a publicación.",
+        mediaConsentRequired: "Por favor elige una de las tres opciones.",
         tryAgain: "Reintentar"
       },
       gallery: {
