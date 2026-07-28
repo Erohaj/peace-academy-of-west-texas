@@ -41,8 +41,14 @@ export const MissionSection: React.FC = () => {
               </p>
             </AnimatedSection>
 
-            {/* Core Motto Callout Box */}
             <AnimatedSection direction="up" delayMs={250}>
+              <p className="text-base sm:text-lg text-charcoal leading-relaxed font-sans">
+                {t('mission.text3')}
+              </p>
+            </AnimatedSection>
+
+            {/* Core Motto Callout Box */}
+            <AnimatedSection direction="up" delayMs={300}>
               <div className="bg-aged-paper rounded-2xl p-6 border-l-4 border-terracotta relative shadow-sm border border-warm-taupe">
                 <Quote className="w-8 h-8 text-terracotta/20 absolute top-4 right-4" />
                 <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-terracotta">

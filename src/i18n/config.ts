@@ -26,9 +26,10 @@ const resources = {
         statNonprofit: "100% Volunteer Driven"
       },
       mission: {
-        heading: "Our Mission & Texas Roots",
-        text1: "Peace Academy of West Texas was established in 2018 as a 501(c)(3) tax-exempt non-profit dedicated to fostering mutual understanding, cultural appreciation, and compassionate service in the Permian Basin.",
-        text2: "Through collaborative community initiatives—from hands-on international cooking workshops to disaster relief drives—we build enduring friendships across diverse cultural, ethnic, and religious backgrounds.",
+        heading: "Who We Are",
+        text1: "Peace Academy of West Texas is a 501(c)(3) nonprofit organization serving the community since 2018. We host workshops, seminars, conferences, and relief efforts to support the public across Odessa, Midland, and the wider Permian Basin.",
+        text2: "We work to promote peace, mutual understanding, and social harmony by bringing people of different cultures, beliefs, and backgrounds together through dialogue and community service.",
+        text3: "We are building toward a united West Texas where diversity is celebrated, youth are empowered, and communities collaborate to create lasting positive change.",
         mottoLabel: "Our Core Motto",
         mottoText: "Engaging Minds, Building Community",
         impactHeading: "Real Impact Across West Texas",
@@ -344,9 +345,10 @@ const resources = {
         statNonprofit: "100% Guiado por Voluntarios"
       },
       mission: {
-        heading: "Nuestra Misión y Raíces en Tejas",
-        text1: "Peace Academy of West Texas fue fundada en 2018 como una organización sin fines de lucro exenta de impuestos 501(c)(3) dedicada a fomentar el entendimiento mutuo, el aprecio cultural y el servicio compasivo en Permian Basin.",
-        text2: "A través de iniciativas comunitarias colaborativas, desde talleres de cocina hasta campañas de ayuda humanitaria, construimos amistades duraderas entre personas de diversos orígenes.",
+        heading: "Quiénes Somos",
+        text1: "Peace Academy of West Texas es una organización sin fines de lucro 501(c)(3) que sirve a la comunidad desde 2018. Organizamos talleres, seminarios, conferencias y campañas de ayuda humanitaria para apoyar al público en Odessa, Midland y toda la región de Permian Basin.",
+        text2: "Trabajamos para promover la paz, el entendimiento mutuo y la armonía social, uniendo a personas de diferentes culturas, creencias y orígenes a través del diálogo y el servicio comunitario.",
+        text3: "Avanzamos hacia un Oeste de Tejas unido donde se celebre la diversidad, se empodere a la juventud y las comunidades colaboren para crear un cambio positivo y duradero.",
         mottoLabel: "Nuestro Lema Principal",
         mottoText: "Inspirando Mentes, Construyendo Comunidad",
         impactHeading: "Impacto Real en el Oeste de Tejas",
