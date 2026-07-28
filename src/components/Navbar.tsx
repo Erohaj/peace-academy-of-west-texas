@@ -79,8 +79,12 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenContact }) => {
             />
           </button>
 
-          {/* Desktop Navigation Links */}
-          <nav className="hidden md:flex items-center gap-1 lg:gap-2">
+          {/* Desktop Navigation Links.
+              Shown from 1100px, not md (768px): the six labels plus the search,
+              language and donate controls need ~1060px, so between those two
+              widths the row overflowed and pushed the whole menu off the right
+              edge of the screen while the hamburger was still hidden. */}
+          <nav className="hidden min-[1100px]:flex items-center gap-1 lg:gap-2">
             {navItems.map((item) => {
               const isActive = activeTab === item.id;
               return (
@@ -176,11 +180,13 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenContact }) => {
             )}
           </div>
 
-          {/* Mobile Menu Controls */}
-          <div className="flex items-center gap-2 md:hidden">
+          {/* Compact controls. The hamburger carries the nav below 1100px;
+              search and language duplicate the row above, so they drop away
+              once that row appears at sm. */}
+          <div className="flex items-center gap-2 min-[1100px]:hidden">
             <button
               onClick={openSearch}
-              className={`p-2 rounded-full border transition-colors ${
+              className={`p-2 rounded-full border transition-colors sm:hidden ${
                 isSolid ? 'border-[#E5E0D8] text-[#2A2A2A]' : 'border-white/40 text-white'
               }`}
               title="Search"
@@ -190,7 +196,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenContact }) => {
 
             <button
               onClick={toggleLanguage}
-              className={`px-2.5 py-1 rounded-full text-xs font-bold border ${
+              className={`px-2.5 py-1 rounded-full text-xs font-bold border sm:hidden ${
                 isSolid ? 'border-[#E5E0D8] text-[#2A2A2A]' : 'border-white/40 text-white'
               }`}
             >
@@ -213,7 +219,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenContact }) => {
 
       {/* Mobile Drawer Menu */}
       {mobileMenuOpen && (
-        <div className="md:hidden bg-[#FDFBF7] border-b border-[#E5E0D8] shadow-xl px-4 pt-3 pb-6 space-y-2 animate-fadeIn">
+        <div className="min-[1100px]:hidden bg-[#FDFBF7] border-b border-[#E5E0D8] shadow-xl px-4 pt-3 pb-6 space-y-2 animate-fadeIn">
           {navItems.map((item) => {
             const isActive = activeTab === item.id;
             return (
