@@ -50,6 +50,14 @@ export const RSVPModal: React.FC = () => {
   const title = language === 'es' ? selectedEventForRsvp.titleEs : selectedEventForRsvp.title;
   const needsMediaConsent = selectedEventForRsvp.collectMediaConsent;
 
+  // Singular/plural picked here rather than through i18next's plural suffixes,
+  // which nothing else in this project relies on. Only 1 is singular, so the
+  // two Spanish and English forms cover every option in the list.
+  const guestOptionLabel = (count: number) => {
+    if (count === 0) return t('rsvpModal.guestsNone');
+    return t(count === 1 ? 'rsvpModal.guestsCount' : 'rsvpModal.guestsCountPlural', { count });
+  };
+
   const validateStep1 = () => {
     const errs: { fullName?: string; email?: string; mediaConsent?: string } = {};
     if (!fullName.trim()) errs.fullName = 'Name is required';
@@ -147,7 +155,7 @@ export const RSVPModal: React.FC = () => {
             <div className="text-xs font-bold uppercase tracking-[0.2em] text-[#A64D32]">
               {step === 1 && t('rsvpModal.step1Title')}
               {step === 2 && t('rsvpModal.step2Title')}
-              {step === 3 && 'Confirmation'}
+              {step === 3 && t('rsvpModal.step3Title')}
               {step === 4 && errorCopy.title}
             </div>
             <h3 className="text-lg font-serif font-bold text-[#2A2A2A] truncate max-w-[300px]">
@@ -232,10 +240,11 @@ export const RSVPModal: React.FC = () => {
                       onChange={(e) => setGuestCount(Number(e.target.value))}
                       className="w-full bg-[#FDFBF7] border border-[#E5E0D8] rounded-xl pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:border-[#A64D32] focus:ring-1 focus:ring-[#A64D32]"
                     >
-                      <option value={0}>0 (Just Me)</option>
-                      <option value={1}>+1 Guest</option>
-                      <option value={2}>+2 Guests</option>
-                      <option value={3}>+3 Guests</option>
+                      {[0, 1, 2, 3].map((count) => (
+                        <option key={count} value={count}>
+                          {guestOptionLabel(count)}
+                        </option>
+                      ))}
                     </select>
                   </div>
                 </div>
@@ -413,7 +422,16 @@ export const RSVPModal: React.FC = () => {
                   <Calendar className="w-3.5 h-3.5 text-[#A64D32]" />
                   <span>{selectedEventForRsvp.date} ({selectedEventForRsvp.time})</span>
                 </div>
-                <div className="text-[#5A5A5A]">Guest Pass: {fullName} (+{guestCount} guests)</div>
+                <div className="text-[#5A5A5A]">
+                  {guestCount > 0
+                    ? t('rsvpModal.guestPassWithGuests', {
+                        name: fullName,
+                        // Reuses the dropdown's label so "+1 guest" stays
+                        // singular here too.
+                        guests: guestOptionLabel(guestCount)
+                      })
+                    : t('rsvpModal.guestPass', { name: fullName })}
+                </div>
               </div>
 
               {/* Actions: Add to Calendar & Pass */}

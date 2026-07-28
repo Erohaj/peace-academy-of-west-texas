@@ -102,6 +102,12 @@ const resources = {
         mediaConsentPhotosOnly: "Photographs only — I consent to still photography but not to video or audio recording.",
         mediaConsentNo: "No — please do not include me in photographs or recordings intended for publication.",
         mediaConsentRequired: "Please choose one of the three options.",
+        step3Title: "Confirmation",
+        guestsNone: "Just me",
+        guestsCount: "+{{count}} guest",
+        guestsCountPlural: "+{{count}} guests",
+        guestPass: "Guest pass: {{name}}",
+        guestPassWithGuests: "Guest pass: {{name}} ({{guests}})",
         tryAgain: "Try Again"
       },
       gallery: {
@@ -379,6 +385,12 @@ const resources = {
         mediaConsentPhotosOnly: "Solo fotografías — doy mi consentimiento para fotografía fija, pero no para grabación de video o audio.",
         mediaConsentNo: "No — por favor no me incluyan en fotografías ni grabaciones destinadas a publicación.",
         mediaConsentRequired: "Por favor elige una de las tres opciones.",
+        step3Title: "Confirmación",
+        guestsNone: "Solo yo",
+        guestsCount: "+{{count}} acompañante",
+        guestsCountPlural: "+{{count}} acompañantes",
+        guestPass: "Pase: {{name}}",
+        guestPassWithGuests: "Pase: {{name}} ({{guests}})",
         tryAgain: "Reintentar"
       },
       gallery: {
