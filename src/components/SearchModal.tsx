@@ -2,7 +2,10 @@ import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Search, X, Calendar, Image as ImageIcon, UserCheck, ArrowRight, Tag, MapPin, Clock, Sparkles } from 'lucide-react';
 import { useAppStore } from '../store/useAppStore';
+import { ModalShell } from './ModalShell';
 import { PAWTXEvent, GalleryItem, Shift } from '../types';
+
+const TITLE_ID = 'search-modal-title';
 
 type ResultCategory = 'all' | 'events' | 'gallery' | 'shifts';
 
@@ -40,19 +43,19 @@ export const SearchModal: React.FC = () => {
 
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Global Keyboard listener for Cmd+K / Ctrl+K
+  // Global Keyboard listener for Cmd+K / Ctrl+K. Escape used to live here too
+  // and is now ModalShell's, along with the click-outside this modal had and
+  // the other three did not.
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
         e.preventDefault();
         toggleSearch();
-      } else if (e.key === 'Escape' && isSearchOpen) {
-        closeSearch();
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isSearchOpen, toggleSearch, closeSearch]);
+  }, [toggleSearch]);
 
   // Auto focus input when opened
   useEffect(() => {
@@ -214,18 +217,23 @@ export const SearchModal: React.FC = () => {
     }
   };
 
-  if (!isSearchOpen) return null;
-
   return (
-    <div
-      className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-start justify-center pt-16 sm:pt-24 px-4 pb-6 animate-fadeIn"
-      onClick={closeSearch}
+    <ModalShell
+      isOpen={isSearchOpen}
+      onClose={closeSearch}
+      labelledBy={TITLE_ID}
+      // The input below takes focus on open; the panel must not steal it back.
+      moveFocus={false}
+      backdropClassName="items-start justify-center pt-16 sm:pt-24 px-4 pb-6"
+      panelClassName="max-w-2xl w-full overflow-hidden flex flex-col max-h-[82vh]"
+      onKeyDown={handleKeyDownInList}
     >
-      <div
-        className="bg-[#FDFBF7] rounded-[28px] border border-[#E5E0D8] shadow-2xl max-w-2xl w-full overflow-hidden flex flex-col max-h-[82vh] text-[#2A2A2A] relative"
-        onClick={(e) => e.stopPropagation()}
-        onKeyDown={handleKeyDownInList}
-      >
+        {/* Named for the accessibility tree — the palette has no visible
+            heading, and "dialog" with no name says nothing about what opened. */}
+        <h2 id={TITLE_ID} className="sr-only">
+          {isEs ? 'Buscar en el sitio' : 'Search this site'}
+        </h2>
+
         {/* Top Search Input Bar */}
         <div className="p-4 sm:p-5 border-b border-[#E5E0D8] bg-white flex items-center gap-3">
           <Search className="w-5 h-5 text-[#A64D32] shrink-0" />
@@ -239,7 +247,7 @@ export const SearchModal: React.FC = () => {
                 ? "Buscar eventos, fotos de galería o voluntariado..."
                 : "Search events, gallery photos, or volunteer roles..."
             }
-            className="w-full bg-transparent text-base sm:text-lg font-medium text-[#2A2A2A] placeholder:text-[#5A5A5A]/60 focus:outline-none"
+            className="w-full bg-transparent text-base sm:text-lg font-medium text-[#2A2A2A] placeholder:text-[#5A5A5A]/60 pawtx-focus"
           />
           {query && (
             <button
@@ -471,7 +479,6 @@ export const SearchModal: React.FC = () => {
             {filteredResults.length} {isEs ? 'resultados' : 'results'}
           </span>
         </div>
-      </div>
-    </div>
+    </ModalShell>
   );
 };

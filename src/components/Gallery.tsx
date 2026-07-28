@@ -6,6 +6,9 @@ import { useAppStore } from '../store/useAppStore';
 import { GalleryCategory } from '../types';
 import { AnimatedSection } from './AnimatedSection';
 import { GalleryGridSkeleton } from './Skeletons';
+import { useDialog } from '../lib/useDialog';
+
+const LIGHTBOX_TITLE_ID = 'gallery-lightbox-title';
 
 export const Gallery: React.FC<PageTitleProps> = ({ asPageTitle }) => {
   const Title = titleTag(asPageTitle);
@@ -48,20 +51,28 @@ export const Gallery: React.FC<PageTitleProps> = ({ asPageTitle }) => {
     });
   }, [gallery, selectedCategory, searchQuery, language]);
 
-  // Keyboard navigation for Lightbox
+  // Arrow-key navigation. Escape, the scroll lock, the focus trap and the
+  // dialog semantics come from useDialog below — the lightbox does not use
+  // ModalShell because its panel is full-bleed black with the prev/next
+  // controls outside it, but the behaviour is the same behaviour.
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (lightboxItemIndex === null) return;
-      if (e.key === 'Escape') closeLightbox();
       if (e.key === 'ArrowRight') nextLightbox();
       if (e.key === 'ArrowLeft') prevLightbox();
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [lightboxItemIndex, closeLightbox, nextLightbox, prevLightbox]);
+  }, [lightboxItemIndex, nextLightbox, prevLightbox]);
 
   const activeItem = lightboxItemIndex !== null ? gallery[lightboxItemIndex] : null;
+
+  const {backdropProps: lightboxBackdrop, panelProps: lightboxPanel} = useDialog({
+    isOpen: activeItem !== null,
+    onClose: closeLightbox,
+    labelledBy: LIGHTBOX_TITLE_ID,
+  });
 
   const categories: { id: GalleryCategory; labelKey: string }[] = [
     { id: 'all', labelKey: 'gallery.all' },
@@ -123,7 +134,7 @@ export const Gallery: React.FC<PageTitleProps> = ({ asPageTitle }) => {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder={t('gallery.searchPlaceholder')}
-                className="w-full bg-[#FDFBF7] border border-[#E5E0D8] rounded-full pl-10 pr-4 py-2 text-xs text-[#2A2A2A] focus:outline-none focus:border-[#A64D32]"
+                className="w-full bg-[#FDFBF7] border border-[#E5E0D8] rounded-full pl-10 pr-4 py-2 text-xs text-[#2A2A2A] pawtx-focus focus:border-[#A64D32]"
               />
             </div>
 
@@ -144,9 +155,16 @@ export const Gallery: React.FC<PageTitleProps> = ({ asPageTitle }) => {
 
               return (
                 <AnimatedSection key={item.id} direction="up" delayMs={30 + (idx % 3) * 60}>
-                  <div
+                  {/* A real button, not a div with an onClick: every photo on
+                      the site used to be unreachable without a mouse. The
+                      accessible name is the photo's own title — "button" on
+                      its own tells a screen reader user nothing about which
+                      of twenty photos this one is. */}
+                  <button
+                    type="button"
                     onClick={() => openLightbox(originalIndex)}
-                    className="group relative rounded-3xl overflow-hidden cursor-pointer shadow-sm border border-[#E5E0D8] bg-[#F4F1ED] transform transition-all duration-300 hover:-translate-y-1 hover:shadow-xl h-full"
+                    aria-label={title}
+                    className="group relative block w-full text-left rounded-3xl overflow-hidden cursor-pointer shadow-sm border border-[#E5E0D8] bg-[#F4F1ED] transform transition-all duration-300 hover:-translate-y-1 hover:shadow-xl h-full pawtx-focus"
                   >
                     <div className="aspect-4/3 overflow-hidden bg-[#E5E0D8] relative">
                       {!isLoaded && (
@@ -178,7 +196,7 @@ export const Gallery: React.FC<PageTitleProps> = ({ asPageTitle }) => {
                       {caption}
                     </p>
                   </div>
-                </div>
+                </button>
               </AnimatedSection>
             );
           })}
@@ -186,34 +204,46 @@ export const Gallery: React.FC<PageTitleProps> = ({ asPageTitle }) => {
 
       </div>
 
-      {/* Lightbox Modal */}
+      {/* Lightbox Modal.
+          The dialog is the full-screen overlay rather than the panel inside
+          it, because the close and prev/next controls sit at the screen edges,
+          outside that panel — anchoring the dialog to the panel would leave
+          them outside the focus trap. Clicking the black area still closes:
+          useDialog only treats a click whose target is the overlay itself. */}
       {activeItem && (
-        <div className="fixed inset-0 z-50 bg-black/95 backdrop-blur-md flex items-center justify-center p-4 sm:p-8 animate-fadeIn">
-          
+        <div
+          {...lightboxBackdrop}
+          {...lightboxPanel}
+          className="fixed inset-0 z-50 bg-black/95 backdrop-blur-md flex items-center justify-center p-4 sm:p-8 animate-fadeIn outline-none"
+        >
+
           {/* Close Button */}
           <button
             onClick={closeLightbox}
-            className="absolute top-6 right-6 z-50 text-white/80 hover:text-white bg-white/10 hover:bg-white/20 p-3 rounded-full transition-colors cursor-pointer"
+            className="absolute top-6 right-6 z-50 text-white/80 hover:text-white bg-white/10 hover:bg-white/20 p-3 rounded-full transition-colors cursor-pointer pawtx-focus"
+            aria-label={t('gallery.close')}
             title={t('gallery.close')}
           >
-            <X className="w-6 h-6" />
+            <X className="w-6 h-6" aria-hidden="true" />
           </button>
 
           {/* Nav Controls */}
           <button
             onClick={prevLightbox}
-            className="absolute left-4 sm:left-8 top-1/2 -translate-y-1/2 z-50 text-white/80 hover:text-white bg-white/10 hover:bg-white/20 p-3.5 rounded-full transition-colors cursor-pointer"
+            className="absolute left-4 sm:left-8 top-1/2 -translate-y-1/2 z-50 text-white/80 hover:text-white bg-white/10 hover:bg-white/20 p-3.5 rounded-full transition-colors cursor-pointer pawtx-focus"
+            aria-label={t('gallery.prev')}
             title={t('gallery.prev')}
           >
-            <ChevronLeft className="w-6 h-6" />
+            <ChevronLeft className="w-6 h-6" aria-hidden="true" />
           </button>
 
           <button
             onClick={nextLightbox}
-            className="absolute right-4 sm:right-8 top-1/2 -translate-y-1/2 z-50 text-white/80 hover:text-white bg-white/10 hover:bg-white/20 p-3.5 rounded-full transition-colors cursor-pointer"
+            className="absolute right-4 sm:right-8 top-1/2 -translate-y-1/2 z-50 text-white/80 hover:text-white bg-white/10 hover:bg-white/20 p-3.5 rounded-full transition-colors cursor-pointer pawtx-focus"
+            aria-label={t('gallery.next')}
             title={t('gallery.next')}
           >
-            <ChevronRight className="w-6 h-6" />
+            <ChevronRight className="w-6 h-6" aria-hidden="true" />
           </button>
 
           {/* Lightbox Content Container */}
@@ -235,7 +265,7 @@ export const Gallery: React.FC<PageTitleProps> = ({ asPageTitle }) => {
                   {activeItem.category}
                 </span>
 
-                <h3 className="text-2xl font-serif font-bold leading-snug">
+                <h3 id={LIGHTBOX_TITLE_ID} className="text-2xl font-serif font-bold leading-snug">
                   {language === 'es' ? activeItem.titleEs : activeItem.title}
                 </h3>
 

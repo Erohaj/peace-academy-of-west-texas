@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { X, Send, Mail, MapPin, CheckCircle2, AlertCircle } from 'lucide-react';
 import { sendContactMessage } from '../lib/api/contact';
+import { ModalShell } from './ModalShell';
+
+const TITLE_ID = 'contact-modal-title';
 
 interface ContactModalProps {
   isOpen: boolean;
@@ -33,8 +36,6 @@ export const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose }) =
     setHasError(false);
   }, [isOpen]);
 
-  if (!isOpen) return null;
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -54,9 +55,12 @@ export const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose }) =
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fadeIn">
-      <div className="bg-[#FDFBF7] rounded-[28px] border border-[#E5E0D8] shadow-2xl max-w-lg w-full p-6 relative text-[#2A2A2A]">
-
+    <ModalShell
+      isOpen={isOpen}
+      onClose={onClose}
+      labelledBy={TITLE_ID}
+      panelClassName="max-w-lg w-full p-6"
+    >
         <button
           onClick={onClose}
           // Icon-only, so it reached a screen reader as an unlabelled
@@ -73,7 +77,7 @@ export const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose }) =
               <span className="text-xs font-bold uppercase tracking-[0.2em] text-[#A64D32]">
                 {t('contact.eyebrow')}
               </span>
-              <h3 className="text-2xl font-serif font-bold text-[#2A2A2A]">
+              <h3 id={TITLE_ID} className="text-2xl font-serif font-bold text-[#2A2A2A]">
                 {t('contact.title')}
               </h3>
               <p className="text-xs text-[#5A5A5A]">
@@ -92,7 +96,7 @@ export const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose }) =
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder={t('contact.fullNamePlaceholder')}
-                  className="w-full bg-[#FDFBF7] border border-[#E5E0D8] rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#A64D32]"
+                  className="w-full bg-[#FDFBF7] border border-[#E5E0D8] rounded-xl px-4 py-2.5 text-sm pawtx-focus focus:border-[#A64D32]"
                 />
               </div>
 
@@ -106,7 +110,7 @@ export const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose }) =
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder={t('contact.emailPlaceholder')}
-                  className="w-full bg-[#FDFBF7] border border-[#E5E0D8] rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#A64D32]"
+                  className="w-full bg-[#FDFBF7] border border-[#E5E0D8] rounded-xl px-4 py-2.5 text-sm pawtx-focus focus:border-[#A64D32]"
                 />
               </div>
 
@@ -121,7 +125,7 @@ export const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose }) =
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
                   placeholder={t('contact.messagePlaceholder')}
-                  className="w-full bg-[#FDFBF7] border border-[#E5E0D8] rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#A64D32]"
+                  className="w-full bg-[#FDFBF7] border border-[#E5E0D8] rounded-xl px-4 py-2.5 text-sm pawtx-focus focus:border-[#A64D32]"
                 />
               </div>
 
@@ -162,7 +166,9 @@ export const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose }) =
         ) : (
           <div className="text-center py-8 space-y-4">
             <CheckCircle2 className="w-12 h-12 text-[#5B6346] mx-auto" />
-            <h3 className="text-2xl font-serif font-bold text-[#2A2A2A]">{t('contact.sentTitle')}</h3>
+            <h3 id={TITLE_ID} className="text-2xl font-serif font-bold text-[#2A2A2A]">
+              {t('contact.sentTitle')}
+            </h3>
             <p className="text-xs text-[#5A5A5A]">
               {t('contact.sentText')}
             </p>
@@ -174,8 +180,6 @@ export const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose }) =
             </button>
           </div>
         )}
-
-      </div>
-    </div>
+    </ModalShell>
   );
 };

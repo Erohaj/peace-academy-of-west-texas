@@ -99,7 +99,7 @@ export const EventFeed: React.FC<PageTitleProps> = ({ asPageTitle }) => {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder={t('events.searchPlaceholder')}
-                  className="w-full bg-[#FDFBF7] border border-[#E5E0D8] rounded-full pl-10 pr-4 py-2 text-xs text-[#2A2A2A] focus:outline-none focus:border-[#A64D32] focus:ring-1 focus:ring-[#A64D32]"
+                  className="w-full bg-[#FDFBF7] border border-[#E5E0D8] rounded-full pl-10 pr-4 py-2 text-xs text-[#2A2A2A] pawtx-focus focus:border-[#A64D32] focus:ring-1 focus:ring-[#A64D32]"
                 />
               </div>
 

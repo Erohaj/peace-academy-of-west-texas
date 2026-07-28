@@ -95,7 +95,7 @@ export const CertificateVerify: React.FC<Props> = ({ initialNumber }) => {
             placeholder="PAWTX-XXXX-XXXX"
             autoComplete="off"
             spellCheck={false}
-            className="flex-1 bg-white border border-[#E5E0D8] rounded-xl px-4 py-3 text-base font-mono tracking-wider focus:outline-none focus:border-[#A64D32]"
+            className="flex-1 bg-white border border-[#E5E0D8] rounded-xl px-4 py-3 text-base font-mono tracking-wider pawtx-focus focus:border-[#A64D32]"
           />
           <button
             type="submit"

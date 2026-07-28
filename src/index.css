@@ -52,6 +52,23 @@
   --shadow-modal: rgba(42, 42, 42, 0.1) 12px 32px 80px 0px;
 }
 
+/*
+ * One visible focus ring for the whole site.
+ *
+ * Custom-styled controls here set `focus:outline-none` and replaced it with
+ * nothing, so a keyboard user tabbing through the page had no idea where they
+ * were. `focus-visible` — not `focus` — is what keeps the ring off a control
+ * that was clicked with a mouse, which is why it was dropped in the first
+ * place. Terracotta reads against parchment, against the hero photo and
+ * against the black lightbox.
+ */
+@utility pawtx-focus {
+  &:focus-visible {
+    outline: 2px solid var(--color-terracotta);
+    outline-offset: 2px;
+  }
+}
+
 /* Custom scrollbars */
 ::-webkit-scrollbar {
   width: 8px;

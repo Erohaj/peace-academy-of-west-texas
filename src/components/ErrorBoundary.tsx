@@ -92,7 +92,7 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
             {/* Error Technical Details Accordion */}
             {this.state.error && (
               <details className="text-left bg-[#F4F1ED] p-4 rounded-2xl border border-[#E5E0D8] text-xs font-mono text-[#5A5A5A] overflow-x-auto space-y-1">
-                <summary className="font-sans font-bold cursor-pointer text-[#2A2A2A] hover:text-[#A64D32] focus:outline-none">
+                <summary className="font-sans font-bold cursor-pointer text-[#2A2A2A] hover:text-[#A64D32] pawtx-focus">
                   View Diagnostic Error Details
                 </summary>
                 <p className="pt-2 text-red-700 font-semibold">{this.state.error.toString()}</p>

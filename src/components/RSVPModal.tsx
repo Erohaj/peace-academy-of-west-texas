@@ -5,6 +5,9 @@ import { useAppStore } from '../store/useAppStore';
 import { getGoogleCalendarUrl } from '../lib/eventDates';
 import { ActionError, MediaConsent } from '../types';
 import { donationsEnabled, emailEnabled } from '../lib/features';
+import { ModalShell } from './ModalShell';
+
+const TITLE_ID = 'rsvp-modal-title';
 
 export const RSVPModal: React.FC = () => {
   const { t } = useTranslation();
@@ -144,11 +147,16 @@ export const RSVPModal: React.FC = () => {
   const googleCalendarUrl = getGoogleCalendarUrl(selectedEventForRsvp, language === 'es');
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fadeIn">
-      
-      {/* Modal Container */}
-      <div className="bg-[#FDFBF7] rounded-[28px] border border-[#E5E0D8] shadow-[rgba(42,43,47,0.1)_12px_32px_80px_0px] max-w-lg w-full overflow-hidden relative text-[#2A2A2A] animate-scaleUp">
-        
+    <ModalShell
+      isOpen={Boolean(selectedEventForRsvp)}
+      onClose={closeRsvpModal}
+      labelledBy={TITLE_ID}
+      // A stray backdrop click while the booking is in flight, or on the
+      // screen that just confirmed it, reads as "my RSVP was cancelled".
+      // Steps 3 and 4 are closed deliberately, with the button that says so.
+      closeOnBackdrop={!isSubmitting && step < 3}
+      panelClassName="max-w-lg w-full overflow-hidden"
+    >
         {/* Header Bar */}
         <div className="bg-[#F4F1ED] px-6 py-4 border-b border-[#E5E0D8] flex items-center justify-between">
           <div>
@@ -158,16 +166,19 @@ export const RSVPModal: React.FC = () => {
               {step === 3 && t('rsvpModal.step3Title')}
               {step === 4 && errorCopy.title}
             </div>
-            <h3 className="text-lg font-serif font-bold text-[#2A2A2A] truncate max-w-[300px]">
+            <h3 id={TITLE_ID} className="text-lg font-serif font-bold text-[#2A2A2A] truncate max-w-[300px]">
               {title}
             </h3>
           </div>
 
           <button
             onClick={closeRsvpModal}
-            className="p-2 rounded-full hover:bg-black/5 text-[#5A5A5A] transition-colors cursor-pointer"
+            // Icon-only, so it reached a screen reader as an unlabelled
+            // "button" — the same fix ContactModal already carries.
+            aria-label={t('rsvpModal.closeModal')}
+            className="p-2 rounded-full hover:bg-black/5 text-[#5A5A5A] transition-colors cursor-pointer pawtx-focus"
           >
-            <X className="w-5 h-5" />
+            <X className="w-5 h-5" aria-hidden="true" />
           </button>
         </div>
 
@@ -184,15 +195,26 @@ export const RSVPModal: React.FC = () => {
                 </label>
                 <div className="relative">
                   <User className="w-4 h-4 text-[#5A5A5A] absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  {/* aria-required rather than the native `required`: the
+                      validation here is custom and translated, and the native
+                      attribute would preempt it with a browser bubble in the
+                      browser's own language. */}
                   <input
                     type="text"
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
                     placeholder={t('rsvpModal.fullNamePlaceholder')}
-                    className="w-full bg-[#FDFBF7] border border-[#E5E0D8] rounded-xl pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:border-[#A64D32] focus:ring-1 focus:ring-[#A64D32]"
+                    aria-required="true"
+                    aria-invalid={Boolean(errors.fullName)}
+                    aria-describedby={errors.fullName ? 'rsvp-error-name' : undefined}
+                    className="w-full bg-[#FDFBF7] border border-[#E5E0D8] rounded-xl pl-10 pr-4 py-2.5 text-sm pawtx-focus focus:border-[#A64D32] focus:ring-1 focus:ring-[#A64D32]"
                   />
                 </div>
-                {errors.fullName && <p className="text-xs text-red-600 mt-1">{errors.fullName}</p>}
+                {errors.fullName && (
+                  <p id="rsvp-error-name" className="text-xs font-semibold text-[#A64D32] mt-1">
+                    {errors.fullName}
+                  </p>
+                )}
               </div>
 
               <div>
@@ -206,10 +228,17 @@ export const RSVPModal: React.FC = () => {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder={t('rsvpModal.emailPlaceholder')}
-                    className="w-full bg-[#FDFBF7] border border-[#E5E0D8] rounded-xl pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:border-[#A64D32] focus:ring-1 focus:ring-[#A64D32]"
+                    aria-required="true"
+                    aria-invalid={Boolean(errors.email)}
+                    aria-describedby={errors.email ? 'rsvp-error-email' : undefined}
+                    className="w-full bg-[#FDFBF7] border border-[#E5E0D8] rounded-xl pl-10 pr-4 py-2.5 text-sm pawtx-focus focus:border-[#A64D32] focus:ring-1 focus:ring-[#A64D32]"
                   />
                 </div>
-                {errors.email && <p className="text-xs text-red-600 mt-1">{errors.email}</p>}
+                {errors.email && (
+                  <p id="rsvp-error-email" className="text-xs font-semibold text-[#A64D32] mt-1">
+                    {errors.email}
+                  </p>
+                )}
               </div>
 
               <div className="grid grid-cols-2 gap-4">
@@ -224,7 +253,7 @@ export const RSVPModal: React.FC = () => {
                       value={phone}
                       onChange={(e) => setPhone(e.target.value)}
                       placeholder={t('rsvpModal.phonePlaceholder')}
-                      className="w-full bg-[#FDFBF7] border border-[#E5E0D8] rounded-xl pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:border-[#A64D32] focus:ring-1 focus:ring-[#A64D32]"
+                      className="w-full bg-[#FDFBF7] border border-[#E5E0D8] rounded-xl pl-10 pr-4 py-2.5 text-sm pawtx-focus focus:border-[#A64D32] focus:ring-1 focus:ring-[#A64D32]"
                     />
                   </div>
                 </div>
@@ -238,7 +267,7 @@ export const RSVPModal: React.FC = () => {
                     <select
                       value={guestCount}
                       onChange={(e) => setGuestCount(Number(e.target.value))}
-                      className="w-full bg-[#FDFBF7] border border-[#E5E0D8] rounded-xl pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:border-[#A64D32] focus:ring-1 focus:ring-[#A64D32]"
+                      className="w-full bg-[#FDFBF7] border border-[#E5E0D8] rounded-xl pl-10 pr-4 py-2.5 text-sm pawtx-focus focus:border-[#A64D32] focus:ring-1 focus:ring-[#A64D32]"
                     >
                       {[0, 1, 2, 3].map((count) => (
                         <option key={count} value={count}>
@@ -294,7 +323,7 @@ export const RSVPModal: React.FC = () => {
                   </div>
 
                   {errors.mediaConsent && (
-                    <p className="text-xs text-red-700 font-semibold">{errors.mediaConsent}</p>
+                    <p className="text-xs text-[#A64D32] font-semibold">{errors.mediaConsent}</p>
                   )}
                 </fieldset>
               )}
@@ -499,8 +528,6 @@ export const RSVPModal: React.FC = () => {
           )}
 
         </div>
-
-      </div>
-    </div>
+    </ModalShell>
   );
 };

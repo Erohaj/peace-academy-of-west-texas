@@ -629,7 +629,7 @@ export const SocialMediaFeed: React.FC<PageTitleProps> = ({ asPageTitle }) => {
                             onChange={(e) => setCommentInput(e.target.value)}
                             onKeyDown={(e) => e.key === 'Enter' && handleAddComment(post.id)}
                             placeholder={t('social.addCommentPlaceholder')}
-                            className="flex-1 bg-white border border-[#E5E0D8] rounded-full px-3 py-1.5 text-xs focus:outline-none focus:border-[#A64D32]"
+                            className="flex-1 bg-white border border-[#E5E0D8] rounded-full px-3 py-1.5 text-xs pawtx-focus focus:border-[#A64D32]"
                           />
                           <button
                             onClick={() => handleAddComment(post.id)}

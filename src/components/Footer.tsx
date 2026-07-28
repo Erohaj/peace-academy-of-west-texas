@@ -22,12 +22,20 @@ export const Footer: React.FC<FooterProps> = ({ onOpenContact }) => {
           
           {/* Brand Info */}
           <div className="md:col-span-1 space-y-4">
-            <div
+            {/* A button, not a clickable div — it navigates, so it has to be
+                reachable by keyboard like every other link in this footer. */}
+            <button
+              type="button"
               onClick={() => setActiveTab('home')}
-              className="flex items-center gap-2 cursor-pointer group"
+              aria-label={t('nav.home')}
+              className="flex items-center gap-2 cursor-pointer group pawtx-focus rounded-full"
             >
-              <PAWTXLogo className="w-12 h-12 group-hover:scale-105 transition-transform" showText={false} />
-            </div>
+              <PAWTXLogo
+                className="w-12 h-12 group-hover:scale-105 transition-transform"
+                showText={false}
+                decorative
+              />
+            </button>
 
             <p className="text-xs text-[#E5E0D8]/80 leading-relaxed">
               Bridging West Texas cultures through authentic culinary heritage, cross-cultural dialogue, and compassionate volunteer outreach.

@@ -45,7 +45,7 @@ const BLANK_APPLICATION: SubmitApplicationInput = {
 };
 
 const field =
-  'w-full bg-white border border-[#E5E0D8] rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#A64D32]';
+  'w-full bg-white border border-[#E5E0D8] rounded-xl px-4 py-2.5 text-sm pawtx-focus focus:border-[#A64D32]';
 const label = 'block text-xs font-bold uppercase tracking-[0.2em] text-[#5A5A5A] mb-1';
 
 /**

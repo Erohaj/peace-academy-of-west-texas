@@ -278,7 +278,7 @@ export const DonationWidget: React.FC<PageTitleProps> = ({ asPageTitle }) => {
                         setCustomAmount(e.target.value);
                       }}
                       placeholder="Custom Amount"
-                      className="w-full bg-[#FDFBF7] border border-[#E5E0D8] rounded-2xl pl-8 pr-4 py-3 text-base font-bold text-[#2A2A2A] focus:outline-none focus:border-[#A64D32]"
+                      className="w-full bg-[#FDFBF7] border border-[#E5E0D8] rounded-2xl pl-8 pr-4 py-3 text-base font-bold text-[#2A2A2A] pawtx-focus focus:border-[#A64D32]"
                     />
                   </div>
                 </div>
@@ -349,7 +349,7 @@ export const DonationWidget: React.FC<PageTitleProps> = ({ asPageTitle }) => {
                     value={donorName}
                     onChange={(e) => setDonorName(e.target.value)}
                     placeholder="Jane Doe"
-                    className="w-full bg-[#FDFBF7] border border-[#E5E0D8] rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#A64D32]"
+                    className="w-full bg-[#FDFBF7] border border-[#E5E0D8] rounded-xl px-4 py-2.5 text-sm pawtx-focus focus:border-[#A64D32]"
                   />
                 </div>
 
@@ -363,7 +363,7 @@ export const DonationWidget: React.FC<PageTitleProps> = ({ asPageTitle }) => {
                     value={donorEmail}
                     onChange={(e) => setDonorEmail(e.target.value)}
                     placeholder="jane@example.com"
-                    className="w-full bg-[#FDFBF7] border border-[#E5E0D8] rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#A64D32]"
+                    className="w-full bg-[#FDFBF7] border border-[#E5E0D8] rounded-xl px-4 py-2.5 text-sm pawtx-focus focus:border-[#A64D32]"
                   />
                 </div>
               </div>

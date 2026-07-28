@@ -226,7 +226,7 @@ export const VolunteerPortal: React.FC = () => {
                       value={emailInput}
                       onChange={(e) => setEmailInput(e.target.value)}
                       placeholder={t('volunteer.emailPlaceholder')}
-                      className="w-full bg-[#FDFBF7] border border-[#E5E0D8] rounded-xl pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:border-[#A64D32]"
+                      className="w-full bg-[#FDFBF7] border border-[#E5E0D8] rounded-xl pl-10 pr-4 py-2.5 text-sm pawtx-focus focus:border-[#A64D32]"
                     />
                   </div>
                   <p className="text-[11px] text-[#5A5A5A] mt-1.5">{t('volunteer.magicLinkDesc')}</p>
@@ -837,7 +837,7 @@ export const VolunteerPortal: React.FC = () => {
                       value={nameInput}
                       onChange={(e) => setNameInput(e.target.value)}
                       placeholder={t('volunteer.profileNamePlaceholder')}
-                      className="w-full bg-[#FDFBF7] border border-[#E5E0D8] rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#A64D32]"
+                      className="w-full bg-[#FDFBF7] border border-[#E5E0D8] rounded-xl px-4 py-2.5 text-sm pawtx-focus focus:border-[#A64D32]"
                     />
                   </div>
 
@@ -853,7 +853,7 @@ export const VolunteerPortal: React.FC = () => {
                       type="tel"
                       value={phoneInput}
                       onChange={(e) => setPhoneInput(e.target.value)}
-                      className="w-full bg-[#FDFBF7] border border-[#E5E0D8] rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#A64D32]"
+                      className="w-full bg-[#FDFBF7] border border-[#E5E0D8] rounded-xl px-4 py-2.5 text-sm pawtx-focus focus:border-[#A64D32]"
                     />
                   </div>
 

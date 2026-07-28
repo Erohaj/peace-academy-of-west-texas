@@ -5,19 +5,27 @@ interface LogoProps {
   className?: string;
   showText?: boolean;
   textColor?: string;
+  /**
+   * Set when the logo sits inside an element that already has an accessible
+   * name — the header and footer home buttons. Repeating the org name there
+   * makes the control announce as "Peace Academy of West Texas Logo, button"
+   * instead of "Home, button".
+   */
+  decorative?: boolean;
 }
 
 export const PAWTXLogo: React.FC<LogoProps> = ({
   className = "w-12 h-12",
   showText = false,
-  textColor = "text-[#2A2A2A]"
+  textColor = "text-[#2A2A2A]",
+  decorative = false
 }) => {
   return (
     <div className="flex items-center gap-2.5">
       {/* Official Peace Academy of West Texas Shield Badge */}
       <img
         src={logoImg}
-        alt="Peace Academy of West Texas Logo"
+        alt={decorative ? '' : 'Peace Academy of West Texas Logo'}
         loading="eager"
         decoding="async"
         className={`${className} object-contain rounded-xl bg-white p-0.5 shadow-sm ring-1 ring-black/5`}

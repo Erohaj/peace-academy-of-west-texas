@@ -72,14 +72,19 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenContact }) => {
             touching the first link. */}
         <div className="flex items-center justify-between h-20 gap-2">
 
-          {/* Logo & Brand */}
+          {/* Logo & Brand. This is the first tab stop on every page, and it
+              used to kill its own outline without replacing it and announce
+              itself as "…Logo, button" off the image's alt text. The button is
+              named for what it does; the image inside it is decoration. */}
           <button
             onClick={() => handleNavClick('home')}
-            className="flex items-center gap-3 text-left focus:outline-none group cursor-pointer"
+            aria-label={t('nav.home')}
+            className="flex items-center gap-3 text-left group cursor-pointer pawtx-focus rounded-full"
           >
             <PAWTXLogo
               className="w-12 h-12 transition-transform group-hover:scale-105"
               showText={false}
+              decorative
             />
           </button>
 
