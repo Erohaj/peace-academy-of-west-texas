@@ -334,6 +334,66 @@ export const SocialMediaFeed: React.FC<PageTitleProps> = ({ asPageTitle }) => {
           </div>
         </AnimatedSection>
 
+        {/* Follow Us Social Banner — the only place on the site that links out
+            to the org's channels, so it sits at the top of the section rather
+            than below the feed where it was easy to scroll past. */}
+        <AnimatedSection direction="up" delayMs={100}>
+          <div className="bg-[#F4F1ED] rounded-3xl p-8 border border-[#E5E0D8] flex flex-col md:flex-row items-center justify-between gap-6 text-center md:text-left">
+            <div className="space-y-2">
+              <div className="text-xs font-bold text-[#A64D32] uppercase tracking-wider flex items-center justify-center md:justify-start gap-2">
+                <Radio className="w-4 h-4" />
+                <span>{t('social.followerCount')}</span>
+              </div>
+              <CardTitle className="text-2xl font-extrabold text-[#2A2A2A] font-serif">
+                {t('social.followUs')}
+              </CardTitle>
+            </div>
+
+            {/* Platform Follow Quick Buttons */}
+            <div className="flex flex-wrap items-center justify-center gap-3">
+              <a
+                href={ORG_LINKS.instagram}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-4 py-2.5 rounded-full bg-gradient-to-r from-purple-600 to-pink-500 text-white text-xs font-bold flex items-center gap-2 shadow-sm hover:opacity-90 transition-opacity"
+              >
+                <Instagram className="w-4 h-4" />
+                <span>Instagram</span>
+              </a>
+
+              <a
+                href={ORG_LINKS.facebook}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-4 py-2.5 rounded-full bg-[#1461C7] text-white text-xs font-bold flex items-center gap-2 shadow-sm hover:opacity-90 transition-opacity"
+              >
+                <Facebook className="w-4 h-4" />
+                <span>Facebook</span>
+              </a>
+
+              <a
+                href={ORG_LINKS.youtube}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-4 py-2.5 rounded-full bg-[#CC0000] text-white text-xs font-bold flex items-center gap-2 shadow-sm hover:opacity-90 transition-opacity"
+              >
+                <Youtube className="w-4 h-4" />
+                <span>YouTube</span>
+              </a>
+
+              <a
+                href={ORG_LINKS.x}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-4 py-2.5 rounded-full bg-[#14171A] text-white text-xs font-bold flex items-center gap-2 shadow-sm hover:opacity-90 transition-opacity"
+              >
+                <Twitter className="w-4 h-4" />
+                <span>X / Twitter</span>
+              </a>
+            </div>
+          </div>
+        </AnimatedSection>
+
         {/* Gemini AI Social Pulse Summary Card */}
         {aiSummary && (
           <AnimatedSection direction="fade">
@@ -640,64 +700,6 @@ export const SocialMediaFeed: React.FC<PageTitleProps> = ({ asPageTitle }) => {
             </div>
           </div>
         )}
-
-        {/* Follow Us Social Banner */}
-        <AnimatedSection direction="up" delayMs={100}>
-          <div className="bg-[#F4F1ED] rounded-3xl p-8 border border-[#E5E0D8] flex flex-col md:flex-row items-center justify-between gap-6 text-center md:text-left">
-            <div className="space-y-2">
-              <div className="text-xs font-bold text-[#A64D32] uppercase tracking-wider flex items-center justify-center md:justify-start gap-2">
-                <Radio className="w-4 h-4" />
-                <span>{t('social.followerCount')}</span>
-              </div>
-              <CardTitle className="text-2xl font-extrabold text-[#2A2A2A] font-serif">
-                {t('social.followUs')}
-              </CardTitle>
-            </div>
-
-            {/* Platform Follow Quick Buttons */}
-            <div className="flex flex-wrap items-center justify-center gap-3">
-              <a
-                href={ORG_LINKS.instagram}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="px-4 py-2.5 rounded-full bg-gradient-to-r from-purple-600 to-pink-500 text-white text-xs font-bold flex items-center gap-2 shadow-sm hover:opacity-90 transition-opacity"
-              >
-                <Instagram className="w-4 h-4" />
-                <span>Instagram</span>
-              </a>
-
-              <a
-                href={ORG_LINKS.facebook}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="px-4 py-2.5 rounded-full bg-[#1461C7] text-white text-xs font-bold flex items-center gap-2 shadow-sm hover:opacity-90 transition-opacity"
-              >
-                <Facebook className="w-4 h-4" />
-                <span>Facebook</span>
-              </a>
-
-              <a
-                href={ORG_LINKS.youtube}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="px-4 py-2.5 rounded-full bg-[#CC0000] text-white text-xs font-bold flex items-center gap-2 shadow-sm hover:opacity-90 transition-opacity"
-              >
-                <Youtube className="w-4 h-4" />
-                <span>YouTube</span>
-              </a>
-
-              <a
-                href={ORG_LINKS.x}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="px-4 py-2.5 rounded-full bg-[#14171A] text-white text-xs font-bold flex items-center gap-2 shadow-sm hover:opacity-90 transition-opacity"
-              >
-                <Twitter className="w-4 h-4" />
-                <span>X / Twitter</span>
-              </a>
-            </div>
-          </div>
-        </AnimatedSection>
 
       </div>
     </section>

@@ -1,6 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { Heart, Globe, Mail, MapPin, ShieldCheck, Instagram, Facebook, Twitter, Youtube } from 'lucide-react';
+import { Heart, Globe, Mail, MapPin, ShieldCheck } from 'lucide-react';
 import { useAppStore } from '../store/useAppStore';
 import { PAWTXLogo } from './PAWTXLogo';
 import { ORG_ADDRESS, ORG_EMAIL, ORG_LINKS } from '../data/orgLinks';
@@ -156,26 +156,6 @@ export const Footer: React.FC<FooterProps> = ({ onOpenContact }) => {
             )}
           </p>
 
-          <div className="flex items-center gap-4">
-            {[
-              { href: ORG_LINKS.instagram, label: 'Instagram', Icon: Instagram },
-              { href: ORG_LINKS.facebook, label: 'Facebook', Icon: Facebook },
-              { href: ORG_LINKS.youtube, label: 'YouTube', Icon: Youtube },
-              { href: ORG_LINKS.x, label: 'X', Icon: Twitter }
-            ].map(({ href, label, Icon }) => (
-              <a
-                key={label}
-                href={href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:text-[#A64D32] transition-colors"
-                title={label}
-                aria-label={label}
-              >
-                <Icon className="w-4 h-4" />
-              </a>
-            ))}
-          </div>
         </div>
 
       </div>
