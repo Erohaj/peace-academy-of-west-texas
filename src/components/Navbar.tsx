@@ -65,11 +65,15 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenContact }) => {
           : 'bg-gradient-to-b from-black/80 via-black/40 to-transparent text-white'
       }`}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* Wider than the max-w-7xl the page content uses. The wordmark next to
+          the logo costs ~150px, which the 1216px content box could not spare —
+          Spanish wanted 1279px of it. A header bar is not body copy and does
+          not need the reading-width cap; the sections below keep it. */}
+      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
         {/* `gap-2` is a floor, not decoration: justify-between only spaces the
-            groups apart while there is slack, and at the tightest width (Spanish,
-            1280px) there are barely 50px of it. Without the gap the logo ends up
-            touching the first link. */}
+            groups apart while there is slack, and at the tightest width where
+            the full row shows (Spanish at 1440px) there are ~55px of it.
+            Without the gap the logo ends up touching the first link. */}
         <div className="flex items-center justify-between h-20 gap-2">
 
           {/* Logo & Brand. This is the first tab stop on every page, and it
@@ -83,27 +87,33 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenContact }) => {
           >
             <PAWTXLogo
               className="w-12 h-12 transition-transform group-hover:scale-105"
-              showText={false}
+              showText
               decorative
+              // Over the hero photo the bar is a dark gradient; on every other
+              // tab it is solid parchment. Terracotta on the second line is
+              // unreadable against the former.
+              textColor={isSolid ? 'text-graphite' : 'text-white'}
+              subTextColor={isSolid ? 'text-terracotta' : 'text-terracotta-soft'}
             />
           </button>
 
           {/* Desktop Navigation Links.
-              Two constraints set the shape of this row. The container is capped
-              at max-w-7xl, so the content box never exceeds 1216px however wide
-              the screen gets; and the labels are longest in Spanish ("Portal de
-              Voluntarios", "Galería de Fotos"). Measured with single-line
-              labels, the Spanish row wanted 1364px — it could not fit at any
-              window size, which is why the labels used to break onto two lines
-              and the logo ended up flush against the first link.
+              The labels are longest in Spanish ("Portal de Voluntarios",
+              "Galería de Fotos"), and they set the width of this whole row.
+              With per-link icons the Spanish row wanted 1364px and could not
+              fit at any window size, which is why the labels used to break onto
+              two lines; dropping the icons here bought back ~130px and the
+              search label another ~70px. The drawer below keeps its icons,
+              since it has a full row per item.
 
-              Dropping the per-link icons here buys back ~130px and is what makes
-              a single line possible; the drawer below keeps them, since it has
-              a full row per item. `whitespace-nowrap` then guarantees the fix
-              rather than relying on the measurement staying true. Spanish now
-              needs ~1162px, so the row switches on at xl (1280px) with ~50px to
-              spare and the hamburger carries everything below that. */}
-          <nav className="hidden xl:flex items-center gap-1 lg:gap-2">
+              Adding the wordmark to the logo then cost ~150px back, taking
+              Spanish to ~1279px. That is why the container above is no longer
+              capped at max-w-7xl and why this row appears at 1440px rather than
+              xl — measured, with ~55px of Spanish slack. `whitespace-nowrap`
+              guarantees the fix rather than trusting the measurement to hold.
+              Below 1440px the hamburger carries the nav; the wordmark stays
+              visible from sm up either way. */}
+          <nav className="hidden min-[1440px]:flex items-center gap-1 lg:gap-2">
             {navItems.map((item) => {
               const isActive = activeTab === item.id;
               return (
@@ -138,13 +148,13 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenContact }) => {
           </nav>
 
           {/* Right Actions: Search, Language Switcher & Quick CTA.
-              Below xl the nav collapses and justify-between has only three
+              Below 1440px the nav collapses and justify-between has only three
               groups left to spread, which stranded this cluster in the middle
               of the bar with the hamburger far off to its right. `ml-auto`
-              takes the slack so it sits next to the hamburger instead; above xl
-              the nav is back and the even spacing is what we want, so it is
-              switched off again. */}
-          <div className="hidden sm:flex items-center gap-2.5 ml-auto xl:ml-0">
+              takes the slack so it sits next to the hamburger instead; above
+              that the nav is back and the even spacing is what we want, so it
+              is switched off again. */}
+          <div className="hidden sm:flex items-center gap-2.5 ml-auto min-[1440px]:ml-0">
             {/* Global Search Trigger Button */}
             <button
               onClick={openSearch}
@@ -211,7 +221,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenContact }) => {
           {/* Compact controls. The hamburger carries the nav below xl; search
               and language duplicate the row above, so they drop away once that
               row appears at sm. */}
-          <div className="flex items-center gap-2 xl:hidden">
+          <div className="flex items-center gap-2 min-[1440px]:hidden">
             <button
               onClick={openSearch}
               className={`p-2 rounded-full border transition-colors sm:hidden ${
@@ -247,7 +257,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenContact }) => {
 
       {/* Mobile Drawer Menu */}
       {mobileMenuOpen && (
-        <div className="xl:hidden bg-parchment border-b border-warm-taupe shadow-xl px-4 pt-3 pb-6 space-y-2 animate-fadeIn">
+        <div className="min-[1440px]:hidden bg-parchment border-b border-warm-taupe shadow-xl px-4 pt-3 pb-6 space-y-2 animate-fadeIn">
           {navItems.map((item) => {
             const isActive = activeTab === item.id;
             return (

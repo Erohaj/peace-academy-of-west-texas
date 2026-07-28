@@ -12,13 +12,16 @@ interface LogoProps {
    * instead of "Home, button".
    */
   decorative?: boolean;
+  /** Colour of the second wordmark line. Terracotta fails on a dark bar. */
+  subTextColor?: string;
 }
 
 export const PAWTXLogo: React.FC<LogoProps> = ({
   className = "w-12 h-12",
   showText = false,
   textColor = "text-graphite",
-  decorative = false
+  decorative = false,
+  subTextColor = "text-terracotta"
 }) => {
   return (
     <div className="flex items-center gap-2.5">
@@ -31,14 +34,22 @@ export const PAWTXLogo: React.FC<LogoProps> = ({
         className={`${className} object-contain rounded-xl bg-white p-0.5 shadow-sm ring-1 ring-black/5`}
       />
 
-      {/* Optional extra text if explicitly requested, but default is false so only the logo badge displays */}
+      {/* The wordmark. Two lines because the full name on one runs ~330px,
+          which the header row cannot spare — stacked it is ~140px.
+          From md, not sm: at 640px the search, language and donate controls
+          have just appeared and Spanish had 5px of slack left, which is not a
+          margin so much as a coincidence. Below md the badge stands alone. */}
       {showText && (
-        <div className="hidden sm:block">
-          <span className={`block font-serif font-bold text-base tracking-tight leading-none ${textColor}`}>
+        <div className="hidden md:block text-left">
+          <span
+            className={`block font-serif font-bold text-base tracking-tight leading-none whitespace-nowrap ${textColor}`}
+          >
             PEACE ACADEMY
           </span>
-          <span className="block text-[9px] font-bold uppercase tracking-[0.2em] text-terracotta">
-            WEST TEXAS
+          <span
+            className={`block text-3xs font-bold uppercase tracking-[0.2em] whitespace-nowrap ${subTextColor}`}
+          >
+            OF WEST TEXAS
           </span>
         </div>
       )}
