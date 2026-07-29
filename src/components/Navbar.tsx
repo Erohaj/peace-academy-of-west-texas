@@ -89,6 +89,27 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenContact }) => {
               className="w-12 h-12 transition-transform group-hover:scale-105"
               showText
               decorative
+              // Three bands, because the right-hand side of this row is not
+              // the same set of controls at every width, and the wordmark
+              // used to be gated on the worst of them:
+              //
+              //  - 360px to sm: shown. Below sm the row carries only the
+              //    compact search, language and hamburger icons — 123px
+              //    together — leaving 131px, and the wordmark needs 110px.
+              //    This band was hidden along with the crowded one below it,
+              //    which is why a phone, the way most people reach this site,
+              //    got a badge with no name on it.
+              //  - sm to md (640–767px): hidden. The full pill cluster has
+              //    appeared here (search + language + "Donaciones" = 336px)
+              //    and the wordmark leaves 10px of slack in Spanish; the
+              //    logged-in volunteer's name badge then adds 124px and puts
+              //    the row 124px over. There is nothing to give in this band.
+              //  - md and up: shown, as it always was.
+              //
+              // Under 360px the badge stands alone: the name does not fit
+              // there even at the smaller size, and half of it is worse than
+              // none. Measured at 360/640 in both languages.
+              textVisibilityClassName="hidden min-[360px]:max-sm:block md:block"
               // Over the hero photo the bar is a dark gradient; on every other
               // tab it is solid parchment. Terracotta on the second line is
               // unreadable against the former.
@@ -111,8 +132,8 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenContact }) => {
               capped at max-w-7xl and why this row appears at 1440px rather than
               xl — measured, with ~55px of Spanish slack. `whitespace-nowrap`
               guarantees the fix rather than trusting the measurement to hold.
-              Below 1440px the hamburger carries the nav; the wordmark stays
-              visible from sm up either way. */}
+              Below 1440px the hamburger carries the nav; the wordmark has its
+              own three bands, described at the PAWTXLogo call above. */}
           <nav className="hidden min-[1440px]:flex items-center gap-1 lg:gap-2">
             {navItems.map((item) => {
               const isActive = activeTab === item.id;
