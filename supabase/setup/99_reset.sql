@@ -52,5 +52,19 @@ drop policy if exists "media: admins upload" on storage.objects;
 drop policy if exists "media: admins update" on storage.objects;
 drop policy if exists "media: admins delete" on storage.objects;
 
--- Удаляем бакет только если он пуст — иначе сначала уберите из него файлы.
-delete from storage.buckets where id = 'media';
+-- Бакет media. Свежие версии Supabase вешают на storage.* триггер
+-- protect_delete, который запрещает удаление напрямую из SQL, — а редактор
+-- выполняет весь этот файл одной транзакцией, так что незакрытая ошибка здесь
+-- откатила бы и все дропы выше: человек увидел бы «ошибка», а база осталась бы
+-- нетронутой. Поэтому попытка удаления обёрнута в обработчик.
+--
+-- Оставшийся бакет повторной установке не мешает: 00_full_setup.sql вставляет
+-- его через `on conflict (id) do nothing`. Если его всё же нужно убрать —
+-- Storage → media → Delete bucket в дашборде.
+do $$
+begin
+  delete from storage.buckets where id = 'media';
+  raise notice 'Бакет media удалён.';
+exception when others then
+  raise notice 'Бакет media оставлен (%). Установке это не мешает.', sqlerrm;
+end $$;
