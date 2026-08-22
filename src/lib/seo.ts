@@ -14,9 +14,12 @@
 import { ORG_EMAIL, ORG_LINKS, ORG_POSTAL_ADDRESS } from '../data/orgLinks';
 
 /** Where the built site is published. Also the Vite `base` — see the config. */
-export const SITE_PATH = '/peace-academy-of-west-texas/';
+export const SITE_PATH = '/';
 
-const SITE_ORIGIN = 'https://erohaj.github.io';
+// The custom domain in `public/CNAME`. GitHub Pages serves the site there and
+// redirects the old erohaj.github.io/peace-academy-of-west-texas/ address to
+// it, so nothing that was ever shared stops working.
+const SITE_ORIGIN = 'https://new.pawtx.org';
 
 /**
  * Absolute, production URL of the home page.
@@ -101,12 +104,11 @@ export const organizationJsonLd = () => ({
 });
 
 /**
- * Crawlers only honour robots.txt at the root of an origin. On GitHub Pages
- * this file lands at `/peace-academy-of-west-texas/robots.txt`, which they
- * will not read — `erohaj.github.io/robots.txt` belongs to whatever repo
- * serves that user's root site. Nothing here is blocked, so the practical
- * effect of that is nil, and the file becomes live the day the site moves to
- * the organisation's own domain.
+ * Crawlers only honour robots.txt at the root of an origin. Now that the site
+ * has its own domain this file lands at that root and is actually read — on
+ * the old GitHub Pages sub-path it never was, because `erohaj.github.io/
+ * robots.txt` belongs to whatever repo serves that user's root site. Nothing
+ * here is blocked either way, so the change costs nothing to get wrong.
  */
 export const robotsTxt = () =>
   ['User-agent: *', 'Disallow:', '', `Sitemap: ${CANONICAL_URL}sitemap.xml`, ''].join('\n');
