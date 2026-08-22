@@ -388,7 +388,7 @@ export const useAppStore = create<AppState>((set, get) => ({
    * Lets a volunteer put their own name to their account.
    *
    * Magic-link sign-in supplies nothing but an email, so the portal greeted
-   * people as "murok.roha@gmail.com" and, worse, a service letter would have
+   * people as "jdoe@example.com" and, worse, a service letter would have
    * carried that too. Google sign-in fills the name in automatically, which is
    * why this went unnoticed.
    *
