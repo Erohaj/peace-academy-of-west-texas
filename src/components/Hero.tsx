@@ -93,7 +93,7 @@ export const Hero: React.FC = () => {
             <div className="w-10 h-10 rounded-full bg-amber-400/10 border border-amber-300/30 flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
               <Users className="w-5 h-5 text-amber-300" />
             </div>
-            <div className="text-3xl sm:text-4xl font-serif font-bold text-white tracking-tight">12,000+</div>
+            <div className="text-3xl sm:text-4xl font-serif font-bold text-white tracking-tight">200+</div>
             <div className="text-[11px] tracking-[0.2em] uppercase font-bold text-amber-100/90 mt-1.5">{t('hero.statServed')}</div>
           </div>
 

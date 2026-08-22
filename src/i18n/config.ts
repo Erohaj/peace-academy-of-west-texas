@@ -21,7 +21,7 @@ const resources = {
         subtitle: "Peace Academy of West Texas brings people together through international cooking classes, cultural festivals, educational seminars, and community relief across Midland and Odessa.",
         donateCta: "Support Our Mission",
         eventsCta: "Explore Events & RSVP",
-        statServed: "12,000+ Community Members",
+        statServed: "200+ Community Members",
         statEvents: "85+ Cultural Workshops",
         statNonprofit: "100% Volunteer Driven"
       },
@@ -342,7 +342,7 @@ const resources = {
         subtitle: "Peace Academy of West Texas une a las personas mediante clases internacionales de cocina, festivales culturales, seminarios educativos y ayuda comunitaria en Midland y Odessa.",
         donateCta: "Apoya Nuestra Misión",
         eventsCta: "Ver Eventos y Reservar",
-        statServed: "12,000+ Miembros Servidos",
+        statServed: "200+ Miembros Servidos",
         statEvents: "85+ Talleres Culturales",
         statNonprofit: "100% Guiado por Voluntarios"
       },
