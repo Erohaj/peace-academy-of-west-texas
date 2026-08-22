@@ -92,6 +92,38 @@ while testing locally arrives pointing at the deployed site, and the changes
 being tested appear to have had no effect. In development the app logs the
 address it asked for, to make that visible.
 
+#### Google sign-in
+
+Optional — the portal works on magic links alone — but worth having: it sends
+no email, so it is unaffected by the Supabase Auth throttle that starts
+rejecting magic links after a couple in an hour, and it supplies the person's
+name, which magic links do not (see `saveProfile` in `useAppStore.ts`).
+
+In the **Google Cloud Console**, on the organisation's account, create an
+OAuth client under APIs & Services → Credentials → Create credentials → OAuth
+client ID → **Web application**:
+
+| Field | Value |
+| --- | --- |
+| Authorized JavaScript origins | `https://<user>.github.io` and `http://localhost:3000` |
+| Authorized redirect URIs | `https://<your-project-ref>.supabase.co/auth/v1/callback` |
+
+The redirect URI is the one people get wrong. It is **Supabase's** callback,
+not this site's address — Google returns to Supabase, which then forwards to
+wherever `signInWithOAuth` asked for. The site's own address belongs on the
+Redirect URLs allowlist above instead, and if it is missing there the sign-in
+completes at Google and then lands on the wrong site, with no error anywhere.
+
+Then Supabase → Authentication → Providers → **Google**: enable it and paste
+the client ID and secret.
+
+One more thing that fails silently: while the OAuth consent screen is left in
+**Testing**, only the accounts listed on it as test users can sign in, and
+everyone else is refused after they have already picked their Google account.
+Publish the consent screen before volunteers are asked to use this. An app
+that requests only the default `email` and `profile` scopes does not need
+Google's verification review to be published.
+
 ### 3. Make yourself an admin
 
 Sign in once through the Volunteer Portal to create your profile, then in the
