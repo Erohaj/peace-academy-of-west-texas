@@ -291,7 +291,11 @@ export const useAppStore = create<AppState>((set, get) => ({
         phone: data.phone,
         guestCount: data.guestCount,
         optionalDonation: data.optionalDonation,
-        mediaConsent: data.mediaConsent
+        mediaConsent: data.mediaConsent,
+        // Read from the store rather than passed in by the modal: the language
+        // is a property of the session, not of this form, and threading it
+        // through the component would let the two drift apart.
+        language: get().language
       });
     } catch (error) {
       return { ok: false, error: reportError('RSVP failed', error) };

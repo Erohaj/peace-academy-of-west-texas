@@ -13,6 +13,8 @@ export interface CreateRsvpInput {
   optionalDonation?: number;
   /** Required when the event has `collect_media_consent` on; the function rejects the booking otherwise. */
   mediaConsent?: MediaConsent | null;
+  /** Language the visitor is reading in, so the confirmation email matches it. */
+  language: 'en' | 'es';
 }
 
 /**
@@ -34,7 +36,8 @@ export async function createRsvp(input: CreateRsvpInput): Promise<RsvpRow> {
     p_phone: input.phone ?? null,
     p_guest_count: input.guestCount,
     p_optional_donation: input.optionalDonation ?? 0,
-    p_media_consent: input.mediaConsent ?? null
+    p_media_consent: input.mediaConsent ?? null,
+    p_language: input.language
   });
 
   if (error) throw error;

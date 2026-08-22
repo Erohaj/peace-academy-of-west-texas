@@ -155,6 +155,10 @@ export interface Database {
           // had the toggle off, or the row predates the column. Not a "no", and
           // emphatically not a yes.
           media_consent: MediaConsentRow | null;
+          // Which side of the bilingual site this booking came from. Drives the
+          // language of the confirmation email; never null, since rows written
+          // before the column existed did get an English one.
+          language: 'en' | 'es';
           created_at: string;
         };
         // Direct inserts are revoked; RSVPs are created through create_rsvp().

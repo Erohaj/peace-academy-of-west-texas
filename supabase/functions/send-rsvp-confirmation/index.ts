@@ -29,6 +29,7 @@ interface RsvpRecord {
   email: string;
   phone: string | null;
   guest_count: number;
+  language: 'en' | 'es' | null;
 }
 
 interface WebhookPayload {
@@ -70,8 +71,17 @@ Deno.serve(async (req) => {
     return errorResponse('Event not found', 404);
   }
 
+  // Rows written before the language column existed carry null, and those
+  // attendees did read the English site.
+  const isEs = rsvp.language === 'es';
+  const locale = isEs ? 'es-US' : 'en-US';
+
+  // title_es is NOT NULL in the schema, but an empty string would still leave
+  // a Spanish reader looking at a blank subject line.
+  const eventTitle = (isEs && event.title_es?.trim()) || event.title;
+
   const start = new Date(event.starts_at);
-  const dayLabel = new Intl.DateTimeFormat('en-US', {
+  const dayLabel = new Intl.DateTimeFormat(locale, {
     weekday: 'long',
     month: 'long',
     day: 'numeric',
@@ -79,7 +89,7 @@ Deno.serve(async (req) => {
     timeZone: EVENT_TIME_ZONE
   }).format(start);
 
-  const timeLabel = new Intl.DateTimeFormat('en-US', {
+  const timeLabel = new Intl.DateTimeFormat(locale, {
     hour: 'numeric',
     minute: '2-digit',
     hour12: true,
@@ -87,7 +97,7 @@ Deno.serve(async (req) => {
   }).format(start);
 
   const calendarUrl = buildGoogleCalendarUrl(
-    event.title,
+    eventTitle,
     event.location,
     start,
     event.ends_at ? new Date(event.ends_at) : null
@@ -95,31 +105,54 @@ Deno.serve(async (req) => {
 
   const partySize = rsvp.guest_count + 1;
 
+  const copy = isEs
+    ? {
+        subject: `Te has registrado: ${eventTitle}`,
+        heading: '¡Te has registrado!',
+        intro: `Gracias, ${escapeHtml(rsvp.full_name)} — hemos reservado ${
+          partySize === 1 ? 'tu lugar' : `${partySize} lugares`
+        } en este evento.`,
+        at: 'a las',
+        registeredUnder: 'Registrado a nombre de',
+        calendar: 'Añadir a Google Calendar',
+        footer: '¿Cambiaron tus planes? Responde a este correo y liberaremos tu lugar.'
+      }
+    : {
+        subject: `You're registered: ${eventTitle}`,
+        heading: "You're registered!",
+        intro: `Thanks, ${escapeHtml(rsvp.full_name)} — we've saved ${
+          partySize === 1 ? 'your spot' : `${partySize} spots`
+        } at this event.`,
+        at: 'at',
+        registeredUnder: 'Registered under',
+        calendar: 'Add to Google Calendar',
+        footer: "Plans changed? Just reply to this email and we'll free up your spot."
+      };
+
   try {
     await sendEmail({
       to: rsvp.email,
       replyTo: ORG_INBOX,
-      subject: `You're registered: ${event.title}`,
+      subject: copy.subject,
       html: emailLayout(
-        "You're registered!",
+        copy.heading,
         `
           <p style="font-size:14px;line-height:1.6;margin:0 0 20px;">
-            Thanks, ${escapeHtml(rsvp.full_name)} — we've saved
-            ${partySize === 1 ? 'your spot' : `${partySize} spots`} at this event.
+            ${copy.intro}
           </p>
           <div style="background:#F4F1ED;border:1px solid #E5E0D8;border-radius:12px;padding:16px;font-size:13px;line-height:1.7;">
-            <div style="font-weight:700;font-size:15px;margin-bottom:6px;">${escapeHtml(event.title)}</div>
-            <div>${escapeHtml(dayLabel)} at ${escapeHtml(timeLabel)}</div>
+            <div style="font-weight:700;font-size:15px;margin-bottom:6px;">${escapeHtml(eventTitle)}</div>
+            <div>${escapeHtml(dayLabel)} ${copy.at} ${escapeHtml(timeLabel)}</div>
             <div>${escapeHtml(event.location)}</div>
-            <div style="margin-top:8px;">Registered under: ${escapeHtml(rsvp.email)}</div>
+            <div style="margin-top:8px;">${copy.registeredUnder}: ${escapeHtml(rsvp.email)}</div>
           </div>
           <p style="margin:24px 0 0;">
             <a href="${calendarUrl}" style="display:inline-block;background:#A64D32;color:#ffffff;text-decoration:none;padding:12px 24px;border-radius:999px;font-size:13px;font-weight:700;">
-              Add to Google Calendar
+              ${copy.calendar}
             </a>
           </p>
           <p style="font-size:12px;color:#5A5A5A;margin:20px 0 0;">
-            Plans changed? Just reply to this email and we'll free up your spot.
+            ${copy.footer}
           </p>
         `
       )
@@ -145,6 +178,7 @@ Deno.serve(async (req) => {
             <div><strong>Email:</strong> ${escapeHtml(rsvp.email)}</div>
             <div><strong>Phone:</strong> ${escapeHtml(rsvp.phone ?? '—')}</div>
             <div><strong>Party size:</strong> ${partySize}</div>
+            <div><strong>Language:</strong> ${isEs ? 'Spanish' : 'English'}</div>
           </div>
         `
       )

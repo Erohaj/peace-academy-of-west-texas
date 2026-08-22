@@ -210,8 +210,8 @@ for (const fn of ['create_rsvp', 'is_admin', 'verify_certificate']) {
 }
 
 check(
-  'create_rsvp takes the 7 arguments 98_verify expects',
-  created.functions.get('create_rsvp') === 7,
+  'create_rsvp takes the 8 arguments 98_verify expects',
+  created.functions.get('create_rsvp') === 8,
   `migrations leave it at ${created.functions.get('create_rsvp')}`
 );
 

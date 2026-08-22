@@ -51,13 +51,13 @@ expected(ord, name, want, got) as (
        join pg_namespace n on n.oid = p.pronamespace
       where n.nspname = 'public' and p.proname = 'create_rsvp')
   union all
-  -- Нужна версия с 7 аргументами — та, что спрашивает про фото и видео. Старую
-  -- с 6 аргументами миграция удаляет: останутся обе — PostgREST будет выбирать
-  -- между ними по именам аргументов, и вызов может попасть в старую.
-  select 6, 'create_rsvp спрашивает про медиасогласие', '1',
+  -- Нужна версия с 8 аргументами — та, что спрашивает про фото и видео и запоминает
+  -- язык. Предыдущие версии миграции удаляют: останутся несколько — PostgREST
+  -- будет выбирать между ними по именам аргументов, и вызов может попасть в старую.
+  select 6, 'create_rsvp спрашивает про медиасогласие и язык', '1',
     (select count(*) from pg_proc p
        join pg_namespace n on n.oid = p.pronamespace
-      where n.nspname = 'public' and p.proname = 'create_rsvp' and p.pronargs = 7)
+      where n.nspname = 'public' and p.proname = 'create_rsvp' and p.pronargs = 8)
   union all
   select 7, 'Функция is_admin', '1',
     (select count(*) from pg_proc p
