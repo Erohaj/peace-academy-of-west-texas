@@ -21,9 +21,23 @@ const {
   PAGE_AVATAR_URL = ''
 } = process.env;
 
+// Not configured is not the same as broken, and this runs on a six-hourly
+// schedule: exiting non-zero turned "the Meta app does not exist yet" into a
+// failed workflow run four times a day, every one of which mails the repository
+// owner. Ninety-odd of those had accumulated before anyone connected the noise
+// to its cause.
+//
+// Leaving early with a zero exit keeps the schedule armed — the moment the
+// secret is added the next run picks it up — while the run stays green. Note
+// this only catches a *missing* token: one that exists and is rejected still
+// fails loudly further down, which is the case actually worth an email.
 if (!FB_PAGE_ACCESS_TOKEN) {
-  console.error('FB_PAGE_ACCESS_TOKEN is required (Instagram is also read through the linked Page token).');
-  process.exit(1);
+  console.log(
+    'FB_PAGE_ACCESS_TOKEN is not set — skipping the social feed refresh. ' +
+      'Add it as a repository secret to turn this on; the site falls back to ' +
+      'the curated posts in src/data/socialPosts.ts until then.'
+  );
+  process.exit(0);
 }
 
 function extractTags(text = '') {
