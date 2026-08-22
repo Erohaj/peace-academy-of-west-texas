@@ -34,10 +34,13 @@ drop table if exists
   public.profiles
 cascade;
 
--- create_rsvp удаляется в обеих сигнатурах: с медиасогласием (7 аргументов)
--- и до него (6). На базе, установленной старым бандлом, живёт вторая.
+-- create_rsvp удаляется во всех трёх сигнатурах: с языком (8 аргументов), с
+-- медиасогласием (7) и до него (6). На базе, установленной старым бандлом,
+-- живёт одна из прежних, и пропущенная строка оставила бы функцию висеть.
+drop function if exists public.create_rsvp(uuid, text, text, text, integer, numeric, text, text);
 drop function if exists public.create_rsvp(uuid, text, text, text, integer, numeric, text);
 drop function if exists public.create_rsvp(uuid, text, text, text, integer, numeric);
+drop function if exists public.notify_rsvp_confirmation() cascade;
 drop function if exists public.verify_certificate(text);
 drop function if exists public.handle_new_user() cascade;
 drop function if exists public.sync_shift_spots_filled() cascade;

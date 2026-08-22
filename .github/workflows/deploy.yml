@@ -40,6 +40,12 @@ jobs:
           # repo secrets so the project can be re-pointed without a code change.
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+          # Not a secret — a build-time switch, kept here in plain sight rather
+          # than in repo secrets so that what production was built with is
+          # readable from the repository. Turning transactional email back off
+          # is a one-line commit, which is also the audit trail for when it
+          # happened. See src/lib/features.ts for what each flag gates.
+          VITE_EMAIL_ENABLED: 'true'
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
