@@ -42,16 +42,27 @@ export function mapEventRow(row: EventRow, language: 'en' | 'es'): PAWTXEvent {
 }
 
 /**
- * Published events, soonest first.
+ * Published events that have not finished, soonest first.
  *
  * RLS already restricts anonymous readers to published rows; the explicit
  * filter keeps admins (who can see drafts) from getting them on public pages.
+ *
+ * Events that are over stay in the table — they are the organisation's own
+ * record, and `fetchAllEventsForAdmin` still lists them — but the public feed
+ * must not go on advertising last week's dinner with a live RSVP button.
+ * `ends_at` is nullable, so an event without an end time is over once it has
+ * started; one that is currently running stays listed, since someone reading
+ * at 6pm can still decide to come to the 5:30 class. `create_rsvp` applies the
+ * same rule server-side (PA006) — this filter is the courtesy, not the guard.
  */
 export async function fetchEvents(): Promise<EventRow[]> {
+  const now = new Date().toISOString();
+
   const { data, error } = await requireSupabase()
     .from('events')
     .select('*')
     .eq('published', true)
+    .or(`ends_at.gt."${now}",and(ends_at.is.null,starts_at.gt."${now}")`)
     .order('starts_at', { ascending: true });
 
   if (error) throw error;

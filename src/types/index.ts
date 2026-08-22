@@ -131,7 +131,8 @@ export type DataStatus = 'idle' | 'loading' | 'ready' | 'error';
  *
  * The RSVP codes mirror the SQLSTATEs raised by `create_rsvp()`:
  * PA001 → event_full, PA002 → already_registered, PA003 → event_not_found,
- * PA004 → invalid_guest_count.
+ * PA004 → invalid_guest_count, PA005 → media_consent_required,
+ * PA006 → event_over.
  */
 export type ActionError =
   | 'event_full'
@@ -139,6 +140,7 @@ export type ActionError =
   | 'event_not_found'
   | 'invalid_guest_count'
   | 'media_consent_required'
+  | 'event_over'
   | 'shift_full'
   | 'not_configured'
   | 'unauthenticated'

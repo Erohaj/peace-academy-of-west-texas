@@ -127,6 +127,15 @@ export const RSVPModal: React.FC = () => {
           text: t('rsvpModal.errorDuplicateText'),
           retryable: false
         };
+      // The feed drops finished events, so this only appears on a page left
+      // open across the event's end time. Retrying cannot help — the date has
+      // passed — so the button that would offer it is withheld.
+      case 'event_over':
+        return {
+          title: t('rsvpModal.errorOverTitle'),
+          text: t('rsvpModal.errorOverText'),
+          retryable: false
+        };
       // Only reachable if the event gained the requirement after this page
       // loaded — retrying re-renders the form with the question on it.
       case 'media_consent_required':
