@@ -222,3 +222,27 @@ To turn it on, add these as **repository secrets** (Settings → Secrets and var
 
 Until these secrets exist, the workflow simply skips the missing platform(s) and
 `public/social-posts.json` stays empty, so the site keeps showing the mock posts.
+
+## Pulling content off the old Wix site
+
+The organisation's previous site is a Wix build at `www.pawtx.org`. Wix has no site
+export, so [scripts/import-wix.mjs](scripts/import-wix.mjs) takes what is reachable from
+outside: the sitemaps list every page, the body copy is server-rendered, each event page
+carries a schema.org JSON-LD block, and dropping the `/v1/fill/...` transform from a
+`static.wixstatic.com` URL returns the original upload.
+
+```bash
+node scripts/import-wix.mjs              # pages + media into wix-export/
+node scripts/import-wix.mjs --no-media   # text and JSON only
+```
+
+It writes `pages.json`, `events.json`, `media.json`, `text/<slug>.txt` and `media/` into
+`wix-export/`, which is **gitignored** — it is ~135 MB of unoptimised originals and a
+staging area for the migration, not something the site builds from. Photos that are
+wanted on the new site should go through `npm run optimize:images` into `src/assets`.
+
+What the script cannot reach, because it lives behind the Wix dashboard login: contacts
+and the CRM, event guest lists, form submissions, unused Media Manager files, and drafts.
+Those must be exported by hand — the script prints where when it finishes. In practice the
+Contacts export covers most of it, because Wix files event registrants as contacts and
+records the event in their `Labels` column.
