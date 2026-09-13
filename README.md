@@ -4,7 +4,7 @@
 
 # Peace Academy of West Texas
 
-The website of [Peace Academy of West Texas](https://new.pawtx.org)
+The website of [Peace Academy of West Texas](https://pawtx.org)
 (PAWTX), a 501(c)(3) nonprofit in Odessa and Midland, Texas, running
 cross-cultural education, interfaith dialogue and food security programmes
 across the Permian Basin.
@@ -77,7 +77,7 @@ Supabase → Authentication → URL Configuration → **Redirect URLs** must inc
 the deployed address and the dev server:
 
 ```
-https://new.pawtx.org/**
+https://pawtx.org/**
 http://localhost:3000/**
 ```
 
@@ -105,7 +105,7 @@ client ID → **Web application**:
 
 | Field | Value |
 | --- | --- |
-| Authorized JavaScript origins | `https://<user>.github.io` and `http://localhost:3000` |
+| Authorized JavaScript origins | `https://pawtx.org` and `http://localhost:3000` |
 | Authorized redirect URIs | `https://<your-project-ref>.supabase.co/auth/v1/callback` |
 
 The redirect URI is the one people get wrong. It is **Supabase's** callback,
@@ -144,7 +144,7 @@ npx supabase secrets set \
   RESEND_API_KEY=re_... \
   MAIL_FROM="PAWTX <info@pawtx.org>" \
   CONTACT_INBOX=paowtx@gmail.com \
-  SITE_URL=https://<user>.github.io/peace-academy-of-west-texas \
+  SITE_URL=https://pawtx.org \
   ORG_EIN=XX-XXXXXXX
 
 npm run functions:deploy
@@ -191,7 +191,7 @@ npm run seo:assets
 **The site's address is two constants,** `SITE_ORIGIN` and `SITE_PATH` in
 `src/lib/seo.ts` — everything else, including `robots.txt` and `sitemap.xml`,
 is derived from them, so moving the site again means changing those two and
-`public/CNAME`. It is currently `https://new.pawtx.org/`, the root of its own
+`public/CNAME`. It is currently `https://pawtx.org/`, the root of its own
 origin, which is what makes `robots.txt` work at all: crawlers read it only at
 the origin root, so it did nothing while the site was served under the
 `/peace-academy-of-west-texas/` sub-path.
