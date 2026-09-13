@@ -1,0 +1,12 @@
+# supabase/setup/00_full_setup.sql is compared against the generator's output
+# byte for byte by `npm run setup:check`, and scripts/generate-setup-bundle.mjs
+# joins its own header and separator lines with "\n" while copying the
+# migration bodies through verbatim. Handed a CRLF working copy — which is what
+# core.autocrlf=true does on Windows — that comparison fails on every fresh
+# clone even when nothing has drifted, and a check that cries wolf is a check
+# people stop reading. It is the only thing standing between us and a stale
+# bundle; it had silently fallen eleven migrations behind once already.
+#
+# Pinning the SQL to LF in the working tree, not just in the repository, is
+# what keeps the two byte-identical.
+*.sql text eol=lf

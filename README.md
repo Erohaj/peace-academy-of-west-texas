@@ -4,7 +4,7 @@
 
 # Peace Academy of West Texas
 
-The website of [Peace Academy of West Texas](https://erohaj.github.io/peace-academy-of-west-texas/)
+The website of [Peace Academy of West Texas](https://new.pawtx.org)
 (PAWTX), a 501(c)(3) nonprofit in Odessa and Midland, Texas, running
 cross-cultural education, interfaith dialogue and food security programmes
 across the Permian Basin.
@@ -74,10 +74,10 @@ whatever was forgotten.
 ### 2. Auth
 
 Supabase → Authentication → URL Configuration → **Redirect URLs** must include
-the deployed path, including the GitHub Pages sub-path:
+the deployed address and the dev server:
 
 ```
-https://<user>.github.io/peace-academy-of-west-texas/**
+https://new.pawtx.org/**
 http://localhost:3000/**
 ```
 
@@ -188,11 +188,13 @@ the bundled photos after changing the hero or the logo:
 npm run seo:assets
 ```
 
-**If the site moves to its own domain,** change `SITE_ORIGIN` and `SITE_PATH`
-in `src/lib/seo.ts` — everything else, including `robots.txt` and
-`sitemap.xml`, is derived from them. Note that `robots.txt` only takes effect
-once the site is at the root of a domain: crawlers read it at the origin root,
-and GitHub Pages serves this project under `/peace-academy-of-west-texas/`.
+**The site's address is two constants,** `SITE_ORIGIN` and `SITE_PATH` in
+`src/lib/seo.ts` — everything else, including `robots.txt` and `sitemap.xml`,
+is derived from them, so moving the site again means changing those two and
+`public/CNAME`. It is currently `https://new.pawtx.org/`, the root of its own
+origin, which is what makes `robots.txt` work at all: crawlers read it only at
+the origin root, so it did nothing while the site was served under the
+`/peace-academy-of-west-texas/` sub-path.
 
 After deploying a change to the preview card, ask each platform to re-read the
 page — they cache the old one for days:
