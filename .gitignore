@@ -11,3 +11,9 @@ coverage/
 # to whoever ran the CLI last; linked-project.json is tracked deliberately and
 # stays so — .gitignore does not affect files already in the index.
 supabase/.temp/
+
+# Raw pull of the old Wix site (scripts/import-wix.mjs). The media alone is
+# ~135 MB of unoptimised originals straight off wixstatic, and this is a
+# staging area for the migration, not something the site builds from — take
+# what is needed into src/assets via npm run optimize:images and Supabase.
+wix-export/

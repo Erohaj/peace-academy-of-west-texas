@@ -4,7 +4,7 @@
 
 # Peace Academy of West Texas
 
-The website of [Peace Academy of West Texas](https://erohaj.github.io/peace-academy-of-west-texas/)
+The website of [Peace Academy of West Texas](https://pawtx.org)
 (PAWTX), a 501(c)(3) nonprofit in Odessa and Midland, Texas, running
 cross-cultural education, interfaith dialogue and food security programmes
 across the Permian Basin.
@@ -74,10 +74,10 @@ whatever was forgotten.
 ### 2. Auth
 
 Supabase → Authentication → URL Configuration → **Redirect URLs** must include
-the deployed path, including the GitHub Pages sub-path:
+the deployed address and the dev server:
 
 ```
-https://<user>.github.io/peace-academy-of-west-texas/**
+https://pawtx.org/**
 http://localhost:3000/**
 ```
 
@@ -105,7 +105,7 @@ client ID → **Web application**:
 
 | Field | Value |
 | --- | --- |
-| Authorized JavaScript origins | `https://<user>.github.io` and `http://localhost:3000` |
+| Authorized JavaScript origins | `https://pawtx.org` and `http://localhost:3000` |
 | Authorized redirect URIs | `https://<your-project-ref>.supabase.co/auth/v1/callback` |
 
 The redirect URI is the one people get wrong. It is **Supabase's** callback,
@@ -144,7 +144,7 @@ npx supabase secrets set \
   RESEND_API_KEY=re_... \
   MAIL_FROM="PAWTX <info@pawtx.org>" \
   CONTACT_INBOX=paowtx@gmail.com \
-  SITE_URL=https://<user>.github.io/peace-academy-of-west-texas \
+  SITE_URL=https://pawtx.org \
   ORG_EIN=XX-XXXXXXX
 
 npm run functions:deploy
@@ -188,11 +188,13 @@ the bundled photos after changing the hero or the logo:
 npm run seo:assets
 ```
 
-**If the site moves to its own domain,** change `SITE_ORIGIN` and `SITE_PATH`
-in `src/lib/seo.ts` — everything else, including `robots.txt` and
-`sitemap.xml`, is derived from them. Note that `robots.txt` only takes effect
-once the site is at the root of a domain: crawlers read it at the origin root,
-and GitHub Pages serves this project under `/peace-academy-of-west-texas/`.
+**The site's address is two constants,** `SITE_ORIGIN` and `SITE_PATH` in
+`src/lib/seo.ts` — everything else, including `robots.txt` and `sitemap.xml`,
+is derived from them, so moving the site again means changing those two and
+`public/CNAME`. It is currently `https://pawtx.org/`, the root of its own
+origin, which is what makes `robots.txt` work at all: crawlers read it only at
+the origin root, so it did nothing while the site was served under the
+`/peace-academy-of-west-texas/` sub-path.
 
 After deploying a change to the preview card, ask each platform to re-read the
 page — they cache the old one for days:
@@ -220,3 +222,27 @@ To turn it on, add these as **repository secrets** (Settings → Secrets and var
 
 Until these secrets exist, the workflow simply skips the missing platform(s) and
 `public/social-posts.json` stays empty, so the site keeps showing the mock posts.
+
+## Pulling content off the old Wix site
+
+The organisation's previous site is a Wix build at `www.pawtx.org`. Wix has no site
+export, so [scripts/import-wix.mjs](scripts/import-wix.mjs) takes what is reachable from
+outside: the sitemaps list every page, the body copy is server-rendered, each event page
+carries a schema.org JSON-LD block, and dropping the `/v1/fill/...` transform from a
+`static.wixstatic.com` URL returns the original upload.
+
+```bash
+node scripts/import-wix.mjs              # pages + media into wix-export/
+node scripts/import-wix.mjs --no-media   # text and JSON only
+```
+
+It writes `pages.json`, `events.json`, `media.json`, `text/<slug>.txt` and `media/` into
+`wix-export/`, which is **gitignored** — it is ~135 MB of unoptimised originals and a
+staging area for the migration, not something the site builds from. Photos that are
+wanted on the new site should go through `npm run optimize:images` into `src/assets`.
+
+What the script cannot reach, because it lives behind the Wix dashboard login: contacts
+and the CRM, event guest lists, form submissions, unused Media Manager files, and drafts.
+Those must be exported by hand — the script prints where when it finishes. In practice the
+Contacts export covers most of it, because Wix files event registrants as contacts and
+records the event in their `Labels` column.

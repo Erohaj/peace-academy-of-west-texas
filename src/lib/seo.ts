@@ -17,9 +17,10 @@ import { ORG_EMAIL, ORG_LINKS, ORG_POSTAL_ADDRESS } from '../data/orgLinks';
 export const SITE_PATH = '/';
 
 // The custom domain in `public/CNAME`. GitHub Pages serves the site there and
-// redirects the old erohaj.github.io/peace-academy-of-west-texas/ address to
-// it, so nothing that was ever shared stops working.
-const SITE_ORIGIN = 'https://new.pawtx.org';
+// redirects the earlier new.pawtx.org and
+// erohaj.github.io/peace-academy-of-west-texas/ addresses to it, so nothing
+// that was ever shared stops working.
+const SITE_ORIGIN = 'https://pawtx.org';
 
 /**
  * Absolute, production URL of the home page.
