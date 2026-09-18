@@ -83,6 +83,12 @@ export const SocialMediaFeed: React.FC<PageTitleProps> = ({ asPageTitle }) => {
     return posts.filter((p) => p.platform === selectedPlatform);
   }, [posts, selectedPlatform]);
 
+  // Until the Meta integration is connected there is nothing real to show, and
+  // the controls below all act on posts — summarising, re-fetching and
+  // filtering an empty feed are dead buttons that make the section look broken
+  // rather than unfinished. The follow banner stays: those links are real.
+  const hasPosts = posts.length > 0;
+
   const showToast = (msg: string) => {
     setToastMessage(msg);
     setTimeout(() => {
@@ -284,15 +290,20 @@ export const SocialMediaFeed: React.FC<PageTitleProps> = ({ asPageTitle }) => {
         <AnimatedSection direction="down">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-warm-taupe pb-6">
             <div className="space-y-3 max-w-2xl">
-              <div className="inline-flex items-center gap-2 bg-aged-paper border border-warm-taupe px-3.5 py-1.5 rounded-full">
-                <span className="relative flex h-2.5 w-2.5">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
-                </span>
-                <span className="text-[11px] font-bold text-terracotta uppercase tracking-wider">
-                  {t('social.liveBadge')}
-                </span>
-              </div>
+              {/* A pulsing "live" badge over an empty feed claims something
+                  the section cannot back up, so it only appears once there
+                  are real posts behind it. */}
+              {hasPosts && (
+                <div className="inline-flex items-center gap-2 bg-aged-paper border border-warm-taupe px-3.5 py-1.5 rounded-full">
+                  <span className="relative flex h-2.5 w-2.5">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+                  </span>
+                  <span className="text-[11px] font-bold text-terracotta uppercase tracking-wider">
+                    {t('social.liveBadge')}
+                  </span>
+                </div>
+              )}
 
               <Title className="text-3xl sm:text-4xl font-extrabold text-graphite font-serif tracking-tight">
                 {t('social.sectionTitle')}
@@ -303,34 +314,36 @@ export const SocialMediaFeed: React.FC<PageTitleProps> = ({ asPageTitle }) => {
             </div>
 
             {/* Action Buttons: AI Summary & Refresh */}
-            <div className="flex flex-wrap items-center gap-3">
-              <button
-                onClick={handleGenerateAiSummary}
-                disabled={isGeneratingAiSummary}
-                className="px-4 py-2.5 rounded-full bg-gradient-to-r from-amber-600 via-amber-700 to-amber-800 text-white text-xs font-bold shadow-md hover:shadow-lg transition-all flex items-center gap-2 cursor-pointer disabled:opacity-60"
-              >
-                <Sparkles className={`w-4 h-4 ${isGeneratingAiSummary ? 'animate-spin' : ''}`} />
-                <span>{isGeneratingAiSummary ? t('social.aiSummarizing') : t('social.aiSummarizeBtn')}</span>
-              </button>
+            {hasPosts && (
+              <div className="flex flex-wrap items-center gap-3">
+                <button
+                  onClick={handleGenerateAiSummary}
+                  disabled={isGeneratingAiSummary}
+                  className="px-4 py-2.5 rounded-full bg-gradient-to-r from-amber-600 via-amber-700 to-amber-800 text-white text-xs font-bold shadow-md hover:shadow-lg transition-all flex items-center gap-2 cursor-pointer disabled:opacity-60"
+                >
+                  <Sparkles className={`w-4 h-4 ${isGeneratingAiSummary ? 'animate-spin' : ''}`} />
+                  <span>{isGeneratingAiSummary ? t('social.aiSummarizing') : t('social.aiSummarizeBtn')}</span>
+                </button>
 
-              <button
-                onClick={handleFetchLatest}
-                disabled={isFetching}
-                className="px-4 py-2.5 rounded-full bg-parchment border border-warm-taupe text-graphite hover:bg-white text-xs font-bold shadow-xs transition-all flex items-center gap-2 cursor-pointer"
-              >
-                <RefreshCw className={`w-3.5 h-3.5 text-terracotta ${isFetching ? 'animate-spin' : ''}`} />
-                <span>{isFetching ? t('social.fetching') : t('social.refreshFeed')}</span>
-              </button>
+                <button
+                  onClick={handleFetchLatest}
+                  disabled={isFetching}
+                  className="px-4 py-2.5 rounded-full bg-parchment border border-warm-taupe text-graphite hover:bg-white text-xs font-bold shadow-xs transition-all flex items-center gap-2 cursor-pointer"
+                >
+                  <RefreshCw className={`w-3.5 h-3.5 text-terracotta ${isFetching ? 'animate-spin' : ''}`} />
+                  <span>{isFetching ? t('social.fetching') : t('social.refreshFeed')}</span>
+                </button>
 
-              <button
-                onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-                className="px-3.5 py-2.5 rounded-full bg-parchment border border-warm-taupe text-charcoal hover:text-graphite hover:bg-white text-xs font-bold shadow-xs transition-all flex items-center gap-1.5 cursor-pointer"
-                title="Scroll to Top"
-              >
-                <ArrowUp className="w-3.5 h-3.5 text-terracotta" />
-                <span className="hidden sm:inline">{language === 'es' ? 'Ir Arriba' : 'Top'}</span>
-              </button>
-            </div>
+                <button
+                  onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                  className="px-3.5 py-2.5 rounded-full bg-parchment border border-warm-taupe text-charcoal hover:text-graphite hover:bg-white text-xs font-bold shadow-xs transition-all flex items-center gap-1.5 cursor-pointer"
+                  title="Scroll to Top"
+                >
+                  <ArrowUp className="w-3.5 h-3.5 text-terracotta" />
+                  <span className="hidden sm:inline">{language === 'es' ? 'Ir Arriba' : 'Top'}</span>
+                </button>
+              </div>
+            )}
           </div>
         </AnimatedSection>
 
@@ -342,7 +355,11 @@ export const SocialMediaFeed: React.FC<PageTitleProps> = ({ asPageTitle }) => {
             <div className="space-y-2">
               <div className="text-xs font-bold text-terracotta uppercase tracking-wider flex items-center justify-center md:justify-start gap-2">
                 <Radio className="w-4 h-4" />
-                <span>{t('social.followerCount')}</span>
+                {/* Was a "8.5k+ Followers Across Channels" line that nobody
+                    could source. A follower count on a charity's own site is
+                    the kind of claim people check, so it names the channels
+                    instead of counting them. */}
+                <span>{t('social.channelsLabel')}</span>
               </div>
               <CardTitle className="text-2xl font-extrabold text-graphite font-serif">
                 {t('social.followUs')}
@@ -424,6 +441,7 @@ export const SocialMediaFeed: React.FC<PageTitleProps> = ({ asPageTitle }) => {
             rather than a second set of links next to the follow banner above.
             The channel name stays in title/aria-label: without a visible label
             these buttons are otherwise unidentifiable to a screen reader. */}
+        {hasPosts && (
         <AnimatedSection direction="up" delayMs={50}>
           <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
             {platformsList.map((plat) => {
@@ -448,8 +466,27 @@ export const SocialMediaFeed: React.FC<PageTitleProps> = ({ asPageTitle }) => {
             })}
           </div>
         </AnimatedSection>
+        )}
+
+        {/* Nothing to stream yet. Saying so plainly beats the six invented
+            posts that used to sit here under the live badge — the follow
+            banner above still sends people to the real channels. */}
+        {!hasPosts && (
+          <AnimatedSection direction="up" delayMs={50}>
+            <div className="bg-aged-paper border border-warm-taupe rounded-3xl px-8 py-12 text-center space-y-3">
+              <Radio className="w-8 h-8 text-terracotta mx-auto" />
+              <CardTitle className="text-xl font-extrabold text-graphite font-serif">
+                {t('social.emptyTitle')}
+              </CardTitle>
+              <p className="text-sm text-charcoal leading-relaxed max-w-md mx-auto">
+                {t('social.emptyBody')}
+              </p>
+            </div>
+          </AnimatedSection>
+        )}
 
         {/* Social Posts Grid Stream */}
+        {hasPosts && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {filteredPosts.map((post, idx) => {
             const badge = getPlatformBadge(post.platform);
@@ -647,6 +684,7 @@ export const SocialMediaFeed: React.FC<PageTitleProps> = ({ asPageTitle }) => {
             );
           })}
         </div>
+        )}
 
         {/* Media Lightbox Modal */}
         {previewMediaPost && (

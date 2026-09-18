@@ -276,7 +276,9 @@ const resources = {
         commentsTitle: "Comments ({{count}})",
         noCommentsYet: "Be the first to comment!",
         followUs: "Follow Us On",
-        followerCount: "8.5k+ Followers Across Channels",
+        channelsLabel: "Our Official Channels",
+        emptyTitle: "Our feed isn't connected yet",
+        emptyBody: "We post on Instagram, Facebook, YouTube and X. Follow us there — as soon as those posts are wired into this page, they'll show up right here.",
         liveBadge: "LIVE SOCIAL STREAM"
       },
       footer: {
@@ -592,7 +594,9 @@ const resources = {
         commentsTitle: "Comentarios ({{count}})",
         noCommentsYet: "¡Sé el primero en comentar!",
         followUs: "Síguenos en",
-        followerCount: "8.5k+ Seguidores en Redes",
+        channelsLabel: "Nuestros Canales Oficiales",
+        emptyTitle: "Nuestro feed aún no está conectado",
+        emptyBody: "Publicamos en Instagram, Facebook, YouTube y X. Síguenos allí — en cuanto esas publicaciones estén conectadas a esta página, aparecerán aquí mismo.",
         liveBadge: "TRANSMISIÓN SOCIAL EN VIVO"
       },
       footer: {
