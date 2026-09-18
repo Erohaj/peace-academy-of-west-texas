@@ -16,8 +16,14 @@ const {
   FB_PAGE_ACCESS_TOKEN,
   IG_USER_ID,
   FB_PAGE_NAME = 'Peace Academy of West Texas',
-  FB_PAGE_HANDLE = '@PeaceAcademyWestTexas',
-  IG_HANDLE = '@pawtx_org',
+  // These defaults were @PeaceAcademyWestTexas and @pawtx_org, which belong to
+  // nobody — they were invented alongside the mock posts that used to fill this
+  // feed. The real accounts are facebook.com/pawtx and instagram.com/paowtx;
+  // src/data/orgLinks.ts is the source of truth for every channel URL. Getting
+  // this wrong is quiet: the posts would be real and the byline under them
+  // would not.
+  FB_PAGE_HANDLE = '@pawtx',
+  IG_HANDLE = '@paowtx',
   PAGE_AVATAR_URL = ''
 } = process.env;
 
@@ -34,8 +40,9 @@ const {
 if (!FB_PAGE_ACCESS_TOKEN) {
   console.log(
     'FB_PAGE_ACCESS_TOKEN is not set — skipping the social feed refresh. ' +
-      'Add it as a repository secret to turn this on; the site falls back to ' +
-      'the curated posts in src/data/socialPosts.ts until then.'
+      'Add it as a repository secret, with FB_PAGE_ID and IG_USER_ID, to turn ' +
+      'this on. Until then the site shows an empty-feed notice and the links ' +
+      'to the real channels; it no longer stands in invented posts.'
   );
   process.exit(0);
 }
@@ -64,7 +71,7 @@ async function fetchFacebookPosts() {
     .map((post) => ({
       id: `fb-${post.id}`,
       platform: 'facebook',
-      author: { name: FB_PAGE_NAME, handle: FB_PAGE_HANDLE, avatarUrl: PAGE_AVATAR_URL, verified: true },
+      author: { name: FB_PAGE_NAME, handle: FB_PAGE_HANDLE, avatarUrl: PAGE_AVATAR_URL, verified: false },
       content: post.message,
       contentEs: post.message,
       mediaUrl: post.full_picture,
@@ -92,7 +99,7 @@ async function fetchInstagramMedia() {
   return (data.data || []).map((media) => ({
     id: `ig-${media.id}`,
     platform: 'instagram',
-    author: { name: FB_PAGE_NAME, handle: IG_HANDLE, avatarUrl: PAGE_AVATAR_URL, verified: true },
+    author: { name: FB_PAGE_NAME, handle: IG_HANDLE, avatarUrl: PAGE_AVATAR_URL, verified: false },
     content: media.caption || '',
     contentEs: media.caption || '',
     mediaUrl: media.media_type === 'VIDEO' ? media.thumbnail_url : media.media_url,
