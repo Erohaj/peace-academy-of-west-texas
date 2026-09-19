@@ -27,6 +27,12 @@ export interface PAWTXEvent {
   category: EventCategory;
   totalSpots: number;
   reservedSpots: number;
+  /**
+   * Cost per attendee in US dollars, or null when no price has been
+   * stated. Null and 0 are different answers: 0 is a published "Free",
+   * null is "the organisers have not said" and renders nothing.
+   */
+  fee: number | null;
   imageUrl: string;
   status: 'upcoming' | 'ongoing' | 'past';
   featured?: boolean;

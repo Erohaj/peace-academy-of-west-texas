@@ -93,6 +93,7 @@ export interface Database {
           category: EventCategoryRow;
           total_spots: number;
           reserved_spots: number;
+          fee: number | null;
           image_key: string | null;
           image_url: string | null;
           status: EventStatusRow;
@@ -113,6 +114,7 @@ export interface Database {
           location: string;
           category: EventCategoryRow;
           total_spots: number;
+          fee?: number | null;
           image_key?: string | null;
           image_url?: string | null;
           status?: EventStatusRow;
@@ -132,6 +134,7 @@ export interface Database {
           location?: string;
           category?: EventCategoryRow;
           total_spots?: number;
+          fee?: number | null;
           image_key?: string | null;
           image_url?: string | null;
           status?: EventStatusRow;

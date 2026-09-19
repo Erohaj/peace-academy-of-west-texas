@@ -33,7 +33,7 @@ export const SearchModal: React.FC = () => {
     gallery,
     shifts,
     setActiveTab,
-    openRsvpModal,
+    openEventDetails,
     openLightbox,
   } = useAppStore();
 
@@ -189,8 +189,10 @@ export const SearchModal: React.FC = () => {
     closeSearch();
     if (item.type === 'event') {
       setActiveTab('events');
-      // Option to trigger RSVP modal for event
-      openRsvpModal(item.rawItem as PAWTXEvent);
+      // The full write-up, not the booking form: someone searching for an
+      // event wants to read what it is before deciding to register, and the
+      // details dialog carries its own RSVP button for when they have.
+      openEventDetails(item.rawItem as PAWTXEvent);
     } else if (item.type === 'gallery') {
       setActiveTab('gallery');
       const galIndex = gallery.findIndex((g) => g.id === (item.rawItem as GalleryItem).id);

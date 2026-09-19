@@ -40,6 +40,18 @@ const resources = {
         reliefDrives: "Charitable Relief & Support",
         reliefDesc: "Providing essential aid, food packages, and support to families in times of crisis."
       },
+      nextEvent: {
+        eyebrow: "Next Up",
+        heading: "Our Next Event",
+        viewAll: "See All Events",
+        happeningNow: "Happening Now",
+        today: "Today",
+        tomorrow: "Tomorrow",
+        // Only ever rendered for two days or more — one day is `tomorrow`,
+        // so this needs no singular form (i18next plural suffixes are not
+        // wired up in this project).
+        inDays: "In {{count}} days"
+      },
       events: {
         sectionTitle: "Upcoming Community Events",
         subtitle: "Join us for enriching workshops, cultural exchanges, and service gatherings. Reserve your spot today!",
@@ -54,7 +66,10 @@ const resources = {
         joinWaitlist: "Join Waitlist",
         eventLocation: "Location",
         eventDate: "Date & Time",
+        fee: "Fee",
+        free: "Free",
         details: "Event Details",
+        viewDetails: "View Details",
         searchPlaceholder: "Search events by keyword or location...",
         noEvents: "No events match your selected filters.",
         viewGrid: "Grid View",
@@ -311,6 +326,7 @@ const resources = {
         empty: "Nothing here yet — check back soon.",
         resetFilters: "Reset Filters",
         back: "Back",
+        close: "Close",
         verifyTab: "Verify a certificate"
       },
       // Short chip labels. The per-section category keys above are the filter
@@ -363,6 +379,15 @@ const resources = {
         reliefDrives: "Campañas de Ayuda y Apoyo Caritativo",
         reliefDesc: "Brindando ayuda esencial, alimentos y apoyo a familias en momentos de crisis."
       },
+      nextEvent: {
+        eyebrow: "Lo Que Viene",
+        heading: "Nuestro Próximo Evento",
+        viewAll: "Ver Todos los Eventos",
+        happeningNow: "Sucediendo Ahora",
+        today: "Hoy",
+        tomorrow: "Mañana",
+        inDays: "En {{count}} días"
+      },
       events: {
         sectionTitle: "Próximos Eventos Comunitarios",
         subtitle: "Acompáñanos en talleres enriquecedores, intercambios culturales y reuniones de servicio. ¡Reserva tu lugar hoy!",
@@ -377,7 +402,10 @@ const resources = {
         joinWaitlist: "Unirse a Lista de Espera",
         eventLocation: "Lugar",
         eventDate: "Fecha y Hora",
+        fee: "Costo",
+        free: "Gratis",
         details: "Detalles del Evento",
+        viewDetails: "Ver Detalles",
         searchPlaceholder: "Buscar eventos por palabras clave...",
         noEvents: "No hay eventos que coincidan con tus filtros.",
         viewGrid: "Vista Cuadrícula",
@@ -629,6 +657,7 @@ const resources = {
         empty: "Todavía no hay nada aquí — vuelve pronto.",
         resetFilters: "Quitar Filtros",
         back: "Atrás",
+        close: "Cerrar",
         verifyTab: "Verificar un certificado"
       },
       categories: {

@@ -11,12 +11,15 @@ import {
   ExternalLink,
   Sparkles,
   ArrowRight,
-  Filter
+  Filter,
+  Info,
+  Ticket
 } from 'lucide-react';
 import { PAWTXEvent, EventCategory } from '../types';
 import { useAppStore } from '../store/useAppStore';
 import { getEventDateParts, getGoogleCalendarUrl, getTodayParts } from '../lib/eventDates';
 import { categoryBadgeClass, categoryLabelKey } from '../lib/eventCategory';
+import { formatEventFee } from '../lib/eventFee';
 
 interface EventCalendarProps {
   events: PAWTXEvent[];
@@ -26,7 +29,7 @@ interface EventCalendarProps {
 
 export const EventCalendar: React.FC<EventCalendarProps> = ({ events, selectedCategory, searchQuery }) => {
   const { t } = useTranslation();
-  const { language, openRsvpModal } = useAppStore();
+  const { language, openRsvpModal, openEventDetails } = useAppStore();
   const isSpanish = language === 'es';
 
   // Events arrive sorted by start time, so the first one is the soonest. The
@@ -472,6 +475,15 @@ export const EventCalendar: React.FC<EventCalendarProps> = ({ events, selectedCa
                       <span className="truncate">{event.location}</span>
                     </div>
 
+                    {formatEventFee(event.fee, language, t('events.free')) && (
+                      <div className="flex items-center gap-2 text-xs">
+                        <Ticket className="w-3.5 h-3.5 text-olive shrink-0" />
+                        <span className="font-semibold text-graphite">
+                          {formatEventFee(event.fee, language, t('events.free'))}
+                        </span>
+                      </div>
+                    )}
+
                     {/* Spots progress */}
                     <div className="space-y-1.5 pt-1">
                       <div className="flex items-center justify-between text-xs font-semibold">
@@ -506,6 +518,16 @@ export const EventCalendar: React.FC<EventCalendarProps> = ({ events, selectedCa
                     >
                       <span>{isFull ? t('events.joinWaitlist') : t('events.rsvpButton')}</span>
                       <ArrowRight className="w-3.5 h-3.5" />
+                    </button>
+
+                    {/* The description above is clamped to two lines — this
+                        opens the whole of it. */}
+                    <button
+                      onClick={() => openEventDetails(event)}
+                      className="w-full sm:w-auto px-3.5 py-2.5 rounded-full text-xs font-bold text-graphite bg-white hover:bg-warm-taupe border border-warm-taupe flex items-center justify-center gap-1.5 transition-all cursor-pointer pawtx-focus"
+                    >
+                      <Info className="w-3.5 h-3.5 text-olive" />
+                      <span>{t('events.viewDetails')}</span>
                     </button>
 
                     <a

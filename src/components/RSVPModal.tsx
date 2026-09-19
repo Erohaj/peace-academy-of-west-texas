@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { X, CheckCircle2, Calendar, Heart, User, Mail, Phone, Users as UsersIcon, ArrowRight, ExternalLink, AlertCircle } from 'lucide-react';
+import { X, CheckCircle2, Calendar, Heart, User, Mail, Phone, Users as UsersIcon, ArrowRight, ExternalLink, AlertCircle, Ticket } from 'lucide-react';
 import { useAppStore } from '../store/useAppStore';
 import { getGoogleCalendarUrl } from '../lib/eventDates';
+import { formatEventFee } from '../lib/eventFee';
 import { ActionError, MediaConsent } from '../types';
 import { donationsEnabled, emailEnabled } from '../lib/features';
 import { ModalShell } from './ModalShell';
@@ -52,6 +53,7 @@ export const RSVPModal: React.FC = () => {
 
   const title = language === 'es' ? selectedEventForRsvp.titleEs : selectedEventForRsvp.title;
   const needsMediaConsent = selectedEventForRsvp.collectMediaConsent;
+  const fee = formatEventFee(selectedEventForRsvp.fee, language, t('events.free'));
 
   // Singular/plural picked here rather than through i18next's plural suffixes,
   // which nothing else in this project relies on. Only 1 is singular, so the
@@ -197,6 +199,20 @@ export const RSVPModal: React.FC = () => {
           {/* STEP 1: Basic Guest Info */}
           {step === 1 && (
             <form onSubmit={handleNextStep} className="space-y-4">
+
+              {/* The price, where the commitment is actually made. The
+                  site takes no payment for events, so this is a figure to
+                  arrive prepared for, not a charge — which is exactly why
+                  it must not first appear after someone has registered. */}
+              {fee && (
+                <div className="flex items-center gap-2.5 bg-aged-paper border border-warm-taupe rounded-xl px-4 py-3">
+                  <Ticket className="w-4 h-4 text-olive shrink-0" />
+                  <span className="text-xs font-bold uppercase tracking-[0.15em] text-charcoal">
+                    {t('events.fee')}
+                  </span>
+                  <span className="text-sm font-bold text-graphite ml-auto">{fee}</span>
+                </div>
+              )}
               
               <div>
                 <label className="pawtx-label">

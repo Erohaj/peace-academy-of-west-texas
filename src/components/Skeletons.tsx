@@ -171,3 +171,53 @@ export const GalleryGridSkeleton: React.FC<{ count?: number }> = ({ count = 6 })
     </div>
   );
 };
+
+/**
+ * Next Event Spotlight Skeleton Loader
+ *
+ * Holds the band's height while the schedule loads, so the "Who We Are"
+ * section below it does not jump up the page and back down again.
+ */
+export const NextEventSkeleton: React.FC = () => {
+  return (
+    <div className="space-y-8 animate-pulse">
+      {/* Band header */}
+      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+        <div className="space-y-3">
+          <div className="h-6 w-44 bg-warm-taupe rounded-md" />
+          <div className="h-9 w-64 bg-warm-taupe rounded-md" />
+        </div>
+        <div className="h-10 w-40 bg-warm-taupe rounded-full" />
+      </div>
+
+      {/* Card */}
+      <div className="grid grid-cols-1 lg:grid-cols-5 bg-parchment rounded-[28px] border border-warm-taupe overflow-hidden">
+        <div className="relative lg:col-span-2 h-60 sm:h-72 lg:min-h-[22rem] bg-warm-taupe overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer" />
+          <div className="absolute top-4 left-4 w-24 h-6 bg-taupe-deep rounded-full" />
+          <div className="absolute bottom-4 left-4 w-20 h-5 bg-taupe-deep rounded-md" />
+        </div>
+
+        <div className="lg:col-span-3 p-6 sm:p-8 lg:p-10 flex flex-col justify-center gap-6">
+          <div className="space-y-3">
+            <div className="h-8 bg-warm-taupe rounded-md w-3/4" />
+            <div className="h-3.5 bg-warm-taupe rounded-md w-full" />
+            <div className="h-3.5 bg-warm-taupe rounded-md w-5/6" />
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 pt-5 border-t border-warm-taupe">
+            <div className="h-4 bg-warm-taupe rounded-md w-40" />
+            <div className="h-4 bg-warm-taupe rounded-md w-28" />
+            <div className="h-4 bg-warm-taupe rounded-md w-52 sm:col-span-2" />
+            <div className="h-4 bg-warm-taupe rounded-md w-32 sm:col-span-2" />
+          </div>
+
+          <div className="flex flex-col sm:flex-row gap-3">
+            <div className="h-12 bg-taupe-deep rounded-full flex-1" />
+            <div className="h-12 bg-warm-taupe rounded-full w-full sm:w-48" />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};

@@ -105,6 +105,10 @@ interface AppState {
   selectedEventForRsvp: PAWTXEvent | null;
   openRsvpModal: (event: PAWTXEvent) => void;
   closeRsvpModal: () => void;
+  /** The event whose full write-up is open, if any. See EventDetailsModal. */
+  selectedEventForDetails: PAWTXEvent | null;
+  openEventDetails: (event: PAWTXEvent) => void;
+  closeEventDetails: () => void;
   submitRsvp: (data: {
     eventId: string;
     fullName: string;
@@ -190,7 +194,21 @@ export const useAppStore = create<AppState>((set, get) => ({
   setLanguage: (lang) => {
     i18n.changeLanguage(lang);
     // Re-map so every date and time label switches language with the UI.
-    set({ language: lang, ...derive(get().raw, lang) });
+    const derived = derive(get().raw, lang);
+
+    // An event held open by a modal is a snapshot taken before the switch,
+    // and `date`/`time` are labels baked at map time rather than read from
+    // the timestamp at render — so without this the details dialog keeps
+    // showing "Saturday, October 24" after the visitor moved to Spanish.
+    const relabel = (event: PAWTXEvent | null) =>
+      event ? derived.events.find((candidate) => candidate.id === event.id) ?? event : null;
+
+    set({
+      language: lang,
+      ...derived,
+      selectedEventForRsvp: relabel(get().selectedEventForRsvp),
+      selectedEventForDetails: relabel(get().selectedEventForDetails)
+    });
   },
 
   // Backend data
@@ -279,8 +297,16 @@ export const useAppStore = create<AppState>((set, get) => ({
   // Events & RSVP
   events: [],
   selectedEventForRsvp: null,
-  openRsvpModal: (event) => set({ selectedEventForRsvp: event }),
+  // Opening the booking form closes the details view behind it. The RSVP
+  // button inside that view is the main way in, and leaving both mounted
+  // stacks two dialogs — two focus traps, and Escape dropping the visitor
+  // back onto a page they thought they had left.
+  openRsvpModal: (event) => set({ selectedEventForRsvp: event, selectedEventForDetails: null }),
   closeRsvpModal: () => set({ selectedEventForRsvp: null }),
+
+  selectedEventForDetails: null,
+  openEventDetails: (event) => set({ selectedEventForDetails: event }),
+  closeEventDetails: () => set({ selectedEventForDetails: null }),
 
   submitRsvp: async (data) => {
     try {

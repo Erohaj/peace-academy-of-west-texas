@@ -19,6 +19,12 @@ interface EventForm {
   location: string;
   category: EventRow['category'];
   total_spots: number;
+  /**
+   * Kept as the raw input string, not a number: "" is how the form says
+   * "no price stated" (stored as null), which `Number('')` would quietly
+   * turn into 0 — i.e. into a published claim that the event is free.
+   */
+  fee: string;
   image_url: string | null;
   image_key: string | null;
   featured: boolean;
@@ -36,6 +42,7 @@ const BLANK_FORM: EventForm = {
   location: '',
   category: 'cultural',
   total_spots: 25,
+  fee: '',
   image_url: null,
   image_key: null,
   featured: false,
@@ -100,6 +107,7 @@ export const EventsAdmin: React.FC = () => {
       location: row.location,
       category: row.category,
       total_spots: row.total_spots,
+      fee: row.fee === null ? '' : String(row.fee),
       image_url: row.image_url,
       image_key: row.image_key,
       featured: row.featured,
@@ -144,6 +152,7 @@ export const EventsAdmin: React.FC = () => {
       location: form.location,
       category: form.category,
       total_spots: Number(form.total_spots),
+      fee: form.fee.trim() === '' ? null : Number(form.fee),
       image_url: form.image_url,
       image_key: form.image_key,
       featured: form.featured,
@@ -270,7 +279,7 @@ export const EventsAdmin: React.FC = () => {
               onChange={(e) => setForm({ ...form, location: e.target.value })} />
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div>
               <label className="pawtx-label">Category</label>
               <select className="pawtx-field" value={form.category}
@@ -285,6 +294,17 @@ export const EventsAdmin: React.FC = () => {
               <label className="pawtx-label">Total spots *</label>
               <input required type="number" min={0} className="pawtx-field" value={form.total_spots}
                 onChange={(e) => setForm({ ...form, total_spots: Number(e.target.value) })} />
+            </div>
+            <div>
+              <label className="pawtx-label">Fee (USD)</label>
+              <input type="number" min={0} step="0.01" placeholder="—" className="pawtx-field" value={form.fee}
+                onChange={(e) => setForm({ ...form, fee: e.target.value })} />
+              {/* Spelled out because the difference is invisible in the
+                  field itself, and getting it wrong publishes a price the
+                  organisation never set. */}
+              <p className="text-3xs text-charcoal mt-1 leading-snug">
+                Blank = no price shown. 0 = shown as "Free".
+              </p>
             </div>
             <div className="flex items-end gap-4 pb-2.5">
               <label className="flex items-center gap-2 text-xs font-bold text-charcoal cursor-pointer">

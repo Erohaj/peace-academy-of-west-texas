@@ -4,6 +4,7 @@ import { AlertCircle, RefreshCw } from 'lucide-react';
 import { useAppStore } from './store/useAppStore';
 import { Navbar } from './components/Navbar';
 import { Hero } from './components/Hero';
+import { NextEventSpotlight } from './components/NextEventSpotlight';
 import { MissionSection } from './components/MissionSection';
 import { BrochureShowcase } from './components/BrochureShowcase';
 import { EventFeed } from './components/EventFeed';
@@ -11,6 +12,7 @@ import { SocialMediaFeed } from './components/SocialMediaFeed';
 import { Gallery } from './components/Gallery';
 import { DonationWidget } from './components/DonationWidget';
 import { RSVPModal } from './components/RSVPModal';
+import { EventDetailsModal } from './components/EventDetailsModal';
 import { ContactModal } from './components/ContactModal';
 import { SearchModal } from './components/SearchModal';
 import { Footer } from './components/Footer';
@@ -248,6 +250,11 @@ export const App: React.FC = () => {
           {activeTab === 'home' && (
             <>
               <Hero />
+              {/* The soonest event comes before the story: a visitor landing
+                  here for the first time is most likely to act on a date they
+                  can still make, and the "Who We Are" section reads just as
+                  well one band lower. */}
+              <NextEventSpotlight />
               <MissionSection />
               <BrochureShowcase />
               <EventFeed />
@@ -282,6 +289,7 @@ export const App: React.FC = () => {
 
       {/* Modal Dialogs */}
       <RSVPModal />
+      <EventDetailsModal />
       <ContactModal isOpen={isContactOpen} onClose={() => setIsContactOpen(false)} />
       <SearchModal />
 
