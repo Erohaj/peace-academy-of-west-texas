@@ -29,6 +29,24 @@ backend, i18n and everything below were added afterwards.
 
 **Prerequisites:** Node.js 18+, and Docker Desktop if you want the local Supabase stack.
 
+> **Local stack gotcha.** On Supabase CLI 2.109 the local database comes up
+> without the table privileges the hosted project grants by default, so every
+> PostgREST call fails with `permission denied for table …` — including
+> `service_role`, which is what the Edge Functions use. The hosted project is
+> unaffected. Grant them once after `npm run db:start`:
+>
+> ```sql
+> grant all on all tables    in schema public to service_role;
+> grant all on all sequences in schema public to service_role;
+> grant all on all functions in schema public to service_role;
+> grant select, insert, update, delete on all tables in schema public to anon, authenticated;
+> -- then replay the revokes from *_rls_and_rpc.sql, or privileges no longer
+> -- match production and a local test proves the wrong thing:
+> revoke insert, update, delete on public.donations        from anon, authenticated;
+> revoke insert, update, delete on public.rsvps            from anon, authenticated;
+> revoke insert, delete         on public.contact_messages from anon, authenticated;
+> ```
+
 1. `npm install`
 2. Copy `.env.example` to `.env.local` and fill in `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY`
 3. `npm run dev`
@@ -160,7 +178,23 @@ Add an endpoint in the Stripe dashboard pointing at
 `checkout.session.completed`, `invoice.paid`, `checkout.session.expired` and
 `charge.refunded`. Copy its signing secret into `STRIPE_WEBHOOK_SECRET`.
 
-Locally: `stripe listen --forward-to localhost:54321/functions/v1/stripe-webhook`.
+Locally, forward real Stripe events to the local function:
+
+```bash
+stripe listen \
+  --events checkout.session.completed,invoice.paid,checkout.session.expired,charge.refunded \
+  --forward-to localhost:54321/functions/v1/stripe-webhook
+```
+
+`--events` is required from Stripe CLI 1.52 on — without it the command
+refuses to start. It prints its own `whsec_…`, which is what
+`STRIPE_WEBHOOK_SECRET` must be while forwarding; it is not the dashboard
+endpoint's secret and it changes every run.
+
+Donations stay switched off until all of this exists — see
+[docs/donations-go-live.md](docs/donations-go-live.md) for the full list of
+what is still outstanding, in the order it has to happen, and for why
+`SITE_URL` is a comma-separated list.
 
 ### 6. RSVP confirmation emails
 
