@@ -17,7 +17,7 @@ import { ContactModal } from './components/ContactModal';
 import { SearchModal } from './components/SearchModal';
 import { Footer } from './components/Footer';
 import { ErrorBoundary } from './components/ErrorBoundary';
-import { readDonationReturn } from './lib/donationReturn';
+import { clearDonationParams, readDonationReturn } from './lib/donationReturn';
 import { SITE_NAME, SITE_TITLE } from './lib/seo';
 import { ActiveTab } from './types';
 
@@ -64,6 +64,10 @@ export const App: React.FC = () => {
       : new URLSearchParams(window.location.search).get('verify')
   );
 
+  // The Stripe return is read here, once, and handed down — see the effect
+  // below. Read during render for the same reason as `verifyRequest`.
+  const [donationReturn] = useState(() => readDonationReturn());
+
   // Loads events, gallery and shifts, and subscribes to auth changes. Guarded
   // inside the store against StrictMode's double effect in development.
   useEffect(() => {
@@ -73,9 +77,23 @@ export const App: React.FC = () => {
   // Stripe returns the donor to this page with ?donation=... . There is no
   // router, so route it by hand: the donation widget lives on the donate tab
   // (and on home), and the thank-you screen belongs on the former.
+  //
+  // This app owns the donation return outright: it reads the parameters, routes
+  // on them, clears them, and passes the result down to whichever
+  // `DonationWidget` is mounted. Having the widget read the URL for itself does
+  // not survive the redirect. Both copies of it read during render and one
+  // cleared the URL in its effect, so the order decided the outcome: React runs
+  // a child's effects before its parent's, so the home-page copy wiped the
+  // parameters before this effect ever saw them; routing to the donate tab then
+  // mounted a second copy that read a URL already emptied, and showed the donor
+  // a blank form instead of the receipt they had just paid for.
   useEffect(() => {
-    if (readDonationReturn()) setActiveTab('donate');
-  }, [setActiveTab]);
+    if (!donationReturn) return;
+    setActiveTab('donate');
+    // Cleared once, here, so a refresh or a shared link cannot replay the
+    // thank-you screen — and so no child has a reason to touch the URL.
+    clearDonationParams();
+  }, [donationReturn, setActiveTab]);
 
   // ?verify=PAWTX-XXXX-XXXX — what the QR code on a certificate points at.
   // A query parameter rather than a hash so the address survives being typed
@@ -260,7 +278,7 @@ export const App: React.FC = () => {
               <EventFeed />
               <SocialMediaFeed />
               <Gallery />
-              <DonationWidget />
+              <DonationWidget donationReturn={donationReturn} />
             </>
           )}
 
@@ -275,7 +293,9 @@ export const App: React.FC = () => {
 
           {activeTab === 'volunteer' && lazyTab(<VolunteerPortal />)}
 
-          {activeTab === 'donate' && <DonationWidget asPageTitle />}
+          {activeTab === 'donate' && (
+            <DonationWidget asPageTitle donationReturn={donationReturn} />
+          )}
 
           {activeTab === 'verify' &&
             lazyTab(<CertificateVerify initialNumber={verifyRequest ?? undefined} />)}

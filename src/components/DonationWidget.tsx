@@ -1,15 +1,17 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { PageTitleProps, subTitleTag, titleTag } from './pageTitle';
-import { Heart, CheckCircle2, ShieldCheck, Sparkles, Lock, ArrowRight, AlertCircle } from 'lucide-react';
+import { Heart, CheckCircle2, ShieldCheck, Sparkles, Lock, ArrowRight, AlertCircle, Mail, MapPin } from 'lucide-react';
 import { AnimatedSection } from './AnimatedSection';
 import {
   DonationRow,
   createCheckoutSession,
   fetchDonationBySession
 } from '../lib/api/donations';
-import { clearDonationParams, readDonationReturn } from '../lib/donationReturn';
-import { CONTACT_EMAIL, donationsEnabled } from '../lib/features';
+import type { DonationReturn } from '../lib/donationReturn';
+import { CONTACT_EMAIL, donationsEnabled, emailEnabled } from '../lib/features';
+import { ORG_POSTAL_ADDRESS } from '../data/orgLinks';
+import { SITE_NAME } from '../lib/seo';
 
 // Shared by the preset buttons and the impact meter below so both stay in sync.
 // The labels carry a Spanish counterpart like every other display string in
@@ -25,7 +27,22 @@ const DONATION_TIERS = [
 const RECEIPT_POLL_ATTEMPTS = 6;
 const RECEIPT_POLL_INTERVAL_MS = 1500;
 
-export const DonationWidget: React.FC<PageTitleProps> = ({ asPageTitle }) => {
+interface DonationWidgetProps extends PageTitleProps {
+  /**
+   * What Stripe sent the donor back with, or null on an ordinary visit.
+   *
+   * Passed in rather than read from the URL here: this component is mounted in
+   * two places, the parameters survive only until someone clears them, and a
+   * copy that reads them for itself is at the mercy of which copy mounted
+   * first. `App` reads them once and clears them once.
+   */
+  donationReturn?: DonationReturn | null;
+}
+
+export const DonationWidget: React.FC<DonationWidgetProps> = ({
+  asPageTitle,
+  donationReturn = null
+}) => {
   const Title = titleTag(asPageTitle);
   const CardTitle = subTitleTag(asPageTitle);
   const { t, i18n } = useTranslation();
@@ -39,7 +56,6 @@ export const DonationWidget: React.FC<PageTitleProps> = ({ asPageTitle }) => {
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
 
   // Populated when Stripe redirects back with ?donation=success|cancelled.
-  const [donationReturn] = useState(() => readDonationReturn());
   const [confirmedDonation, setConfirmedDonation] = useState<DonationRow | null>(null);
   const [isConfirming, setIsConfirming] = useState(donationReturn?.status === 'success');
 
@@ -51,8 +67,6 @@ export const DonationWidget: React.FC<PageTitleProps> = ({ asPageTitle }) => {
   // "pending" to someone whose payment has in fact gone through.
   useEffect(() => {
     if (!donationReturn) return;
-
-    clearDonationParams();
 
     if (donationReturn.status !== 'success' || !donationReturn.sessionId) {
       setIsConfirming(false);
@@ -94,6 +108,21 @@ export const DonationWidget: React.FC<PageTitleProps> = ({ asPageTitle }) => {
   const confirmedAmount =
     confirmedDonation !== null ? confirmedDonation.amount_cents / 100 : null;
 
+  // A row can exist and still be `pending`: the redirect from Stripe beats the
+  // webhook, and the poll above gives up after nine seconds. Only `paid` is a
+  // recorded gift, so only `paid` gets a receipt printed for it.
+  const isPaid = confirmedDonation?.status === 'paid';
+
+  // What the receipt line may claim depends on what actually happened. The
+  // webhook stamps `receipt_sent_at` only once Resend accepted the message, and
+  // with VITE_EMAIL_ENABLED off no mail is sent at all — promising a delivery in
+  // that case is the same empty promise the flag exists to prevent.
+  const receiptNote = !emailEnabled
+    ? t('donate.receiptByTeam')
+    : confirmedDonation?.receipt_sent_at
+      ? t('donate.receiptSent')
+      : t('donate.receiptPending');
+
   // Scale expands past $250 for large custom gifts so the fill bar and tier
   // ticks stay proportionally accurate instead of clipping at 100%. A sqrt
   // curve (rather than linear) spaces out the lower tiers so their tick
@@ -101,6 +130,50 @@ export const DonationWidget: React.FC<PageTitleProps> = ({ asPageTitle }) => {
   const meterMax = Math.max(DONATION_TIERS[DONATION_TIERS.length - 1].amount, amountToDonate);
   const meterPct = (amount: number) => Math.min(100, (Math.sqrt(amount) / Math.sqrt(meterMax)) * 100);
   const meterFillPct = Math.max(4, meterPct(amountToDonate));
+
+  const selectTier = (amount: number) => {
+    setSelectedPreset(amount);
+    setCustomAmount(amount.toString());
+  };
+
+  // A radiogroup promises arrow-key navigation, so it has to deliver it —
+  // announcing the role over four plain buttons tells a screen-reader user the
+  // keys work when they do not. Focus follows selection, as it does for a
+  // native radio group.
+  const tierRefs = useRef<(HTMLButtonElement | null)[]>([]);
+
+  const handleTierKeyDown = (event: React.KeyboardEvent, index: number) => {
+    const last = DONATION_TIERS.length - 1;
+    let next: number;
+
+    switch (event.key) {
+      case 'ArrowRight':
+      case 'ArrowDown':
+        next = index === last ? 0 : index + 1;
+        break;
+      case 'ArrowLeft':
+      case 'ArrowUp':
+        next = index === 0 ? last : index - 1;
+        break;
+      case 'Home':
+        next = 0;
+        break;
+      case 'End':
+        next = last;
+        break;
+      default:
+        return;
+    }
+
+    event.preventDefault();
+    selectTier(DONATION_TIERS[next].amount);
+    tierRefs.current[next]?.focus();
+  };
+
+  // Roving tabindex: one tab stop for the whole group. With a custom amount
+  // typed no tier is checked, so the first one carries the stop.
+  const checkedTierIndex = DONATION_TIERS.findIndex(({ amount }) => amount === selectedPreset);
+  const tabbableTierIndex = checkedTierIndex === -1 ? 0 : checkedTierIndex;
 
   const getImpactLabel = (amt: number) => {
     if (amt <= 25) return t('donate.impact25');
@@ -147,7 +220,7 @@ export const DonationWidget: React.FC<PageTitleProps> = ({ asPageTitle }) => {
           <div className="text-center space-y-3">
             <div className="inline-flex items-center gap-2 text-olive font-bold text-xs uppercase tracking-[0.2em] bg-olive/10 px-4 py-1.5 rounded-full border border-olive/20">
               <Heart className="w-3.5 h-3.5 fill-terracotta text-terracotta" />
-              <span>501(c)(3) Tax Deductible</span>
+              <span>{t('donate.badge')}</span>
             </div>
 
             <Title className="text-3xl sm:text-5xl font-serif font-bold text-graphite">
@@ -192,8 +265,41 @@ export const DonationWidget: React.FC<PageTitleProps> = ({ asPageTitle }) => {
                 </p>
               </div>
 
+              {/* Naming the two ways a gift can actually arrive today, rather
+                  than only an address to ask at. Someone who came here to give
+                  should not have to open a conversation first. */}
+              <div className="grid gap-3 sm:grid-cols-2 text-left max-w-xl mx-auto">
+                <div className="bg-parchment border border-warm-taupe rounded-2xl p-5 space-y-2">
+                  <div className="flex items-center gap-2 text-graphite font-bold text-xs uppercase tracking-wider">
+                    <MapPin className="w-4 h-4 text-olive shrink-0" />
+                    <span>{t('donate.offlineByMailTitle')}</span>
+                  </div>
+                  <p className="text-xs text-charcoal leading-relaxed">
+                    {t('donate.offlineByMailText')}
+                  </p>
+                  <address className="text-xs text-graphite not-italic font-medium leading-relaxed">
+                    {SITE_NAME}
+                    <br />
+                    {ORG_POSTAL_ADDRESS.streetAddress}
+                    <br />
+                    {ORG_POSTAL_ADDRESS.addressLocality}, {ORG_POSTAL_ADDRESS.addressRegion}{' '}
+                    {ORG_POSTAL_ADDRESS.postalCode}
+                  </address>
+                </div>
+
+                <div className="bg-parchment border border-warm-taupe rounded-2xl p-5 space-y-2">
+                  <div className="flex items-center gap-2 text-graphite font-bold text-xs uppercase tracking-wider">
+                    <Mail className="w-4 h-4 text-olive shrink-0" />
+                    <span>{t('donate.offlineEmailTitle')}</span>
+                  </div>
+                  <p className="text-xs text-charcoal leading-relaxed">
+                    {t('donate.offlineEmailText')}
+                  </p>
+                </div>
+              </div>
+
               <a
-                href={`mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent('Donation to Peace Academy of West Texas')}`}
+                href={`mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(`Donation to ${SITE_NAME}`)}`}
                 className="inline-flex items-center gap-2 bg-terracotta hover:bg-terracotta-deep text-white px-8 py-3.5 rounded-full text-xs font-bold uppercase tracking-widest transition-colors shadow-md"
               >
                 <span>{CONTACT_EMAIL}</span>
@@ -238,21 +344,35 @@ export const DonationWidget: React.FC<PageTitleProps> = ({ asPageTitle }) => {
 
               {/* Amount Presets */}
               <div className="space-y-3">
-                <label className="block text-xs font-bold uppercase tracking-[0.2em] text-charcoal">
-                  Select Contribution Tier
-                </label>
+                {/* A span, not a label: a label names one form control, and
+                    nothing here is one control. The group is named through
+                    aria-labelledby instead. */}
+                <span
+                  id="donate-tier-label"
+                  className="block text-xs font-bold uppercase tracking-[0.2em] text-charcoal"
+                >
+                  {t('donate.tierLabel')}
+                </span>
 
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                  {DONATION_TIERS.map(({ amount }) => {
+                <div
+                  role="radiogroup"
+                  aria-labelledby="donate-tier-label"
+                  className="grid grid-cols-2 sm:grid-cols-4 gap-3"
+                >
+                  {DONATION_TIERS.map(({ amount }, idx) => {
                     const isSelected = selectedPreset === amount;
                     return (
                       <button
                         key={amount}
-                        type="button"
-                        onClick={() => {
-                          setSelectedPreset(amount);
-                          setCustomAmount(amount.toString());
+                        ref={(node) => {
+                          tierRefs.current[idx] = node;
                         }}
+                        type="button"
+                        role="radio"
+                        aria-checked={isSelected}
+                        tabIndex={idx === tabbableTierIndex ? 0 : -1}
+                        onKeyDown={(event) => handleTierKeyDown(event, idx)}
+                        onClick={() => selectTier(amount)}
                         className={`py-4 rounded-2xl border font-serif font-bold text-xl sm:text-2xl transition-all cursor-pointer ${
                           isSelected
                             ? 'border-terracotta bg-terracotta text-white shadow-md scale-[1.02]'
@@ -279,7 +399,10 @@ export const DonationWidget: React.FC<PageTitleProps> = ({ asPageTitle }) => {
                         setSelectedPreset('custom');
                         setCustomAmount(e.target.value);
                       }}
-                      placeholder="Custom Amount"
+                      // No visible label, so the placeholder cannot be the only
+                      // name — a placeholder disappears the moment someone types.
+                      aria-label={t('donate.customAmount')}
+                      placeholder={t('donate.customAmount')}
                       className="w-full bg-parchment border border-warm-taupe rounded-2xl pl-8 pr-4 py-3 text-base font-bold text-graphite pawtx-focus focus:border-terracotta"
                     />
                   </div>
@@ -291,9 +414,11 @@ export const DonationWidget: React.FC<PageTitleProps> = ({ asPageTitle }) => {
                 <div className="flex items-center justify-between text-xs sm:text-sm">
                   <div className="flex items-center gap-2 text-graphite font-bold">
                     <Sparkles className="w-4 h-4 text-terracotta" />
-                    <span>Your Estimated Impact</span>
+                    <span>{t('donate.impactTitle')}</span>
                   </div>
-                  <span className="font-serif font-bold text-terracotta">${amountToDonate} {frequency === 'monthly' ? '/ mo' : ''}</span>
+                  <span className="font-serif font-bold text-terracotta">
+                    ${amountToDonate} {frequency === 'monthly' ? t('donate.perMonth') : ''}
+                  </span>
                 </div>
 
                 <div className="text-xs sm:text-sm font-medium text-charcoal">
@@ -350,7 +475,7 @@ export const DonationWidget: React.FC<PageTitleProps> = ({ asPageTitle }) => {
                     type="text"
                     value={donorName}
                     onChange={(e) => setDonorName(e.target.value)}
-                    placeholder="Jane Doe"
+                    placeholder={t('donate.namePlaceholder')}
                     className="pawtx-field"
                   />
                 </div>
@@ -424,21 +549,27 @@ export const DonationWidget: React.FC<PageTitleProps> = ({ asPageTitle }) => {
               </div>
 
               <div className="space-y-2">
-                <h3 className="text-3xl font-serif font-bold text-graphite">
+                {/* Not a raw h3: on the donate tab the section title is the h1,
+                    and h1 to h3 skips a level in the outline a screen-reader
+                    user navigates by. */}
+                <CardTitle className="text-3xl font-serif font-bold text-graphite">
                   {t('donate.successTitle')}
-                </h3>
+                </CardTitle>
                 <p className="text-base text-charcoal max-w-md mx-auto">
-                  {confirmedAmount !== null
+                  {isPaid && confirmedAmount !== null
                     ? t('donate.successText', { amount: confirmedAmount })
-                    : t('donate.receiptPending')}
+                    : t('donate.awaitingConfirmation')}
                 </p>
               </div>
 
-              {isConfirming && !confirmedDonation && (
+              {/* Keyed off `paid`, not off the row existing: a pending row is
+                  found long before the webhook confirms it, and hiding this
+                  line then stops telling the donor anything is still happening. */}
+              {isConfirming && !isPaid && (
                 <p className="text-xs text-charcoal">{t('donate.confirming')}</p>
               )}
 
-              {confirmedDonation && confirmedAmount !== null && (
+              {isPaid && confirmedAmount !== null && (
                 <div className="bg-parchment p-6 rounded-2xl border border-warm-taupe text-left max-w-sm mx-auto space-y-2 text-xs text-graphite">
                   <div className="font-bold border-b border-warm-taupe pb-2 text-sm font-serif">
                     {t('donate.receiptTitle')}
@@ -446,14 +577,14 @@ export const DonationWidget: React.FC<PageTitleProps> = ({ asPageTitle }) => {
                   <div>{t('donate.receiptDonor')}: {confirmedDonation.donor_name || '—'}</div>
                   <div>
                     {t('donate.receiptAmount')}: ${confirmedAmount}
-                    {confirmedDonation.frequency === 'monthly' ? ' / mo' : ''}
+                    {confirmedDonation.frequency === 'monthly' ? ` ${t('donate.perMonth')}` : ''}
                   </div>
                   <div>{t('donate.receiptOrg')}: Peace Academy of West Texas (501(c)(3))</div>
                   {/* The tax ID is deliberately absent here. It belongs on the
                       emailed receipt, which the webhook renders from the real
                       EIN; printing a placeholder would forge an official
                       document. */}
-                  <div className="pt-1 text-charcoal">{t('donate.receiptPending')}</div>
+                  <div className="pt-1 text-charcoal">{receiptNote}</div>
                 </div>
               )}
 
