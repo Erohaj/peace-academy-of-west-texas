@@ -22,14 +22,22 @@ export interface SendEmailInput {
  */
 const FROM_ADDRESS = Deno.env.get('MAIL_FROM') ?? 'PAWTX <onboarding@resend.dev>';
 
-export async function sendEmail(input: SendEmailInput): Promise<void> {
+/**
+ * Returns whether the message actually reached Resend.
+ *
+ * A caller that records "we emailed this person" — the donation receipt stamp,
+ * above all — needs to tell a skipped send apart from a delivered one. `void`
+ * made the two indistinguishable, so a missing API key produced a database row
+ * claiming a receipt had been sent.
+ */
+export async function sendEmail(input: SendEmailInput): Promise<boolean> {
   const apiKey = Deno.env.get('RESEND_API_KEY');
 
   if (!apiKey) {
     // Not fatal: a donation must still be recorded and an RSVP must still be
     // booked even when mail is misconfigured. Log loudly instead of throwing.
     console.error('[PAWTX] RESEND_API_KEY is not set — skipping email:', input.subject);
-    return;
+    return false;
   }
 
   const response = await fetch(RESEND_ENDPOINT, {
@@ -51,6 +59,8 @@ export async function sendEmail(input: SendEmailInput): Promise<void> {
     const detail = await response.text();
     throw new Error(`Resend rejected the message (${response.status}): ${detail}`);
   }
+
+  return true;
 }
 
 /** Escapes user-supplied text before it goes into an HTML email body. */

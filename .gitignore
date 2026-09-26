@@ -11,6 +11,8 @@ coverage/
 # to whoever ran the CLI last; linked-project.json is tracked deliberately and
 # stays so — .gitignore does not affect files already in the index.
 supabase/.temp/
+# Written by `supabase start`; records which local branch is active.
+supabase/.branches/
 
 # Raw pull of the old Wix site (scripts/import-wix.mjs). The media alone is
 # ~135 MB of unoptimised originals straight off wixstatic, and this is a

@@ -180,7 +180,7 @@ async function sendReceipt(
     console.error('[PAWTX] ORG_EIN is not set — receipt sent without a tax ID line');
   }
 
-  await sendEmail({
+  const sent = await sendEmail({
     to: donation.donor_email,
     replyTo: ORG_INBOX,
     subject: recurring
@@ -216,6 +216,16 @@ async function sendReceipt(
       `
     )
   });
+
+  // `receipt_sent_at` is an assertion about a donor's tax paperwork, so stamp
+  // it only when Resend actually took the message. Stamping it unconditionally
+  // left the org's own records claiming a receipt had reached someone who never
+  // got one — and suppressed the resend that would otherwise happen on the next
+  // event once RESEND_API_KEY is configured.
+  if (!sent) {
+    console.error('[PAWTX] Receipt was not sent; leaving receipt_sent_at unset', donation.id);
+    return;
+  }
 
   await supabase
     .from('donations')
