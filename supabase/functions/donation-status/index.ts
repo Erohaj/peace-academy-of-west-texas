@@ -39,7 +39,9 @@ Deno.serve(async (req) => {
 
   const { data, error } = await supabase
     .from('donations')
-    .select('id, amount_cents, currency, frequency, donor_name, status, created_at')
+    // `receipt_sent_at` is here so the thank-you screen can say whether the
+    // receipt has gone out rather than always promising one is on its way.
+    .select('id, amount_cents, currency, frequency, donor_name, status, created_at, receipt_sent_at')
     .eq('stripe_session_id', sessionId)
     .maybeSingle();
 
