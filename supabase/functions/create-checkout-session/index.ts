@@ -13,7 +13,13 @@ import { confirmationNumber } from '../_shared/receipt.ts';
 
 // Donations outside this range are almost certainly a typo or an attack, and a
 // $1,000,000 Checkout session would be an unpleasant surprise for the org.
-const MIN_AMOUNT_CENTS = 100;
+//
+// The floor is $5 rather than $1 because Stripe's 30c per-transaction fee does
+// not scale: of a $1 gift the organisation keeps 67c. This is the guard, and it
+// must agree with MIN_DONATION_USD in src/components/DonationWidget.tsx -- that
+// one only saves the donor a round trip, since anything the browser checks can
+// be edited by whoever is running the browser.
+const MIN_AMOUNT_CENTS = 500;
 const MAX_AMOUNT_CENTS = 5_000_000; // $50,000
 
 interface CheckoutPayload {

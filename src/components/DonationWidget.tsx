@@ -23,6 +23,22 @@ const DONATION_TIERS = [
   { amount: 250, label: 'Benefactor', labelEs: 'Benefactor' },
 ] as const;
 
+/**
+ * Floor for a custom amount, in whole dollars.
+ *
+ * Stripe's 30c per-transaction fee does not scale: on top of 2.9% (2.2% on the
+ * nonprofit rate) it means a $1 gift reaches the organisation as 67c, a third
+ * of it gone to move a dollar. At $5 the fee is under a tenth. Every preset
+ * above clears this comfortably, so the floor only ever applies to the custom
+ * field.
+ *
+ * `MIN_AMOUNT_CENTS` in create-checkout-session is the real guard and has to
+ * agree with this. The check here exists to spare the donor a round trip to an
+ * Edge Function that would only refuse them -- it is a courtesy, not a
+ * control, because the browser's copy belongs to whoever is using it.
+ */
+const MIN_DONATION_USD = 5;
+
 /** How long to keep polling for the webhook to confirm a fresh donation. */
 const RECEIPT_POLL_ATTEMPTS = 6;
 const RECEIPT_POLL_INTERVAL_MS = 1500;
@@ -185,8 +201,8 @@ export const DonationWidget: React.FC<DonationWidgetProps> = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (amountToDonate < 1) {
-      setCheckoutError(t('donate.minAmountError'));
+    if (amountToDonate < MIN_DONATION_USD) {
+      setCheckoutError(t('donate.minAmountError', { min: MIN_DONATION_USD }));
       return;
     }
 
@@ -514,7 +530,7 @@ export const DonationWidget: React.FC<DonationWidgetProps> = ({
               <div>
                 <button
                   type="submit"
-                  disabled={isSubmitting || amountToDonate < 1}
+                  disabled={isSubmitting || amountToDonate < MIN_DONATION_USD}
                   className="w-full bg-terracotta hover:bg-terracotta-deep text-white py-4 rounded-full font-bold text-xs uppercase tracking-widest transition-all shadow-lg shadow-terracotta/20 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
                 >
                   {isSubmitting ? (
