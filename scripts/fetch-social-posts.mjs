@@ -8,7 +8,13 @@
 import { writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
-const GRAPH_VERSION = 'v21.0';
+// v21.0 was current when this was written and sunsets on 21 January 2027.
+// Meta does not fail an expired version's calls -- it quietly serves them from
+// the next one still supported, so an out-of-date constant does not break
+// loudly, it changes behaviour silently. Pinned to a current version and
+// overridable, so the next bump is an environment variable rather than a
+// commit.
+const GRAPH_VERSION = process.env.META_GRAPH_VERSION || 'v26.0';
 const OUTPUT_PATH = path.resolve(process.cwd(), 'public/social-posts.json');
 
 const {
