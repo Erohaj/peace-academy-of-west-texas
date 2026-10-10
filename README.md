@@ -239,7 +239,11 @@ page — they cache the old one for days:
 
 ## Live Social Feed (Instagram + Facebook)
 
-The "Social Feed" section shows curated mock posts until you connect real accounts.
+Until real accounts are connected the section shows an empty-feed notice and links to the
+organisation's actual channels. It does **not** fall back to sample posts: the ones that used
+to fill it were invented, down to the handles and the `instagram.com/p/...` URLs, which is
+worse than showing nothing.
+
 [.github/workflows/fetch-social.yml](.github/workflows/fetch-social.yml) runs
 [scripts/fetch-social-posts.mjs](scripts/fetch-social-posts.mjs) every 6 hours (and on manual
 dispatch from the Actions tab), writes the results to `public/social-posts.json`, and commits
@@ -247,15 +251,25 @@ them — the push to `main` then triggers the existing deploy workflow to rebuil
 
 To turn it on, add these as **repository secrets** (Settings → Secrets and variables → Actions):
 
-- `FB_PAGE_ACCESS_TOKEN` — a long-lived Page access token from a Meta for Developers app
-  (needs the `pages_read_engagement` permission; also used to read Instagram since it's
-  fetched through the linked Page).
-- `FB_PAGE_ID` — your Facebook Page ID.
-- `IG_USER_ID` — the Instagram Business/Creator account ID, which must be linked to that
-  same Facebook Page.
+- `FB_PAGE_ACCESS_TOKEN` — a Page access token, derived from a **long-lived** User token so
+  that it does not expire. Needs `pages_show_list` and `pages_read_engagement`, plus
+  `instagram_basic` for the Instagram half, which is read through the linked Page on the
+  same token.
+- `FB_PAGE_ID` — the Facebook Page ID.
+- `IG_USER_ID` — the Instagram **Business or Creator** account ID, linked to that same Page.
+  A personal Instagram account cannot be read by the API at all.
 
-Until these secrets exist, the workflow simply skips the missing platform(s) and
-`public/social-posts.json` stays empty, so the site keeps showing the mock posts.
+[scripts/meta-social-setup.mjs](scripts/meta-social-setup.mjs) produces all three from a
+short-lived Explorer token in one command. It performs the long-lived exchange that most
+walkthroughs omit — skip it and the feed stops refreshing within the hour, with the workflow
+still reporting success, because a rejected token fails *inside* the run rather than failing
+the run. It also refuses to wire up a Page or Instagram account whose handle does not match
+[src/data/orgLinks.ts](src/data/orgLinks.ts), so the posts and the byline under them cannot
+come from different accounts.
+
+Until the secrets exist the script exits early and green rather than failing: a missing token
+means "not set up yet", not "broken", and four red runs a day used to mail the repository
+owner about it.
 
 ## Pulling content off the old Wix site
 

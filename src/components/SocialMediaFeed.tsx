@@ -40,8 +40,13 @@ export const SocialMediaFeed: React.FC<PageTitleProps> = ({ asPageTitle }) => {
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   // Load real Instagram/Facebook posts written by the fetch-social GitHub
-  // Action (public/social-posts.json). Falls back to the curated mock posts
-  // if that file is empty/missing (e.g. local dev before the first run).
+  // Action into public/social-posts.json.
+  //
+  // There is no fallback any more: INITIAL_SOCIAL_POSTS is deliberately empty
+  // because what used to fill it was invented -- fake captions under fake
+  // handles, linking to Instagram URLs that 404. An empty feed with a notice
+  // and the real channel links is the honest state, so a missing or empty file
+  // leaves the component showing exactly that.
   useEffect(() => {
     let cancelled = false;
 
@@ -49,6 +54,10 @@ export const SocialMediaFeed: React.FC<PageTitleProps> = ({ asPageTitle }) => {
       .then((res) => (res.ok ? res.json() : []))
       .then((livePosts: SocialPost[]) => {
         if (cancelled || !Array.isArray(livePosts) || livePosts.length === 0) return;
+        // Empty today, since INITIAL_SOCIAL_POSTS is. Kept because the merge
+        // is what a future hand-written post from a channel the fetcher cannot
+        // reach -- YouTube, say -- would need, and it is the Facebook and
+        // Instagram entries specifically that the live file replaces.
         const stillMocked = INITIAL_SOCIAL_POSTS.filter(
           (p) => p.platform !== 'facebook' && p.platform !== 'instagram'
         );
@@ -58,7 +67,9 @@ export const SocialMediaFeed: React.FC<PageTitleProps> = ({ asPageTitle }) => {
         setPosts(combined);
       })
       .catch(() => {
-        // No live feed yet — keep showing the curated mock posts.
+        // The file is absent in local dev before the first scheduled run, and
+        // a fetch failure is not worth surfacing: the empty state already says
+        // there is nothing here and points at the real accounts.
       });
 
     return () => {
