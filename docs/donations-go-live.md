@@ -243,6 +243,36 @@ not code: see step 8, and the bank account it waits on.
 
 ---
 
+## The confirmation number
+
+Every receipt carries `Confirmation #: 4F2A9C01` — the first eight hex digits
+of the `donations.id` UUID, uppercased. It exists so a donor on the phone has
+something to quote that is shorter than a 36-character UUID and shorter still
+than `pi_3QxAbCDeFgHiJkLm0nOpQrSt`.
+
+The same code is written into Stripe as `confirmation_number` on the
+**PaymentIntent**, not only on the Checkout Session: session metadata is never
+copied onto the payment, and the Dashboard's payment search reads the
+payment's. So the one code a donor quotes can be pasted into Stripe's search
+box and into the `donations` table alike. Paste it into the Dashboard search,
+or:
+
+```bash
+stripe payment_intents search --query 'metadata["confirmation_number"]:"4F2A9C01"'
+```
+
+For this to be possible the row id is generated in
+`create-checkout-session` — `crypto.randomUUID()` — rather than left to the
+table's `gen_random_uuid()` default, because the Checkout Session is created
+before the row is inserted and the number has to exist in order to travel with
+it.
+
+Monthly **renewals** are the one gap: those rows are inserted by the webhook
+from `invoice.paid`, so each renewal receipt carries its own number but that
+number is not in Stripe. The subscription still holds the first donation's
+metadata, which is the thread back to the series, and the invoice itself is
+searchable by customer.
+
 ## The receipt, both ways
 
 `ORG_EIN` is what turns the acknowledgment into a tax document, and both

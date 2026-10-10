@@ -1,6 +1,7 @@
 import Stripe from 'https://esm.sh/stripe@17.5.0?target=deno';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.47.10';
 import { emailLayout, escapeHtml, sendEmail } from '../_shared/email.ts';
+import { confirmationNumber } from '../_shared/receipt.ts';
 
 /**
  * Stripe webhook — the only writer that marks a donation as paid.
@@ -90,7 +91,12 @@ Deno.serve(async (req) => {
           typeof invoice.subscription === 'string' ? invoice.subscription : null;
 
         // Renewals of a monthly gift: the original session row already exists,
-        // so record each subsequent charge as its own donation.
+        // so record each subsequent charge as its own donation -- and therefore
+        // its own confirmation number, which is what a donor querying one
+        // month's charge out of twelve needs. The id is left to the table
+        // default here, so unlike a checkout the number is not written back to
+        // Stripe; the subscription still carries the first donation's metadata,
+        // which is the thread back to the series.
         if (subscriptionId && invoice.billing_reason === 'subscription_cycle') {
           const { data: renewal } = await supabase
             .from('donations')
@@ -215,6 +221,7 @@ async function sendReceipt(
             // what it is until it can say the other.
             ORG_EIN ? 'Official Donation Receipt' : 'Donation Summary'
           }</div>
+          <div>Confirmation #: ${confirmationNumber(donation.id)}</div>
           <div>Donor: ${escapeHtml(donation.donor_name || 'Anonymous')}</div>
           <div>Amount: ${amount}${recurring ? ' per month' : ''}</div>
           <div>Date: ${new Date(donation.created_at).toLocaleDateString('en-US', {
