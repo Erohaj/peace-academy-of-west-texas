@@ -200,8 +200,9 @@ and the earlier synthetic-event run between them established:
 - [x] The webhook refuses a wrong signature and a missing one (400)
 - [x] `checkout.session.expired` → `failed`; `invoice.paid` with
       `billing_reason: subscription_cycle` inserts a separate `paid` row
-- [x] `create-checkout-session` refuses amounts below $1 and above $50,000 and
-      never passes a foreign return URL through to Stripe
+- [x] `create-checkout-session` refuses amounts below the minimum — $1 when
+      this was tested, $5 since — and above $50,000, and never passes a foreign
+      return URL through to Stripe
 - [x] `donation-status` returns `receipt_sent_at`, withholds `donor_email` and
       rejects a malformed session id
 - [x] A still-`pending` row shows "payment is still going through" and prints
