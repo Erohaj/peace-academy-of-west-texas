@@ -174,11 +174,12 @@ project** — the deployed Edge Functions, the hosted database and the real
 Resend account, rather than the local stack — and closed two of the four items
 that were open:
 
-- [x] A receipt email is sent and `receipt_sent_at` **is** stamped. Proven on
-      three payments; `RESEND_API_KEY` has been on the hosted project since
-      August, which is what made this testable at last. Resend accepting the
-      message is what is proven here — that it lands in the inbox still wants
-      a human to look
+- [x] A receipt email **arrives** and `receipt_sent_at` is stamped. Three
+      payments, three receipts, all three confirmed in the `paowtx@gmail.com`
+      inbox — so this is delivery, not just Resend accepting the message.
+      `RESEND_API_KEY` had been on the hosted project since August; what had
+      been missing all along was testing somewhere `sendEmail` could actually
+      reach `api.resend.com`, which the local stack never could
 - [x] Monthly gifts: a `subscription`-mode session, paid, lands a `paid` row
       with `stripe_subscription` set and a receipt stamped. **A renewal is
       still only proven by synthetic `invoice.paid`** — a real second cycle
