@@ -1,6 +1,7 @@
 import Stripe from 'https://esm.sh/stripe@17.5.0?target=deno';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.47.10';
 import { errorResponse, handleCors, jsonResponse } from '../_shared/cors.ts';
+import { confirmationNumber } from '../_shared/receipt.ts';
 
 /**
  * Creates a Stripe Checkout Session and hands back the hosted payment URL.
@@ -69,6 +70,21 @@ Deno.serve(async (req) => {
     { auth: { persistSession: false } }
   );
 
+  // The row id is generated here rather than left to the table's
+  // gen_random_uuid() default, because the confirmation number on the receipt
+  // is derived from it and has to exist *before* the Checkout Session is
+  // created in order to travel with it. The insert used to come second and let
+  // the database assign the id, which put the donor's confirmation number in
+  // Supabase and nowhere else -- not the place anyone looks when a donor rings
+  // up about a charge on their card statement.
+  const donationId = crypto.randomUUID();
+  const stripeMetadata = {
+    donor_name: donorName,
+    frequency,
+    donation_id: donationId,
+    confirmation_number: confirmationNumber(donationId)
+  };
+
   try {
     const session = await stripe.checkout.sessions.create({
       mode: frequency === 'monthly' ? 'subscription' : 'payment',
@@ -91,15 +107,17 @@ Deno.serve(async (req) => {
         }
       ],
       // The webhook reads these back to reconcile the pending donation row.
-      metadata: {
-        donor_name: donorName,
-        frequency
-      },
-      // Subscriptions carry metadata separately from the Checkout Session, and
-      // invoice.paid events reference the subscription rather than the session.
+      metadata: stripeMetadata,
+      // Session metadata stops at the session: Stripe does not copy it onto the
+      // PaymentIntent, and the Dashboard's payment search reads the
+      // PaymentIntent's. Attaching it to the object that actually holds the
+      // money is what makes a donor's confirmation number findable by whoever
+      // is reconciling the bank statement. Subscriptions carry their metadata
+      // separately again, because invoice.paid references the subscription
+      // rather than the session.
       ...(frequency === 'monthly'
-        ? { subscription_data: { metadata: { donor_name: donorName, frequency } } }
-        : {}),
+        ? { subscription_data: { metadata: stripeMetadata } }
+        : { payment_intent_data: { metadata: stripeMetadata } }),
       success_url: `${returnUrl}?donation=success&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${returnUrl}?donation=cancelled`
     });
@@ -107,6 +125,7 @@ Deno.serve(async (req) => {
     // Recorded as pending now so a donation is never invisible, even if the
     // webhook is delayed or misconfigured.
     const { error: insertError } = await supabase.from('donations').insert({
+      id: donationId,
       stripe_session_id: session.id,
       amount_cents: amountCents,
       currency: 'usd',
