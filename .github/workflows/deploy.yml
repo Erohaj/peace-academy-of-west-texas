@@ -46,6 +46,17 @@ jobs:
           # is a one-line commit, which is also the audit trail for when it
           # happened. See src/lib/features.ts for what each flag gates.
           VITE_EMAIL_ENABLED: 'true'
+          # The donate button. Turning this on is the moment the site starts
+          # taking money from real people, so it is the last step of
+          # docs/donations-go-live.md and deliberately not a repo secret: what
+          # production was built with should be readable from the repository,
+          # and the commit that flipped it is the record of when.
+          #
+          # It is only safe on while STRIPE_SECRET_KEY and
+          # STRIPE_WEBHOOK_SECRET are the **live** pair. With test keys behind
+          # it the button works, the donor sees a success screen, and nothing
+          # is ever charged.
+          VITE_DONATIONS_ENABLED: 'true'
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
