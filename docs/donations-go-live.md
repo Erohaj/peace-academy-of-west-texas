@@ -10,6 +10,14 @@ runbook for doing this again: a second Stripe account, a rebuilt project, or
 someone asking why a step exists. The order mattered, and the flag at step 6
 was the last thing flipped, because it is the only step a visitor can see.
 
+Every box below was reconciled against the running system on 2026-10-10 rather
+than from memory: the hosted secrets from `supabase secrets list`, the flag from
+`deploy.yml` and the published bundle, the webhook from a live payment Stripe
+itself delivered. One box is still open and two are unverified, and all three
+say so where they stand. A runbook with stale boxes is worse than one with no
+boxes at all: it reads as "not done" for work that is finished, and that noise
+is what hides the work that genuinely is not.
+
 ---
 
 ## 0. Where things stand today
@@ -25,9 +33,12 @@ was the last thing flipped, because it is the only step a visitor can see.
 | Supabase project | `zusgxrezbffxxhztggev`, linked |
 | Local tooling | Docker, local Supabase stack and Stripe CLI 1.52 all verified working |
 
-Until the flag is on, the donate tab shows the "by check / by email" panel with
-the org's postal address. That is a real way to give, not a placeholder, so
-there is no rush to flip the flag before the rest of this list is true.
+While the flag was off, the donate tab showed a "by check / by email" panel
+with the org's postal address. That was a real way to give, not a placeholder,
+which is why there was no rush to flip the flag before the rest of this list
+was true. That branch is still in the source — `!donationsEnabled` in
+`DonationWidget.tsx` — so turning the flag back off restores the panel rather
+than breaking the donate tab.
 
 ## 1. The Stripe account itself
 
@@ -35,8 +46,10 @@ Test mode needs none of this — a Stripe account in test mode works immediately
 and issues `sk_test_…` keys. **Live** mode is what needs:
 
 - [x] Business details and the **EIN** — `82-4145937`
-- [ ] A **bank account** for payouts
-- [ ] Stripe's own identity verification cleared
+- [x] A **bank account** for payouts — a verified Bank of America account,
+      confirmed on Stripe's Payouts settings page
+- [x] Stripe's own identity verification cleared — charges and payouts both
+      enabled, no outstanding requirements
 
 Do every step below in test mode first. Test and live mode have **separate API
 keys and separate webhook signing secrets** — nothing carries over.
@@ -54,11 +67,11 @@ npx supabase secrets set \
   CONTACT_INBOX=paowtx@gmail.com
 ```
 
-- [ ] `STRIPE_SECRET_KEY` — without it `create-checkout-session` returns
+- [x] `STRIPE_SECRET_KEY` — set. Without it `create-checkout-session` returns
       "Payments are not configured" (500)
-- [ ] `STRIPE_WEBHOOK_SECRET` — without it the webhook returns 500 and **no
+- [x] `STRIPE_WEBHOOK_SECRET` — set. Without it the webhook returns 500 and **no
       donation is ever marked paid**
-- [ ] `SITE_URL` — **the first entry is the fallback return address.** It is a
+- [x] `SITE_URL` — set. **The first entry is the fallback return address.** It is a
       comma-separated list so localhost can be tested without shipping it; put
       production first or a donor who pays is returned to a dead address
       (`pickReturnUrl()` in `create-checkout-session/index.ts`)
@@ -66,7 +79,7 @@ npx supabase secrets set \
       tell the donor to keep the letter; before it was set they deliberately
       omitted the line rather than print a placeholder, and the webhook logged
       it every time
-- [ ] `RESEND_API_KEY` — without it no receipt is sent. The webhook now leaves
+- [x] `RESEND_API_KEY` — set. Without it no receipt is sent. The webhook now leaves
       `receipt_sent_at` **unset** in that case, so the receipt is retried once
       the key exists instead of the row lying about a delivery
 
@@ -101,12 +114,18 @@ npm run functions:deploy
 
 In the Stripe dashboard → Developers → Webhooks → Add endpoint:
 
-- [ ] URL: `https://zusgxrezbffxxhztggev.supabase.co/functions/v1/stripe-webhook`
-- [ ] Events — all four, each one is handled:
+- [x] URL: `https://zusgxrezbffxxhztggev.supabase.co/functions/v1/stripe-webhook`
+- [x] Events — all four, each one is handled:
       `checkout.session.completed`, `invoice.paid`,
       `checkout.session.expired`, `charge.refunded`
-- [ ] Copy the endpoint's **signing secret** into `STRIPE_WEBHOOK_SECRET`
+- [x] Copy the endpoint's **signing secret** into `STRIPE_WEBHOOK_SECRET`
       (step 2) and redeploy
+
+These three are ticked on the strength of a live payment rather than a reading
+of the dashboard: the $1 donation went `paid` from a `checkout.session.completed`
+Stripe delivered to this URL, and the refund came back as `charge.refunded`. An
+endpoint with a wrong URL, a missing event or a mismatched secret cannot do
+that.
 
 Locally instead, with the Stripe CLI:
 
@@ -128,13 +147,26 @@ Supabase → Authentication → URL Configuration → Redirect URLs:
 - [ ] `https://pawtx.org/**`
 - [ ] `http://localhost:3000/**`
 
+**Unverified — along with the payout in step 8, the only unfinished business in
+this document.** These govern the **admin magic-link login**, not donations: the
+donate widget calls the Edge Functions with the anon key and never touches
+Supabase Auth, and the address a donor returns to after paying comes from
+`SITE_URL`. Going live never depended on this step, which is why it was never
+closed.
+
+It also cannot be checked from the command line: the Management API wants an
+access token the CLI keeps in the Windows credential store, and the public
+`/auth/v1/settings` endpoint does not return redirect URLs. Open the dashboard
+page named above, or attempt an admin sign-in and see whether the emailed link
+lands on the site.
+
 A mismatch fails silently at click time — Supabase substitutes the project's
 Site URL rather than returning an error.
 
 ## 6. Flip the flag — last
 
-- [ ] `.env.local`: `VITE_DONATIONS_ENABLED="true"` (already set locally)
-- [ ] `.github/workflows/deploy.yml`, in the build step's `env:` block next to
+- [x] `.env.local`: `VITE_DONATIONS_ENABLED="true"`
+- [x] `.github/workflows/deploy.yml`, in the build step's `env:` block next to
       `VITE_EMAIL_ENABLED`:
 
       ```yaml
@@ -145,7 +177,7 @@ Site URL rather than returning an error.
       Vite inlines the flag at build time and CI has its own environment. It
       lives in plain sight rather than in repo secrets so that what production
       was built with is readable from the repository.
-- [ ] `.env.example`: uncomment the flag so the next person sees it
+- [x] `.env.example`: uncomment the flag so the next person sees it
 
 ## 7. Prove it end to end, in test mode
 
@@ -217,9 +249,10 @@ unlike `send-rsvp-confirmation`.
       at sign-up produced **no** row, which is what keeps every monthly gift
       from being double-counted on day one.
 
-Nothing is left unverified. Everything above was exercised against the hosted
-project, and what remains before a real dollar can arrive is account setup,
-not code: see step 8, and the bank account it waits on.
+Nothing in the donation flow is left unverified: everything above was exercised
+against the hosted project. The account setup it used to wait on — the bank
+account, the identity check, the live key — was finished on 2026-10-10, and a
+real dollar has since gone through and come back out as a refund. See step 8.
 
 ## 8. Go live
 
@@ -239,7 +272,10 @@ not code: see step 8, and the bank account it waits on.
       Dashboard → `refunded`. Before paying, expiring two unpaid live sessions
       proved the live endpoint and its signature for free
 - [ ] Confirm the payout lands in the bank account — payouts are daily and
-      automatic, so this shows up on its own once there is a real balance
+      automatic, so this shows up on its own once there is a real balance.
+      **It cannot close yet:** the only live charge so far was the $1 test and
+      it was refunded, so the balance is zero and there is nothing to pay out.
+      The first real donation closes this box without anyone doing anything
 
 ---
 
