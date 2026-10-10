@@ -5,7 +5,7 @@ import { useAppStore } from '../store/useAppStore';
 import { getGoogleCalendarUrl } from '../lib/eventDates';
 import { formatEventFee } from '../lib/eventFee';
 import { ActionError, MediaConsent } from '../types';
-import { donationsEnabled, emailEnabled } from '../lib/features';
+import { emailEnabled, rsvpDonationEnabled } from '../lib/features';
 import { ModalShell } from './ModalShell';
 
 const TITLE_ID = 'rsvp-modal-title';
@@ -81,7 +81,11 @@ export const RSVPModal: React.FC = () => {
     // writes a number into the rsvps row. Someone who picks $25 leaves
     // believing they donated. Until the amount can actually be charged,
     // skip the step entirely rather than stage a transaction that isn't one.
-    if (!donationsEnabled) {
+    //
+    // This was gated on `donationsEnabled` until that flag went true for the
+    // donate widget and brought the step back with it. The gate belongs on
+    // whether *this* step can charge, which is `rsvpDonationEnabled`.
+    if (!rsvpDonationEnabled) {
       void handleFinalSubmit();
       return;
     }
@@ -101,7 +105,7 @@ export const RSVPModal: React.FC = () => {
       guestCount,
       // Zero when the donation step never ran — otherwise the default $10 in
       // component state would be recorded as a gift nobody chose.
-      optionalDonation: donationsEnabled ? donationAmount || 0 : 0,
+      optionalDonation: rsvpDonationEnabled ? donationAmount || 0 : 0,
       // Only sent for events that asked; create_rsvp discards it otherwise.
       mediaConsent: needsMediaConsent ? mediaConsent : null
     });
@@ -364,7 +368,7 @@ export const RSVPModal: React.FC = () => {
                   <span>
                     {isSubmitting
                       ? t('rsvpModal.submitting')
-                      : donationsEnabled
+                      : rsvpDonationEnabled
                         ? t('rsvpModal.continueToStep2')
                         : t('rsvpModal.confirmRsvp')}
                   </span>
