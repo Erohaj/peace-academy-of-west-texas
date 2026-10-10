@@ -204,9 +204,19 @@ whether or not it was exercised here; the **receipt stays English-only**, which
 is already how `stripe-webhook` is written — it has no language branch at all,
 unlike `send-rsvp-confirmation`.
 
-Still open:
+- [x] A real renewal cycle, driven by a Stripe test clock. A customer on a
+      frozen clock was given a card and a $15/month subscription, the clock
+      advanced 32 days, and Stripe billed the next cycle on its own: the
+      `invoice.paid` it delivered carried `billing_reason:
+      subscription_cycle`, the webhook inserted a **second** `paid` row
+      against the same `stripe_subscription`, and the receipt went out.
+      The negative half matters as much — the `subscription_create` invoice
+      at sign-up produced **no** row, which is what keeps every monthly gift
+      from being double-counted on day one.
 
-- [ ] A real renewal cycle, via a Stripe test clock
+Nothing is left unverified. Everything above was exercised against the hosted
+project, and what remains before a real dollar can arrive is account setup,
+not code: see step 8, and the bank account it waits on.
 
 ## 8. Go live
 
