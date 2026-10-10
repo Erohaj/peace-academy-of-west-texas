@@ -187,12 +187,22 @@ that were open:
 - [x] A refund made through the Stripe API flips the row to `refunded`
       (`charge.refunded`, delivered by Stripe)
 
+- [x] Cancel from Stripe's page back to `?donation=cancelled`, in two halves
+      that meet: the Back link on Stripe's hosted page was read off the live
+      page and points at `https://pawtx.org?donation=cancelled`, and loading
+      that query string shows the "Payment Cancelled — no charge was made"
+      banner above a form ready for another go, then rewrites the URL to
+      `#donate` so a refresh does not replay the banner. Only Stripe's own
+      redirect sits between the two, and it is Stripe following its own link
+
+Deliberately **not** tested, by the owner's call (2026-10-10): the flow in
+Spanish. The widget is fully translated and Spanish-speaking visitors get it
+whether or not it was exercised here; the **receipt stays English-only**, which
+is already how `stripe-webhook` is written — it has no language branch at all,
+unlike `send-rsvp-confirmation`.
+
 Still open:
 
-- [ ] Both languages: the whole flow in Spanish
-- [ ] Cancel from Stripe's page back to `?donation=cancelled`. The link on
-      Stripe's page is confirmed to point at the right URL; the trip back and
-      the screen that renders from it are not yet exercised together
 - [ ] A real renewal cycle, via a Stripe test clock
 
 ## 8. Go live
