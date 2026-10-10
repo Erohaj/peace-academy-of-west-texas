@@ -1,11 +1,14 @@
-# Taking donations: what is left before a real dollar can arrive
+# Taking donations
 
-Every line of the donation path is written and type-checks. Nothing on this
-list is code — it is the account setup, the secrets and the one build flag that
-stand between the finished code and a working donate button.
+**Live since 2026-10-10.** The site takes real donations: a $1 gift was made
+with a real card, the row went `paid`, the receipt arrived carrying the EIN,
+and refunding it from the Dashboard flipped the row to `refunded` — the whole
+path, both directions, on real money.
 
-The order matters: the flag at step 6 is the last thing to flip, because it is
-the only step a visitor can see.
+What follows is the list as it was worked through, kept because it is also the
+runbook for doing this again: a second Stripe account, a rebuilt project, or
+someone asking why a step exists. The order mattered, and the flag at step 6
+was the last thing flipped, because it is the only step a visitor can see.
 
 ---
 
@@ -14,11 +17,11 @@ the only step a visitor can see.
 | | State |
 |---|---|
 | Widget, Edge Functions, `donations` table, RLS | written, `npm run lint` clean |
-| `VITE_DONATIONS_ENABLED` | **off** in `.env.example` and absent from `deploy.yml` — production shows the offline giving panel. On locally, which is how the hosted test mode is exercised without a live donate button |
-| Stripe account | created; **test mode now wired end to end on the hosted project** (2026-10-09). A **bank account for payouts** is the only thing still outstanding for **live** mode |
-| Hosted Edge Function secrets | all seven set: `STRIPE_SECRET_KEY` (test), `STRIPE_WEBHOOK_SECRET` (test), `SITE_URL`, `CONTACT_INBOX`, `RESEND_API_KEY`, `MAIL_FROM`, `ORG_EIN` |
+| `VITE_DONATIONS_ENABLED` | **on**, in `deploy.yml` and `.env.example` |
+| Stripe account | **activated.** Charges and payouts enabled, no outstanding requirements, business type `non_profit`, paying out to a verified Bank of America account |
+| Hosted Edge Function secrets | all seven set, and `STRIPE_SECRET_KEY` / `STRIPE_WEBHOOK_SECRET` are the **live** pair |
 | EIN | **82-4145937.** It existed all along — an organisation cannot hold 501(c)(3) status without one, so it was issued with the exemption, not waiting to be applied for. Confirmed against IRS Business Master File data: name and the Brentwood Dr address match exactly, ruling date 1 July 2019, status active, 990-EZ filed for 2023 and 2024 |
-| Stripe webhook endpoint | `we_1UOnfRApOhsap1HPMzKsD8ID`, test mode, all four events, enabled |
+| Stripe webhook endpoints | live `we_1UOs45ApOhsap1HPpqiM9DFm`, test `we_1UOnfRApOhsap1HPMzKsD8ID`. Both carry all four events |
 | Supabase project | `zusgxrezbffxxhztggev`, linked |
 | Local tooling | Docker, local Supabase stack and Stripe CLI 1.52 all verified working |
 
@@ -220,12 +223,23 @@ not code: see step 8, and the bank account it waits on.
 
 ## 8. Go live
 
-- [ ] Swap in the `sk_live_…` key
-- [ ] Create the webhook endpoint **again in live mode** and copy its
+- [x] Swap in the live key. **Not** `sk_live_…` in the end: the only Stripe
+      call the whole site makes is `checkout.sessions.create`, so it runs on a
+      **restricted** key (`rk_live_…`) granted Write on Checkout Sessions,
+      Products, Prices, Customers and Subscriptions and nothing else. No
+      refunds, no payouts, no balance, no reading the customer list. The full
+      secret key could not have been reused anyway — Stripe reveals it once at
+      creation, and this account's dates from 2023
+- [x] Create the webhook endpoint **again in live mode** and copy its
       *different* signing secret into `STRIPE_WEBHOOK_SECRET`
-- [ ] Redeploy the functions
-- [ ] Make one real donation with a real card, then refund it
-- [ ] Confirm the payout lands in the bank account
+- [x] Redeploy the functions — not needed, as it turns out: secrets are read
+      at runtime. The code was already current from the test-mode round
+- [x] Make one real donation with a real card, then refund it. $1.00 →
+      `paid`, receipt delivered with the tax-ID line, then refunded from the
+      Dashboard → `refunded`. Before paying, expiring two unpaid live sessions
+      proved the live endpoint and its signature for free
+- [ ] Confirm the payout lands in the bank account — payouts are daily and
+      automatic, so this shows up on its own once there is a real balance
 
 ---
 
