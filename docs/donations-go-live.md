@@ -15,8 +15,9 @@ the only step a visitor can see.
 |---|---|
 | Widget, Edge Functions, `donations` table, RLS | written, `npm run lint` clean |
 | `VITE_DONATIONS_ENABLED` | **off** in `.env.example` and absent from `deploy.yml` — production shows the offline giving panel. On locally, which is how the hosted test mode is exercised without a live donate button |
-| Stripe account | created; **test mode now wired end to end on the hosted project** (2026-10-09). EIN and a bank account still outstanding for **live** mode |
-| Hosted Edge Function secrets | `STRIPE_SECRET_KEY` (test), `STRIPE_WEBHOOK_SECRET` (test), `SITE_URL`, `CONTACT_INBOX`, `RESEND_API_KEY`, `MAIL_FROM` all set. `ORG_EIN` still absent |
+| Stripe account | created; **test mode now wired end to end on the hosted project** (2026-10-09). A **bank account for payouts** is the only thing still outstanding for **live** mode |
+| Hosted Edge Function secrets | all seven set: `STRIPE_SECRET_KEY` (test), `STRIPE_WEBHOOK_SECRET` (test), `SITE_URL`, `CONTACT_INBOX`, `RESEND_API_KEY`, `MAIL_FROM`, `ORG_EIN` |
+| EIN | **82-4145937.** It existed all along — an organisation cannot hold 501(c)(3) status without one, so it was issued with the exemption, not waiting to be applied for. Confirmed against IRS Business Master File data: name and the Brentwood Dr address match exactly, ruling date 1 July 2019, status active, 990-EZ filed for 2023 and 2024 |
 | Stripe webhook endpoint | `we_1UOnfRApOhsap1HPMzKsD8ID`, test mode, all four events, enabled |
 | Supabase project | `zusgxrezbffxxhztggev`, linked |
 | Local tooling | Docker, local Supabase stack and Stripe CLI 1.52 all verified working |
@@ -30,7 +31,7 @@ there is no rush to flip the flag before the rest of this list is true.
 Test mode needs none of this — a Stripe account in test mode works immediately
 and issues `sk_test_…` keys. **Live** mode is what needs:
 
-- [ ] Business details and the **EIN**
+- [x] Business details and the **EIN** — `82-4145937`
 - [ ] A **bank account** for payouts
 - [ ] Stripe's own identity verification cleared
 
@@ -58,8 +59,10 @@ npx supabase secrets set \
       comma-separated list so localhost can be tested without shipping it; put
       production first or a donor who pays is returned to a dead address
       (`pickReturnUrl()` in `create-checkout-session/index.ts`)
-- [ ] `ORG_EIN` — until set, receipts deliberately omit the tax-ID line rather
-      than print a placeholder, and the webhook logs it every time
+- [x] `ORG_EIN` — set to `82-4145937`. Receipts now carry the tax-ID line and
+      tell the donor to keep the letter; before it was set they deliberately
+      omitted the line rather than print a placeholder, and the webhook logged
+      it every time
 - [ ] `RESEND_API_KEY` — without it no receipt is sent. The webhook now leaves
       `receipt_sent_at` **unset** in that case, so the receipt is retried once
       the key exists instead of the row lying about a delivery
@@ -216,9 +219,22 @@ Still open:
 
 ---
 
-## What cannot be tested until the EIN exists
+## The receipt, both ways
 
-`ORG_EIN` is what puts the tax-ID line on a donation receipt. Until it is set,
-receipts go out without it and say a formal receipt will follow — which is
-true, and which somebody then has to actually send. Donors who give before the
-EIN is configured will need that follow-up by hand.
+`ORG_EIN` is what turns the acknowledgment into a tax document, and both
+branches have now been seen as real delivered mail rather than read off the
+source:
+
+- **With the EIN** (what donors will get): headed "Official Donation Receipt",
+  carries `Tax ID (EIN): 82-4145937`, and closes "No goods or services were
+  provided in exchange for this contribution. Keep this receipt for your tax
+  records." Organisation name, amount and the no-goods-or-services statement
+  are the three things a written acknowledgment needs under Pub. 1771, so
+  nothing has to be sent by hand afterwards.
+- **Without it** (how it behaved until 2026-10-10): headed "Donation Summary",
+  no tax-ID line, and the closing sentence promises a formal receipt to
+  follow — which somebody then had to actually send.
+
+If donations were ever taken while `ORG_EIN` was unset, those donors are owed
+that follow-up letter by hand. None were: the flag has never been on in
+production.
