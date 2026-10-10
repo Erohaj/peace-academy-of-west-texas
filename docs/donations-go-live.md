@@ -14,8 +14,10 @@ the only step a visitor can see.
 | | State |
 |---|---|
 | Widget, Edge Functions, `donations` table, RLS | written, `npm run lint` clean |
-| `VITE_DONATIONS_ENABLED` | **off** in `.env.local`, in `.env.example`, and absent from `deploy.yml` — production shows the offline giving panel |
-| Stripe account | created; sandbox keys work. EIN and a bank account still outstanding for **live** mode |
+| `VITE_DONATIONS_ENABLED` | **off** in `.env.example` and absent from `deploy.yml` — production shows the offline giving panel. On locally, which is how the hosted test mode is exercised without a live donate button |
+| Stripe account | created; **test mode now wired end to end on the hosted project** (2026-10-09). EIN and a bank account still outstanding for **live** mode |
+| Hosted Edge Function secrets | `STRIPE_SECRET_KEY` (test), `STRIPE_WEBHOOK_SECRET` (test), `SITE_URL`, `CONTACT_INBOX`, `RESEND_API_KEY`, `MAIL_FROM` all set. `ORG_EIN` still absent |
+| Stripe webhook endpoint | `we_1UOnfRApOhsap1HPMzKsD8ID`, test mode, all four events, enabled |
 | Supabase project | `zusgxrezbffxxhztggev`, linked |
 | Local tooling | Docker, local Supabase stack and Stripe CLI 1.52 all verified working |
 
@@ -71,11 +73,23 @@ do not set them by hand.
 npm run functions:deploy
 ```
 
-- [ ] All five deploy. The script already passes `--no-verify-jwt` to
+- [x] All five deploy. The script already passes `--no-verify-jwt` to
       `stripe-webhook` and **only** to it: Stripe signs with its own scheme and
       sends no Supabase token, so with JWT verification on, every event is
       rejected before the function runs. The signature check inside the
       function is what authenticates the caller.
+
+> **Do not skip this step because the secrets already took effect.** Secrets
+> are read at runtime, so `supabase secrets set` changes behaviour with no
+> deploy — which makes it very easy to believe the whole function is current.
+> The *code* is whatever was last pushed. On 2026-10-09 the three donation
+> functions were still the **27 July** build, three months and an entire
+> `donation-flow-fixes` PR behind `main`, while `send-contact-message` and
+> `send-rsvp-confirmation` were from August. The tell was `donation-status`
+> returning no `receipt_sent_at` even though the source selects it; it read as
+> a bug in the receipt logic and was really a stale deploy. `supabase
+> functions list` prints the deployed date per function — check it before
+> concluding anything from a test.
 
 ## 4. The Stripe webhook endpoint
 
@@ -155,16 +169,31 @@ and the earlier synthetic-event run between them established:
 - [x] A still-`pending` row shows "payment is still going through" and prints
       **no** receipt; all three receipt lines render from the right condition
 
-Still open, and each needs something we do not have yet:
+**A second run on 2026-10-09 repeated all of this against the hosted
+project** — the deployed Edge Functions, the hosted database and the real
+Resend account, rather than the local stack — and closed two of the four items
+that were open:
 
-- [ ] A receipt email arrives and `receipt_sent_at` **is** stamped. Only the
-      unstamped half is proven; the stamped half needs a real `RESEND_API_KEY`,
-      because `sendEmail` posts to `api.resend.com` and cannot be pointed at a
-      local inbox
-- [ ] Monthly gifts end to end on the real Stripe side, including a renewal
+- [x] A receipt email **arrives** and `receipt_sent_at` is stamped. Three
+      payments, three receipts, all three confirmed in the `paowtx@gmail.com`
+      inbox — so this is delivery, not just Resend accepting the message.
+      `RESEND_API_KEY` had been on the hosted project since August; what had
+      been missing all along was testing somewhere `sendEmail` could actually
+      reach `api.resend.com`, which the local stack never could
+- [x] Monthly gifts: a `subscription`-mode session, paid, lands a `paid` row
+      with `stripe_subscription` set and a receipt stamped. **A renewal is
+      still only proven by synthetic `invoice.paid`** — a real second cycle
+      needs a Stripe test clock
+- [x] A refund made through the Stripe API flips the row to `refunded`
+      (`charge.refunded`, delivered by Stripe)
+
+Still open:
+
 - [ ] Both languages: the whole flow in Spanish
-- [ ] Cancel from Stripe's page back to `?donation=cancelled` (the screen
-      itself is verified; the trip back from Stripe is not)
+- [ ] Cancel from Stripe's page back to `?donation=cancelled`. The link on
+      Stripe's page is confirmed to point at the right URL; the trip back and
+      the screen that renders from it are not yet exercised together
+- [ ] A real renewal cycle, via a Stripe test clock
 
 ## 8. Go live
 

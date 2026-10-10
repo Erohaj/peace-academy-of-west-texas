@@ -180,6 +180,19 @@ async function sendReceipt(
     console.error('[PAWTX] ORG_EIN is not set — receipt sent without a tax ID line');
   }
 
+  // The quid pro quo sentence leads unconditionally. Whether the donor
+  // received anything in return has nothing to do with whether ORG_EIN happens
+  // to be configured, and for a gift of $250 or more it is the sentence the
+  // IRS looks for in a written acknowledgment (Pub. 1771). This was once tied
+  // to the EIN, which meant the donors who most needed it were the ones who
+  // did not get it. Only the second half — whether this letter is the keeper
+  // or a better one is coming — turns on the EIN.
+  const closingNote =
+    'No goods or services were provided in exchange for this contribution. ' +
+    (ORG_EIN
+      ? 'Keep this receipt for your tax records.'
+      : 'A formal receipt for your tax records will follow by email from our team.');
+
   const sent = await sendEmail({
     to: donation.donor_email,
     replyTo: ORG_INBOX,
@@ -195,7 +208,13 @@ async function sendReceipt(
           emergency relief across Midland &amp; Odessa.
         </p>
         <div style="background:#F4F1ED;border:1px solid #E5E0D8;border-radius:12px;padding:16px;font-size:13px;">
-          <div style="font-weight:700;margin-bottom:8px;">Official Donation Receipt</div>
+          <div style="font-weight:700;margin-bottom:8px;">${
+            // Calling this "Official" while the note below promises a formal
+            // receipt to come contradicts itself, and the thing that makes a
+            // receipt official — the EIN — is exactly what is missing. Say
+            // what it is until it can say the other.
+            ORG_EIN ? 'Official Donation Receipt' : 'Donation Summary'
+          }</div>
           <div>Donor: ${escapeHtml(donation.donor_name || 'Anonymous')}</div>
           <div>Amount: ${amount}${recurring ? ' per month' : ''}</div>
           <div>Date: ${new Date(donation.created_at).toLocaleDateString('en-US', {
@@ -207,11 +226,7 @@ async function sendReceipt(
           ${ORG_EIN ? `<div>Tax ID (EIN): ${escapeHtml(ORG_EIN)}</div>` : ''}
         </div>
         <p style="font-size:12px;color:#5A5A5A;margin:16px 0 0;">
-          ${
-            ORG_EIN
-              ? 'No goods or services were provided in exchange for this contribution. Keep this receipt for your tax records.'
-              : 'A formal receipt for your tax records will follow by email from our team.'
-          }
+          ${closingNote}
         </p>
       `
     )
