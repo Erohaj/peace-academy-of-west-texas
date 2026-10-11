@@ -259,11 +259,25 @@ To turn it on, add these as **repository secrets** (Settings → Secrets and var
 - `IG_USER_ID` — the Instagram **Business or Creator** account ID, linked to that same Page.
   A personal Instagram account cannot be read by the API at all.
 
-[scripts/meta-social-setup.mjs](scripts/meta-social-setup.mjs) produces all three from a
-short-lived Explorer token in one command. It performs the long-lived exchange that most
-walkthroughs omit — skip it and the feed stops refreshing within the hour, with the workflow
-still reporting success, because a rejected token fails *inside* the run rather than failing
-the run. It also refuses to wire up a Page or Instagram account whose handle does not match
+[scripts/meta-social-setup.mjs](scripts/meta-social-setup.mjs) produces all three in one
+command, from a User token:
+
+```powershell
+$env:META_USER_TOKEN="<token extended in the Access Token Debugger>"
+node scripts/meta-social-setup.mjs
+```
+
+The long-lived exchange is the step most walkthroughs omit, and skipping it is quiet: the
+Page token dies within the hour, the feed stops refreshing, and the workflow goes on
+reporting success, because a rejected token fails *inside* the run rather than failing the
+run. Either extend the User token first with the **Extend Access Token** button at the bottom
+of Meta's [Access Token Debugger](https://developers.facebook.com/tools/debug/accesstoken/),
+or also pass `META_APP_ID` and `META_APP_SECRET` and let the script do it. The first way needs
+no password; revealing the app secret does. Either way the script then checks with
+`debug_token` that the Page token really has no expiry, rather than assuming the exchange
+took.
+
+It also refuses to wire up a Page or Instagram account whose handle does not match
 [src/data/orgLinks.ts](src/data/orgLinks.ts), so the posts and the byline under them cannot
 come from different accounts.
 

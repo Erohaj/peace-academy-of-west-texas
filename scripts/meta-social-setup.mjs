@@ -11,17 +11,22 @@
 // relies on Node's own type stripping. The workflow's Node 20 cannot do that --
 // which is fine, this is a one-time local command, not part of the schedule.
 //
-// Usage (PowerShell):
+// Usage (PowerShell), the short way -- no Facebook password anywhere:
+//
+//   $env:META_USER_TOKEN="<token extended in the Access Token Debugger>"
+//   node scripts/meta-social-setup.mjs
+//
+// Or let this do the extending, which costs one password prompt to reveal the
+// secret on Settings -> Basic:
 //
 //   $env:META_APP_ID="..."; $env:META_APP_SECRET="..."; $env:META_USER_TOKEN="..."
 //   node scripts/meta-social-setup.mjs
 //
-// The user token is the short-lived one from the Graph API Explorer. It is read
-// from the environment and never written anywhere: this script prints what to
-// paste into GitHub's secret form and nothing else. Do not commit the output
-// and do not paste the Page token into a chat window — a Page token derived
-// from a long-lived user token does not expire, so a leaked one stays useful to
-// whoever finds it until it is manually revoked.
+// Either way the token is read from the environment and never written anywhere:
+// this prints what to paste into GitHub's secret form and nothing else. Do not
+// commit the output and do not paste the Page token into a chat window -- a
+// Page token derived from a long-lived User token does not expire, so a leaked
+// one stays useful to whoever finds it until it is revoked by hand.
 
 import { ORG_LINKS } from '../src/data/orgLinks.ts';
 
@@ -30,14 +35,27 @@ const API = `https://graph.facebook.com/${GRAPH_VERSION}`;
 
 const { META_APP_ID, META_APP_SECRET, META_USER_TOKEN } = process.env;
 
-if (!META_APP_ID || !META_APP_SECRET || !META_USER_TOKEN) {
-  console.error(
-    'Set META_APP_ID, META_APP_SECRET and META_USER_TOKEN first.\n\n' +
-      'The first two are on your app\'s Settings -> Basic page at\n' +
-      'developers.facebook.com. The third is the short-lived User token from\n' +
-      'the Graph API Explorer, granted pages_show_list, pages_read_engagement\n' +
-      'and instagram_basic.'
-  );
+// META_APP_SECRET is optional, and leaving it out is the gentler path: showing
+// it on the app's Basic settings page demands the Facebook password, and the
+// only thing it buys is performing the long-lived exchange here. Meta will do
+// that exchange itself, via the "Extend Access Token" button at the bottom of
+// the Access Token Debugger, which needs no password and hands back a token
+// already good for sixty days. Supply a token extended that way and this skips
+// straight to finding the Page.
+const hasAppCredentials = Boolean(META_APP_ID && META_APP_SECRET);
+
+if (!META_USER_TOKEN) {
+  console.error(`Set META_USER_TOKEN first. Two ways to get one, both from
+developers.facebook.com:
+
+  Easier -- no password needed:
+    1. Graph API Explorer: generate a User token carrying pages_show_list,
+       pages_read_engagement and instagram_basic.
+    2. Paste it into the Access Token Debugger and press "Extend Access
+       Token" at the bottom. Use the token that comes back.
+
+  Or also set META_APP_ID and META_APP_SECRET (Settings -> Basic; revealing
+  the secret asks for your password) and this will do the extending itself.`);
   process.exit(1);
 }
 
@@ -66,24 +84,33 @@ function heading(text) {
 }
 
 async function main() {
-  heading('1. Exchanging the short-lived token for a long-lived one');
+  heading('1. The User token');
 
   // A Page token inherits its lifetime from the User token it came from. Taken
   // from the short-lived token straight out of the Explorer it dies in about an
   // hour, and the feed would stop refreshing the same day it was turned on --
   // with the workflow still green, because a rejected token is a failure inside
-  // the run, not of the run. This exchange is what makes the Page token
-  // permanent, and it is the step most walkthroughs leave out.
-  const longLived = await graph('oauth/access_token', {
-    grant_type: 'fb_exchange_token',
-    client_id: META_APP_ID,
-    client_secret: META_APP_SECRET,
-    fb_exchange_token: META_USER_TOKEN
-  });
+  // the run, not of the run. Something has to perform the long-lived exchange:
+  // either this script with the app secret, or Meta's own "Extend Access Token"
+  // button beforehand. Step 4 checks which of the two actually happened rather
+  // than trusting that one did.
+  let userToken = META_USER_TOKEN;
 
-  const userToken = longLived.access_token;
-  console.log(`User token exchanged. Expires in ~${Math.round((longLived.expires_in || 0) / 86400)} days.`);
-  console.log('(That is the User token. The Page token below is the one that does not expire.)');
+  if (hasAppCredentials) {
+    const longLived = await graph('oauth/access_token', {
+      grant_type: 'fb_exchange_token',
+      client_id: META_APP_ID,
+      client_secret: META_APP_SECRET,
+      fb_exchange_token: META_USER_TOKEN
+    });
+    userToken = longLived.access_token;
+    console.log(`Exchanged for a long-lived token, good for ~${Math.round((longLived.expires_in || 0) / 86400)} days.`);
+  } else {
+    console.log('No app secret given, so using the token exactly as supplied.');
+    console.log('It must already have been extended, or the Page token expires within the hour.');
+  }
+
+  console.log('(That is the User token. The Page token below is the one that should never expire.)');
 
   heading('2. Pages this account manages');
 
@@ -173,16 +200,20 @@ async function main() {
   try {
     const debug = await graph('debug_token', {
       input_token: page.access_token,
-      access_token: `${META_APP_ID}|${META_APP_SECRET}`
+      // An app token proves it outright; failing that, an app admin's own User
+      // token may inspect tokens issued by the same app, which is enough here.
+      access_token: hasAppCredentials ? `${META_APP_ID}|${META_APP_SECRET}` : userToken
     });
     const d = debug.data || {};
     console.log(`type=${d.type}  expires_at=${d.expires_at === 0 ? 'never' : new Date((d.expires_at || 0) * 1000).toISOString()}`);
     console.log(`scopes: ${(d.scopes || []).join(', ') || '(none reported)'}`);
     if (d.expires_at !== 0) {
-      console.warn(
-        'This Page token DOES have an expiry, which means the exchange in step 1\n' +
-          'did not take. The feed would stop refreshing when it lapses.'
-      );
+      console.warn(`STOP: this Page token HAS an expiry, so the long-lived exchange
+never happened. Used as it is, the feed stops refreshing when the token lapses,
+and the workflow goes on reporting success while it does.
+
+Extend the User token first -- Access Token Debugger, "Extend Access Token" at
+the bottom -- then run this again with the result.`);
     }
   } catch (error) {
     console.log(`Could not inspect the token: ${error.message}`);
