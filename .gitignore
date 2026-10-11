@@ -19,3 +19,7 @@ supabase/.branches/
 # staging area for the migration, not something the site builds from — take
 # what is needed into src/assets via npm run optimize:images and Supabase.
 wix-export/
+
+# A Meta User token pasted here for scripts/meta-social-setup.mjs. It is a
+# credential: never commit it.
+.meta-token
