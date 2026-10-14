@@ -68,6 +68,8 @@ const resources = {
         eventDate: "Date & Time",
         fee: "Fee",
         free: "Free",
+        feePrepaid: "per person, paid when you register",
+        feeAtDoor: "per person, payable at the event",
         details: "Event Details",
         viewDetails: "View Details",
         searchPlaceholder: "Search events by keyword or location...",
@@ -134,7 +136,39 @@ const resources = {
         guestsCountPlural: "+{{count}} guests",
         guestPass: "Guest pass: {{name}}",
         guestPassWithGuests: "Guest pass: {{name}} ({{guests}})",
-        tryAgain: "Try Again"
+        tryAgain: "Try Again",
+        // Prepaid events. The seat is held while the visitor is on Stripe's
+        // page, so the wording has to make the deadline plain without making
+        // it sound like a trick — they are not being rushed, they are being
+        // told why the spot cannot be held indefinitely.
+        prepaidTitle: "Paid in advance",
+        prepaidNote: "We hold your spot for about 30 minutes while you pay on Stripe's secure page. Nothing is charged until you confirm it there.",
+        prepaidBreakdown: "{{seats}} × {{fee}}",
+        totalDue: "Total due now",
+        continueToPayment: "Continue to payment",
+        redirecting: "Taking you to the payment page...",
+        paymentClosedTitle: "Registration for this one is by email",
+        paymentClosedText: "This event is paid in advance, and online payment for it is not open yet. Write to {{email}} and we will register you and arrange the fee."
+      },
+
+      ticketReturn: {
+        successTitle: "You're registered — payment received",
+        successBody: "Your spot at {{title}} is confirmed. A confirmation email is on its way.",
+        pendingTitle: "Your payment is still going through",
+        pendingBody: "Stripe has it and we are waiting for the confirmation, which usually takes a few seconds. This page checks for you — your spot is held in the meantime.",
+        cancelledTitle: "Payment cancelled",
+        cancelledBody: "No charge was made and your spot has been released. You are welcome to register again whenever you like.",
+        unknownTitle: "We could not find that payment",
+        unknownBody: "If your card was charged, write to {{email}} and we will put it right — quote your confirmation number if you have it.",
+        failedTitle: "That spot was released",
+        failedBody: "The payment did not complete in time, so the seat went back. Nothing was charged. Please register again if you would still like to come.",
+        refundedTitle: "This booking was refunded",
+        refundedBody: "The fee has been returned and the spot released. Write to {{email}} if that is not what you expected.",
+        amountPaid: "Paid",
+        confirmationNumber: "Confirmation #",
+        partySize: "Party size",
+        notDeductible: "A payment for admission is not a tax-deductible donation — you receive a seat at the event in return.",
+        close: "Close"
       },
       gallery: {
         title: "Community Media Gallery",
@@ -416,6 +450,8 @@ const resources = {
         eventDate: "Fecha y Hora",
         fee: "Costo",
         free: "Gratis",
+        feePrepaid: "por persona, se paga al registrarte",
+        feeAtDoor: "por persona, se paga en el evento",
         details: "Detalles del Evento",
         viewDetails: "Ver Detalles",
         searchPlaceholder: "Buscar eventos por palabras clave...",
@@ -479,7 +515,35 @@ const resources = {
         guestsCountPlural: "+{{count}} acompañantes",
         guestPass: "Pase: {{name}}",
         guestPassWithGuests: "Pase: {{name}} ({{guests}})",
-        tryAgain: "Reintentar"
+        tryAgain: "Reintentar",
+        prepaidTitle: "Pago por adelantado",
+        prepaidNote: "Guardamos tu lugar unos 30 minutos mientras pagas en la página segura de Stripe. No se cobra nada hasta que lo confirmes allí.",
+        prepaidBreakdown: "{{seats}} × {{fee}}",
+        totalDue: "Total a pagar ahora",
+        continueToPayment: "Continuar al pago",
+        redirecting: "Te llevamos a la página de pago...",
+        paymentClosedTitle: "El registro para este evento es por correo",
+        paymentClosedText: "Este evento se paga por adelantado y el pago en línea aún no está disponible. Escríbenos a {{email}} y te registramos y acordamos la cuota."
+      },
+
+      ticketReturn: {
+        successTitle: "¡Estás registrado — pago recibido!",
+        successBody: "Tu lugar en {{title}} está confirmado. Te enviamos un correo de confirmación.",
+        pendingTitle: "Tu pago aún se está procesando",
+        pendingBody: "Stripe ya lo tiene y esperamos la confirmación, que suele tardar unos segundos. Esta página lo verifica por ti — tu lugar queda reservado mientras tanto.",
+        cancelledTitle: "Pago cancelado",
+        cancelledBody: "No se realizó ningún cargo y tu lugar fue liberado. Puedes registrarte de nuevo cuando quieras.",
+        unknownTitle: "No encontramos ese pago",
+        unknownBody: "Si te cobraron, escríbenos a {{email}} y lo resolvemos — menciona tu número de confirmación si lo tienes.",
+        failedTitle: "Ese lugar fue liberado",
+        failedBody: "El pago no se completó a tiempo, así que el lugar volvió a estar disponible. No se cobró nada. Regístrate de nuevo si todavía quieres venir.",
+        refundedTitle: "Esta reserva fue reembolsada",
+        refundedBody: "La cuota fue devuelta y el lugar liberado. Escríbenos a {{email}} si esto no es lo que esperabas.",
+        amountPaid: "Pagado",
+        confirmationNumber: "N.º de confirmación",
+        partySize: "Personas",
+        notDeductible: "El pago de una entrada no es un donativo deducible de impuestos — recibes un lugar en el evento a cambio.",
+        close: "Cerrar"
       },
       gallery: {
         title: "Galería de Fotos Comunitarias",

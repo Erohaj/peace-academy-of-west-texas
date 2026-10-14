@@ -4,6 +4,7 @@ import type { Tables } from '../../lib/database.types';
 import { fetchAllEventsForAdmin } from '../../lib/api/events';
 import { createEvent, deleteEvent, updateEvent, uploadMedia } from '../../lib/api/admin';
 import { useAppStore } from '../../store/useAppStore';
+import { ticketsEnabled } from '../../lib/features';
 import { resolveImage } from '../../lib/api/images';
 import { EVENT_TIME_ZONE, instantToWallClock, wallClockToInstant } from '../../lib/formatEventDate';
 
@@ -25,6 +26,13 @@ interface EventForm {
    * turn into 0 — i.e. into a published claim that the event is free.
    */
   fee: string;
+  /**
+   * Whether the fee must be paid before the seat is confirmed. Not derived
+   * from `fee`: a price printed on the card and collected at the door is the
+   * arrangement every event here had before tickets existed, and it stays
+   * available.
+   */
+  payment_required: boolean;
   image_url: string | null;
   image_key: string | null;
   featured: boolean;
@@ -43,6 +51,7 @@ const BLANK_FORM: EventForm = {
   category: 'cultural',
   total_spots: 25,
   fee: '',
+  payment_required: false,
   image_url: null,
   image_key: null,
   featured: false,
@@ -108,6 +117,7 @@ export const EventsAdmin: React.FC = () => {
       category: row.category,
       total_spots: row.total_spots,
       fee: row.fee === null ? '' : String(row.fee),
+      payment_required: row.payment_required,
       image_url: row.image_url,
       image_key: row.image_key,
       featured: row.featured,
@@ -153,6 +163,14 @@ export const EventsAdmin: React.FC = () => {
       category: form.category,
       total_spots: Number(form.total_spots),
       fee: form.fee.trim() === '' ? null : Number(form.fee),
+      // The database has a CHECK saying a prepaid event must carry a price
+      // above zero, so a form that has lost its fee would be refused with a
+      // constraint message nobody can act on. Dropping the requirement here
+      // instead is the safe direction of the two: an event that takes free
+      // bookings is a mistake somebody notices, one that charges for a seat it
+      // cannot price is a payment nobody can complete.
+      payment_required:
+        form.payment_required && form.fee.trim() !== '' && Number(form.fee) > 0,
       image_url: form.image_url,
       image_key: form.image_key,
       featured: form.featured,
@@ -305,6 +323,34 @@ export const EventsAdmin: React.FC = () => {
               <p className="text-3xs text-charcoal mt-1 leading-snug">
                 Blank = no price shown. 0 = shown as "Free".
               </p>
+
+              {/* Hidden rather than disabled while the feature flag is off:
+                  there is nothing for an admin to decide until the ticket
+                  Edge Functions are deployed, and a greyed-out checkbox would
+                  invite them to go looking for the switch that turns it on.
+                  An event already marked prepaid keeps the flag — this only
+                  controls whether it can be changed from here. */}
+              {ticketsEnabled && (
+                <label className="flex items-start gap-2 mt-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    className="mt-0.5"
+                    checked={form.payment_required}
+                    disabled={form.fee.trim() === '' || Number(form.fee) <= 0}
+                    onChange={(e) => setForm({ ...form, payment_required: e.target.checked })}
+                  />
+                  <span className="space-y-0.5">
+                    <span className="block text-3xs font-bold text-graphite uppercase tracking-wider">
+                      Collect the fee up front
+                    </span>
+                    <span className="block text-3xs text-charcoal leading-snug">
+                      The RSVP form sends people to Stripe and the seat is only confirmed once
+                      they pay. Held about 30 minutes meanwhile, then released. Needs a fee
+                      above 0. Leave off to go on collecting at the door.
+                    </span>
+                  </span>
+                </label>
+              )}
             </div>
             <div className="flex items-end gap-4 pb-2.5">
               <label className="flex items-center gap-2 text-xs font-bold text-charcoal cursor-pointer">

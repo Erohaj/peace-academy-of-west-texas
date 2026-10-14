@@ -19,3 +19,10 @@ supabase/.branches/
 # staging area for the migration, not something the site builds from — take
 # what is needed into src/assets via npm run optimize:images and Supabase.
 wix-export/
+
+# A Meta User token pasted here for scripts/meta-social-setup.mjs. It is a
+# credential: never commit it. Also ignored on social-feed-setup, which is
+# where this rule was written -- repeated here because that branch has not
+# landed on main yet, and a branch cut from main therefore sees the file bare.
+# Whichever lands second will conflict on these lines; keep one copy.
+.meta-token

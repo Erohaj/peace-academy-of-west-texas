@@ -20,7 +20,7 @@
     "db:push": "supabase db push",
     "db:types": "supabase gen types typescript --linked > src/lib/database.types.ts",
     "functions:serve": "supabase functions serve",
-    "functions:deploy": "supabase functions deploy create-checkout-session donation-status send-contact-message send-rsvp-confirmation && supabase functions deploy stripe-webhook --no-verify-jwt"
+    "functions:deploy": "supabase functions deploy create-checkout-session create-ticket-session donation-status ticket-status send-contact-message send-rsvp-confirmation && supabase functions deploy stripe-webhook --no-verify-jwt"
   },
   "dependencies": {
     "@google/genai": "^2.4.0",

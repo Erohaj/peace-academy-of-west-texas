@@ -27,6 +27,29 @@ export const donationsEnabled = import.meta.env.VITE_DONATIONS_ENABLED === 'true
 export const emailEnabled = import.meta.env.VITE_EMAIL_ENABLED === 'true';
 
 /**
+ * Whether the site may take payment for a seat at an event.
+ *
+ * Distinct from `donationsEnabled`, and not implied by it. A working Stripe
+ * account is only half of what this needs: the other half is the
+ * `create-ticket-session` and `ticket-status` Edge Functions deployed, the
+ * `stripe-webhook` build current enough to know what `kind: 'event_ticket'`
+ * means, and the prepaid-ticket migration applied. Until all four are true, a
+ * visitor sent to Checkout for a seat is a visitor whose money arrives
+ * somewhere nothing is listening — and a held seat nothing will ever release.
+ *
+ * With the flag off, nothing about an event changes except that it cannot be
+ * marked prepaid: `fee` goes on being a published figure, the RSVP form books
+ * free seats as it always has, and the admin panel does not offer the toggle.
+ * An event somehow already marked prepaid shows the contact address instead of
+ * a payment button, the same way `DonationWidget` does with donations off.
+ *
+ * Flip by setting VITE_TICKETS_ENABLED=true in .env.local and in the GitHub
+ * Actions build environment — production stays off without the second one,
+ * whatever .env.local says.
+ */
+export const ticketsEnabled = import.meta.env.VITE_TICKETS_ENABLED === 'true';
+
+/**
  * Whether the RSVP flow may show its "Optional Event Support" step.
  *
  * Deliberately a constant here rather than a VITE_ flag: this is a property of
@@ -53,5 +76,5 @@ export const emailEnabled = import.meta.env.VITE_EMAIL_ENABLED === 'true';
  */
 export const rsvpDonationEnabled: boolean = false;
 
-/** Address shown when a visitor wants to give but online payment is disabled. */
+/** Address shown when a visitor wants to give or book but payment is off. */
 export { ORG_EMAIL as CONTACT_EMAIL } from '../data/orgLinks';
