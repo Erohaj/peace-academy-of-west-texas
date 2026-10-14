@@ -4,7 +4,15 @@ import { emailLayout, escapeHtml, sendEmail } from '../_shared/email.ts';
 import { confirmationNumber } from '../_shared/receipt.ts';
 
 /**
- * Stripe webhook — the only writer that marks a donation as paid.
+ * Stripe webhook — the only writer that marks a donation or a ticket as paid.
+ *
+ * Two kinds of payment arrive here and they are told apart by the session's
+ * `kind` metadata, written by whichever function created it: donations have no
+ * `kind` (they predate tickets), a prepaid event seat has
+ * `kind: 'event_ticket'` and the booking's id. They are kept in separate
+ * tables on purpose — a ticket buys admission, which is the "goods or
+ * services" that makes a payment non-deductible, so it must never reach a
+ * receipt stating that nothing was given in return.
  *
  * Deploy WITHOUT JWT verification, because Stripe signs its requests with its
  * own scheme and sends no Supabase token:
@@ -59,6 +67,11 @@ Deno.serve(async (req) => {
     switch (event.type) {
       case 'checkout.session.completed': {
         const session = event.data.object as Stripe.Checkout.Session;
+
+        if (session.metadata?.kind === 'event_ticket') {
+          await confirmTicket(supabase, session);
+          break;
+        }
 
         // A subscription's first payment also arrives as invoice.paid; the
         // session row is the one carrying our pending record, so update it
@@ -121,6 +134,25 @@ Deno.serve(async (req) => {
 
       case 'checkout.session.expired': {
         const session = event.data.object as Stripe.Checkout.Session;
+
+        // A seat is the thing at stake here, not just a row: the visitor did
+        // not pay, so the places they were holding have to go back before
+        // anyone else is turned away from them. `release_rsvp_hold` only
+        // touches a booking that is still pending, which is what makes a
+        // duplicate delivery — or a race with the lazy sweep inside
+        // `create_rsvp` — release the same seats only once.
+        if (session.metadata?.kind === 'event_ticket') {
+          const rsvpId = session.metadata.rsvp_id;
+          if (!rsvpId) {
+            console.error('[PAWTX] Expired ticket session carries no rsvp_id', session.id);
+            break;
+          }
+
+          const { error } = await supabase.rpc('release_rsvp_hold', { p_rsvp_id: rsvpId });
+          if (error) throw error;
+          break;
+        }
+
         await supabase
           .from('donations')
           .update({ status: 'failed' })
@@ -136,6 +168,17 @@ Deno.serve(async (req) => {
             .from('donations')
             .update({ status: 'refunded' })
             .eq('stripe_payment_intent', charge.payment_intent);
+
+          // The charge could equally have been a ticket, and the event carries
+          // nothing to say which — `charge.refunded` has no metadata of our
+          // own on it, only the payment intent. So both are tried; each is a
+          // no-op when the money was the other kind. A refunded seat is also
+          // released, because a refund is how this organisation records that
+          // somebody is not coming.
+          const { error } = await supabase.rpc('mark_rsvp_refunded', {
+            p_payment_intent: charge.payment_intent
+          });
+          if (error) throw error;
         }
         break;
       }
@@ -156,6 +199,54 @@ Deno.serve(async (req) => {
     headers: { 'Content-Type': 'application/json' }
   });
 });
+
+/**
+ * Confirms a prepaid seat once Stripe says the money is in.
+ *
+ * No email is sent from here. The booking's own database trigger fires on the
+ * update to `paid` and posts to `send-rsvp-confirmation`, which already knows
+ * how to write that letter in the attendee's language — the same path a free
+ * RSVP takes. Sending it here as well would be the second copy of the
+ * bilingual templates, and the one that goes out of date.
+ */
+async function confirmTicket(
+  supabase: ReturnType<typeof createClient>,
+  session: Stripe.Checkout.Session
+): Promise<void> {
+  const rsvpId = session.metadata?.rsvp_id;
+  if (!rsvpId) {
+    console.error('[PAWTX] Ticket session carries no rsvp_id', session.id);
+    return;
+  }
+
+  // Everything except `paid` here means Stripe has accepted the session but
+  // not the money — a bank debit still clearing, for instance. Leaving the
+  // booking pending is correct: it keeps its seat until the hold lapses, and
+  // the later `checkout.session.async_payment_succeeded` would be the event to
+  // act on. Nothing on this site offers such a method today, so this is a
+  // guard rather than a path, and it says so in the log if it is ever taken.
+  if (session.payment_status !== 'paid') {
+    console.warn(
+      '[PAWTX] Ticket session %s completed with payment_status=%s; leaving the booking pending',
+      session.id,
+      session.payment_status
+    );
+    return;
+  }
+
+  const { error } = await supabase.rpc('mark_rsvp_paid', {
+    p_rsvp_id: rsvpId,
+    p_payment_intent:
+      typeof session.payment_intent === 'string' ? session.payment_intent : null,
+    p_method: 'card'
+  });
+
+  // Thrown rather than logged: the caller turns it into a 500, which is what
+  // makes Stripe deliver this event again. A seat that was paid for and not
+  // confirmed is the one failure in this file that must never be quietly
+  // swallowed — the attendee has been charged.
+  if (error) throw error;
+}
 
 interface DonationRecord {
   id: string;

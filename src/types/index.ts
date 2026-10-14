@@ -33,12 +33,35 @@ export interface PAWTXEvent {
    * null is "the organisers have not said" and renders nothing.
    */
   fee: number | null;
+  /**
+   * When true, the seat is only real once `fee` has been paid: the RSVP form
+   * sends the visitor to Stripe and the booking is held for about half an hour
+   * meanwhile. False — the default, and every event before this existed —
+   * means `fee` is a published figure settled at the door, and the RSVP itself
+   * costs nothing. Never derived from `fee`: a price is not the same statement
+   * as a requirement to prepay.
+   */
+  paymentRequired: boolean;
   imageUrl: string;
   status: 'upcoming' | 'ongoing' | 'past';
   featured?: boolean;
   /** When true, the RSVP form asks for photo/video permission and requires it. */
   collectMediaConsent: boolean;
 }
+
+/**
+ * Where a booking stands on the money.
+ *
+ * `not_required` is not a payment state so much as the absence of one: a free
+ * event, or one whose fee this site does not collect. It is the default and
+ * still describes almost every booking in the table.
+ */
+export type RsvpPaymentStatus =
+  | 'not_required'
+  | 'pending'
+  | 'paid'
+  | 'failed'
+  | 'refunded';
 
 export interface RSVP {
   id: string;
@@ -151,6 +174,11 @@ export type ActionError =
   | 'not_configured'
   | 'unauthenticated'
   | 'rate_limited'
+  // A prepaid event this site cannot currently take money for: the Stripe key
+  // is missing, the event is marked prepaid with no price, or the ticket
+  // feature flag is off. Distinct from 'network' because there is nothing for
+  // the visitor to retry — the answer is to get in touch instead.
+  | 'payment_unavailable'
   | 'network';
 
 /**

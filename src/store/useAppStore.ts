@@ -31,6 +31,7 @@ import {
 import { ProfileRow, fetchMyProfile, mapProfileRow, updateMyProfile } from '../lib/api/profile';
 import { ServiceLogRow, fetchMyServiceLog } from '../lib/api/serviceLog';
 import { createRsvp } from '../lib/api/rsvps';
+import { createTicketSession } from '../lib/api/tickets';
 
 /**
  * Raw database rows, kept alongside the mapped view models.
@@ -116,6 +117,23 @@ interface AppState {
     phone: string;
     guestCount: number;
     optionalDonation?: number;
+    mediaConsent?: MediaConsent | null;
+  }) => Promise<ActionResult>;
+  /**
+   * Books a seat at a prepaid event and sends the browser to Stripe.
+   *
+   * Resolving `{ ok: true }` is the case in which this browser is already
+   * leaving the page, so nothing downstream should plan to render after it.
+   * Only the failure branch is worth handling, and it carries the same
+   * `ActionError` vocabulary as `submitRsvp` — "event full" and "already
+   * registered" happen here for the same reasons and need the same words.
+   */
+  startTicketCheckout: (data: {
+    eventId: string;
+    fullName: string;
+    email: string;
+    phone: string;
+    guestCount: number;
     mediaConsent?: MediaConsent | null;
   }) => Promise<ActionResult>;
 
@@ -343,6 +361,33 @@ export const useAppStore = create<AppState>((set, get) => ({
 
     void get().refreshContent();
     return { ok: true };
+  },
+
+  startTicketCheckout: async (data) => {
+    try {
+      const url = await createTicketSession({
+        eventId: data.eventId,
+        fullName: data.fullName,
+        email: data.email,
+        phone: data.phone,
+        guestCount: data.guestCount,
+        mediaConsent: data.mediaConsent ?? null,
+        // Read from the store for the same reason submitRsvp does: the
+        // language is a property of the session, not of this form. It decides
+        // which title Stripe's page shows and which language the confirmation
+        // email is written in.
+        language: get().language
+      });
+
+      // No local seat bookkeeping and no refreshContent: the seat is already
+      // held by the booking the Edge Function just made, and this browser is
+      // about to leave for Stripe. `assign` rather than `replace` so the
+      // browser's Back button comes home rather than out of the site.
+      window.location.assign(url);
+      return { ok: true };
+    } catch (error) {
+      return { ok: false, error: reportError('Ticket checkout failed', error) };
+    }
   },
 
   // Gallery

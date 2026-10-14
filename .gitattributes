@@ -10,3 +10,10 @@
 # Pinning the SQL to LF in the working tree, not just in the repository, is
 # what keeps the two byte-identical.
 *.sql text eol=lf
+
+# Same reasoning, different victim: a shell script checked out with CRLF has a
+# carriage return on the end of its shebang, and the kernel looks for an
+# interpreter called "bash\r". The error names a path that is plainly correct,
+# which is the worst kind. supabase/tests/event_tickets_functions.sh is the
+# only one here, and it is run by hand on the machine that cloned the repo.
+*.sh text eol=lf

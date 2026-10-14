@@ -129,6 +129,48 @@ expected(ord, name, want, got) as (
   -- чтобы можно было проверить сценарий «мест нет».
   select 20, 'Есть заполненное событие для теста', '1',
     (select count(*) from public.events where reserved_spots >= total_spots)
+  union all
+  -- Предоплата билетов: флаг на событии и статус оплаты на брони.
+  -- Без них сайт соберётся, но платная регистрация упадёт на первом же госте.
+  select 21, 'Колонки предоплаты на месте', '2',
+    ((select count(*) from information_schema.columns
+       where table_schema = 'public' and table_name = 'events'
+         and column_name = 'payment_required')
+     +
+     (select count(*) from information_schema.columns
+       where table_schema = 'public' and table_name = 'rsvps'
+         and column_name = 'payment_status'))
+  union all
+  -- Пять функций, которые ведут деньги и счётчик мест вместе:
+  -- подтверждение оплаты, два вида возврата места, возврат денег и
+  -- ручная отметка наличных админом.
+  select 22, 'Функции оплаты брони', '5',
+    (select count(*) from pg_proc p
+       join pg_namespace n on n.oid = p.pronamespace
+      where n.nspname = 'public'
+        and p.proname in ('mark_rsvp_paid', 'release_rsvp_hold', 'mark_rsvp_refunded',
+                          'release_expired_rsvp_holds', 'admin_set_rsvp_payment'))
+  union all
+  -- Главная проверка безопасности платежей: посетитель не должен мочь
+  -- вызвать ни одну из них — иначе любой сможет пометить свою броню
+  -- оплаченной, не заплатив. В PostgreSQL новая функция по умолчанию доступна
+  -- PUBLIC, так что право надо снимать явно, и именно такой пропуск
+  -- нигде больше не виден.
+  select 23, 'anon не может подтверждать оплату', '0',
+    (select count(*) from pg_proc p
+       join pg_namespace n on n.oid = p.pronamespace
+      where n.nspname = 'public'
+        and p.proname in ('mark_rsvp_paid', 'release_rsvp_hold', 'mark_rsvp_refunded',
+                          'release_expired_rsvp_holds', 'admin_set_rsvp_payment')
+        and has_function_privilege('anon', p.oid, 'EXECUTE'))
+  union all
+  -- Письмо уходит двумя путями: сразу — если платить не надо, и после
+  -- оплаты — если надо. Остался только первый — тот, кто заплатил, не
+  -- получит ничего.
+  select 24, 'Триггеры подтверждения RSVP', '2',
+    (select count(*) from pg_trigger
+      where tgrelid = 'public.rsvps'::regclass
+        and tgname in ('send_rsvp_confirmation', 'send_rsvp_confirmation_on_payment'))
 )
 select
   name    as "Проверка",

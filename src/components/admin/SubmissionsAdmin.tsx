@@ -8,6 +8,7 @@ import {
   downloadCsv,
   fetchContactMessages,
   markContactHandled,
+  setRsvpPayment,
   toCsv
 } from '../../lib/api/admin';
 import { useAppStore } from '../../store/useAppStore';
@@ -62,6 +63,54 @@ const MEDIA_CONSENT_BADGE: Record<string, { label: string; hint: string; classNa
 };
 
 /**
+ * Where a booking stands on the money, as a badge someone can scan a roster
+ * for.
+ *
+ * `not_required` is the overwhelming majority and deliberately the quietest:
+ * a free event, or one whose fee is settled at the door. It is not a problem
+ * to be chased, so it does not look like one.
+ *
+ * `pending` is amber rather than red because nothing is wrong yet — somebody
+ * is on Stripe's page this minute — and `failed` is the one that means a seat
+ * was given back, which is the fact a roster has to make obvious.
+ */
+const PAYMENT_BADGE: Record<string, { label: string; hint: string; className: string }> = {
+  not_required: {
+    label: '—',
+    hint: 'Nothing owed through the site: a free event, or a fee collected at the door.',
+    className: 'bg-warm-taupe text-charcoal border border-[#D6D0C4]'
+  },
+  pending: {
+    label: 'Holding',
+    hint: 'On Stripe now. The seat is held for about 30 minutes, then released automatically.',
+    className: 'bg-amber-100 text-amber-900 border border-amber-300'
+  },
+  paid: {
+    label: 'Paid',
+    hint: 'Paid in full. The seat is confirmed and the confirmation email has gone out.',
+    className: 'bg-olive/15 text-[#3F462F] border border-olive/30'
+  },
+  failed: {
+    label: 'Unpaid',
+    hint: 'Never paid for — the hold expired and the seat went back to the event. Not an attendee.',
+    className: 'bg-red-100 text-red-800 border border-red-300'
+  },
+  refunded: {
+    label: 'Refunded',
+    hint: 'The fee was returned in Stripe and the seat released. Not an attendee.',
+    className: 'bg-red-100 text-red-800 border border-red-300'
+  }
+};
+
+/** How a paid fee was taken, as the roster's one-word answer. */
+const PAYMENT_METHOD_LABEL: Record<string, string> = {
+  card: 'card',
+  cash: 'cash',
+  check: 'cheque',
+  waived: 'waived'
+};
+
+/**
  * Read-only views over the submissions tables, with CSV export.
  *
  * These rows hold attendee and donor personal data. They are only reachable
@@ -70,6 +119,9 @@ const MEDIA_CONSENT_BADGE: Record<string, { label: string; hint: string; classNa
  */
 export const SubmissionsAdmin: React.FC<SubmissionsAdminProps> = ({ view }) => {
   const events = useAppStore((state) => state.events);
+  // Confirming or releasing a fee moves events.reserved_spots, so the public
+  // pages have to be told. Same reason EventsAdmin calls it after a save.
+  const refreshContent = useAppStore((state) => state.refreshContent);
 
   const [rsvps, setRsvps] = useState<RsvpRow[]>([]);
   const [donations, setDonations] = useState<DonationRow[]>([]);
@@ -108,6 +160,40 @@ export const SubmissionsAdmin: React.FC<SubmissionsAdminProps> = ({ view }) => {
     void load();
   }, [load]);
 
+  /**
+   * Records a fee taken in person, or takes that record back.
+   *
+   * The select is the whole control: choosing a method marks the booking paid,
+   * choosing the blank entry un-marks it. There is no confirmation step
+   * because both directions are one click from each other — unlike deleting a
+   * message, nothing here is lost by a misclick.
+   *
+   * A card booking has no select at all, and the function behind this would
+   * refuse it anyway (PA009): that money is recorded in Stripe and on
+   * somebody's statement, and the two must not be able to disagree.
+   */
+  const changePayment = async (rsvp: RsvpRow, choice: string) => {
+    setError(null);
+    try {
+      const updated =
+        choice === ''
+          ? await setRsvpPayment(rsvp.id, false)
+          : await setRsvpPayment(rsvp.id, true, choice as 'cash' | 'check' | 'waived');
+
+      setRsvps((current) => current.map((row) => (row.id === rsvp.id ? updated : row)));
+      // The seat count moved with it, so the public pages are now stale.
+      await refreshContent();
+    } catch (paymentError) {
+      console.error('[PAWTX] Failed to update the payment', paymentError);
+      const code = (paymentError as { code?: string }).code;
+      setError(
+        code === 'PA009'
+          ? 'That booking was paid by card. Refund or adjust it in Stripe and the webhook will update this row.'
+          : 'Could not update that payment.'
+      );
+    }
+  };
+
   const exportRsvps = () => {
     const rows = rsvps.map((rsvp) => ({
       event: eventTitles.get(rsvp.event_id) ?? rsvp.event_id,
@@ -118,8 +204,15 @@ export const SubmissionsAdmin: React.FC<SubmissionsAdminProps> = ({ view }) => {
       party_size: rsvp.guest_count + 1,
       optional_donation: rsvp.optional_donation,
       // Exported as the raw value, not the badge label: this column is the
-      // record someone may have to rely on later.
+      // record someone may have to rely on later. Same for the payment
+      // columns below — 'failed' is the word the database holds, and a roster
+      // rounded to "unpaid" loses the difference between never paid and
+      // refunded.
       media_consent: rsvp.media_consent ?? 'not_asked',
+      payment_status: rsvp.payment_status,
+      amount_usd: rsvp.amount_cents === null ? '' : (rsvp.amount_cents / 100).toFixed(2),
+      payment_method: rsvp.payment_method ?? '',
+      paid_at: rsvp.paid_at ? formatDateTime(rsvp.paid_at) : '',
       registered_at: formatDateTime(rsvp.created_at)
     }));
 
@@ -127,7 +220,8 @@ export const SubmissionsAdmin: React.FC<SubmissionsAdminProps> = ({ view }) => {
       `pawtx-rsvps-${new Date().toISOString().slice(0, 10)}.csv`,
       toCsv(rows, [
         'event', 'name', 'email', 'phone', 'guests', 'party_size',
-        'optional_donation', 'media_consent', 'registered_at'
+        'optional_donation', 'media_consent', 'payment_status', 'amount_usd',
+        'payment_method', 'paid_at', 'registered_at'
       ])
     );
   };
@@ -277,6 +371,7 @@ export const SubmissionsAdmin: React.FC<SubmissionsAdminProps> = ({ view }) => {
                       <th className="text-left p-4">Event</th>
                       <th className="text-left p-4">Attendee</th>
                       <th className="text-left p-4">Party</th>
+                      <th className="text-left p-4">Payment</th>
                       <th className="text-left p-4">Photos</th>
                       <th className="text-left p-4">Registered</th>
                     </tr>
@@ -284,6 +379,10 @@ export const SubmissionsAdmin: React.FC<SubmissionsAdminProps> = ({ view }) => {
                   <tbody>
                     {rsvps.map((rsvp) => {
                       const consent = MEDIA_CONSENT_BADGE[rsvp.media_consent ?? 'unasked'];
+                      const payment = PAYMENT_BADGE[rsvp.payment_status] ?? PAYMENT_BADGE.not_required;
+                      const isPaid = rsvp.payment_status === 'paid';
+                      // A card payment is Stripe's record, not this table's.
+                      const isEditable = rsvp.payment_method !== 'card';
                       return (
                         <tr key={rsvp.id} className="border-t border-warm-taupe">
                           <td className="p-4 text-xs">{eventTitles.get(rsvp.event_id) ?? '—'}</td>
@@ -293,6 +392,43 @@ export const SubmissionsAdmin: React.FC<SubmissionsAdminProps> = ({ view }) => {
                             {rsvp.phone && <div className="text-xs text-charcoal">{rsvp.phone}</div>}
                           </td>
                           <td className="p-4 text-xs whitespace-nowrap">{rsvp.guest_count + 1}</td>
+                          <td className="p-4 whitespace-nowrap">
+                            <div className="flex flex-col gap-1 items-start">
+                              <span
+                                title={payment.hint}
+                                className={`px-2.5 py-1 rounded-full text-[11px] font-bold ${payment.className}`}
+                              >
+                                {payment.label}
+                                {isPaid && rsvp.amount_cents !== null && rsvp.payment_method !== 'waived'
+                                  ? ` ${formatMoney(rsvp.amount_cents)}`
+                                  : ''}
+                              </span>
+
+                              {isPaid && rsvp.payment_method && (
+                                <span className="text-3xs text-charcoal">
+                                  {PAYMENT_METHOD_LABEL[rsvp.payment_method] ?? rsvp.payment_method}
+                                </span>
+                              )}
+
+                              {isEditable ? (
+                                <select
+                                  value={isPaid ? rsvp.payment_method ?? '' : ''}
+                                  onChange={(e) => void changePayment(rsvp, e.target.value)}
+                                  aria-label={`Payment for ${rsvp.full_name}`}
+                                  className="text-3xs border border-warm-taupe rounded-md bg-parchment px-1.5 py-1 cursor-pointer"
+                                >
+                                  <option value="">not paid</option>
+                                  <option value="cash">paid — cash</option>
+                                  <option value="check">paid — cheque</option>
+                                  <option value="waived">fee waived</option>
+                                </select>
+                              ) : (
+                                <span className="text-3xs text-charcoal">
+                                  in Stripe
+                                </span>
+                              )}
+                            </div>
+                          </td>
                           <td className="p-4 whitespace-nowrap">
                             <span
                               title={consent.hint}

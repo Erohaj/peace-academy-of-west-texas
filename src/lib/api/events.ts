@@ -35,6 +35,7 @@ export function mapEventRow(row: EventRow, language: 'en' | 'es'): PAWTXEvent {
     totalSpots: row.total_spots,
     reservedSpots: row.reserved_spots,
     fee: row.fee,
+    paymentRequired: row.payment_required,
     imageUrl: resolveImage(row.image_key, row.image_url),
     status: row.status,
     featured: row.featured,
