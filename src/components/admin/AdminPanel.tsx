@@ -1,6 +1,6 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ShieldAlert, CalendarDays, Image as ImageIcon, Inbox, HeartHandshake, HandHeart, ClipboardList, Award } from 'lucide-react';
+import { ShieldAlert, CalendarDays, Image as ImageIcon, Inbox, Mail, HeartHandshake, HandHeart, ClipboardList, Award } from 'lucide-react';
 import { useAppStore } from '../../store/useAppStore';
 import { EventsAdmin } from './EventsAdmin';
 import { GalleryAdmin } from './GalleryAdmin';
@@ -8,6 +8,7 @@ import { ShiftsAdmin } from './ShiftsAdmin';
 import { ApplicationsAdmin } from './ApplicationsAdmin';
 import { CertificatesAdmin } from './CertificatesAdmin';
 import { SubmissionsAdmin } from './SubmissionsAdmin';
+import { fetchUnhandledMessageCount } from '../../lib/api/admin';
 
 type AdminSection =
   | 'events'
@@ -16,6 +17,7 @@ type AdminSection =
   | 'certificates'
   | 'gallery'
   | 'rsvps'
+  | 'messages'
   | 'donations';
 
 /**
@@ -31,8 +33,54 @@ export const AdminPanel: React.FC = () => {
   const { t } = useTranslation();
   const { volunteer, isLoggedIn, authStatus, setActiveTab } = useAppStore();
   const [section, setSection] = useState<AdminSection>('events');
+  const [unhandled, setUnhandled] = useState(0);
 
   const isAdmin = volunteer?.role === 'admin';
+
+  /**
+   * Keeps the badge on the Messages tab honest.
+   *
+   * Exposed to SubmissionsAdmin so that handling or deleting a message moves
+   * the count immediately rather than at the next poll — a badge that still
+   * says 3 after you have cleared all three is worse than no badge.
+   */
+  const refreshUnhandled = useCallback(() => {
+    if (!isAdmin) return;
+    fetchUnhandledMessageCount()
+      .then(setUnhandled)
+      .catch((error) => {
+        // A badge is a convenience. Losing it must not take the panel with it,
+        // and an admin who cannot count messages can still read them.
+        console.error('[PAWTX] Could not count unhandled messages', error);
+      });
+  }, [isAdmin]);
+
+  /**
+   * Polls while the panel is open, so an enquiry that arrives mid-session
+   * announces itself without a reload. Sixty seconds because this is a
+   * head-only count against a table that sees a few messages a week — the
+   * point is that somebody notices within a minute, not within a second.
+   *
+   * The visibility check keeps a forgotten background tab from asking all
+   * night; `visibilitychange` catches up the moment it is looked at again.
+   */
+  useEffect(() => {
+    if (!isAdmin) return;
+
+    refreshUnhandled();
+
+    const tick = () => {
+      if (document.visibilityState === 'visible') refreshUnhandled();
+    };
+
+    const timer = window.setInterval(tick, 60_000);
+    document.addEventListener('visibilitychange', tick);
+
+    return () => {
+      window.clearInterval(timer);
+      document.removeEventListener('visibilitychange', tick);
+    };
+  }, [isAdmin, refreshUnhandled]);
 
   // Send anyone who lands here without rights to the sign-in screen rather
   // than leaving them on an empty page.
@@ -48,10 +96,14 @@ export const AdminPanel: React.FC = () => {
         { id: 'applications' as const, label: 'Applications', icon: ClipboardList },
         { id: 'certificates' as const, label: 'Certificates', icon: Award },
         { id: 'gallery' as const, label: 'Gallery', icon: ImageIcon },
-        { id: 'rsvps' as const, label: 'RSVPs & Messages', icon: Inbox },
-        { id: 'donations' as const, label: 'Donations', icon: HeartHandshake }
+        // Split in two on 2026-10-15. One tab held both, which meant an
+        // enquiry waiting for an answer was below a roster that could run to
+        // a hundred rows, and nothing anywhere said it was there.
+        { id: 'rsvps' as const, label: 'RSVPs', icon: Inbox, badge: 0 },
+        { id: 'messages' as const, label: 'Messages', icon: Mail, badge: unhandled },
+        { id: 'donations' as const, label: 'Donations', icon: HeartHandshake, badge: 0 }
       ],
-    []
+    [unhandled]
   );
 
   if (authStatus !== 'ready') {
@@ -104,7 +156,7 @@ export const AdminPanel: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
 
           <nav className="lg:col-span-3 space-y-2">
-            {sections.map(({ id, label, icon: Icon }) => (
+            {sections.map(({ id, label, icon: Icon, badge }) => (
               <button
                 key={id}
                 onClick={() => setSection(id)}
@@ -116,6 +168,19 @@ export const AdminPanel: React.FC = () => {
               >
                 <Icon className="w-4 h-4" />
                 <span>{label}</span>
+                {badge > 0 && (
+                  // Announced to a screen reader as words, because a bare
+                  // number read out after "Messages" says nothing about what
+                  // it counts.
+                  <span
+                    aria-label={`${badge} unanswered`}
+                    className={`ml-auto min-w-5 h-5 px-1.5 rounded-full text-[11px] font-bold flex items-center justify-center ${
+                      section === id ? 'bg-white text-terracotta' : 'bg-terracotta text-white'
+                    }`}
+                  >
+                    {badge > 99 ? '99+' : badge}
+                  </span>
+                )}
               </button>
             ))}
           </nav>
@@ -127,6 +192,9 @@ export const AdminPanel: React.FC = () => {
             {section === 'certificates' && <CertificatesAdmin />}
             {section === 'gallery' && <GalleryAdmin />}
             {section === 'rsvps' && <SubmissionsAdmin view="rsvps" />}
+            {section === 'messages' && (
+              <SubmissionsAdmin view="messages" onMessagesChanged={refreshUnhandled} />
+            )}
             {section === 'donations' && <SubmissionsAdmin view="donations" />}
           </div>
 
