@@ -10,12 +10,21 @@ synthetic events — Stripe's signature is an HMAC over the body with the
 endpoint secret, so a local secret makes the real check verifiable rather than
 stubbed. The browser flow was exercised end to end in both languages.
 
-What has **not** happened: a real Stripe Checkout page, a real card, a real
-receipt out of Resend, and a real payout. Those are steps 2 through 5 below.
-Every box here is still open, because each describes something to do against
-the live project — none of them is closed by a local run. The opposite
-mistake, a runbook with boxes ticked from memory, is what
-`docs/donations-go-live.md` had to be dug out of.
+**A full test-mode run against real Stripe has since been completed** (2026-10-15,
+sandbox `acct_1MyLpqApOhsap1HP`): a $40 booking for two seats, paid with card
+`4242 4242 4242 4242` on Stripe's own hosted page, with `stripe listen`
+forwarding the webhooks to a local stack. Stripe's page showed `Qty 2, $20.00
+each`; the payment confirmed the booking and held the seats; the confirmation
+number on the attendee's screen was findable in Stripe by
+`metadata["confirmation_number"]`; refunding released the seats; and expiring
+an abandoned session released them too. The per-item notes in §4 say which
+box that closed.
+
+What has **not** happened: a receipt out of Resend, a live key, a real card,
+and a payout. The remaining open boxes are the ones that need the live project,
+and none of them is closed by a sandbox run. The opposite mistake, a runbook
+with boxes ticked from memory, is what `docs/donations-go-live.md` had to be
+dug out of.
 
 What the local work does mean is that the logic underneath is not guesswork.
 `supabase/tests/README.md` says how to re-run it, and names the one thing that
@@ -157,57 +166,63 @@ rollback, and every webhook branch behind a real signature check. Run those
 first; they take seconds and they fail loudly. This list is what they cannot
 reach: Stripe's own hosted page, a card, and an email actually arriving.
 
-- [ ] A prepaid event's RSVP form shows the breakdown (`3 × $20`), the total,
-      and the half-hour note, and its button says what it will do. *(Verified
-      locally in both languages: the arithmetic follows the guest dropdown
-      live, and the button reads "Continue to payment · $70".)*
-- [ ] Paying confirms the booking: `payment_status = 'paid'`, `paid_at` set,
-      `payment_method = 'card'`, `hold_expires_at` cleared. *(Verified locally
-      from a signed `checkout.session.completed`, including that a duplicate
-      delivery changes nothing.)*
+- [x] A prepaid event's RSVP form shows the breakdown, the total, and the
+      half-hour note, and its button says what it will do. Verified in both
+      languages, and carried through to Stripe's own page, which showed the
+      event title, the venue and date line, `Qty 2, $20.00 each` and a
+      prefilled email.
+- [x] Paying confirms the booking: `payment_status = 'paid'`, `paid_at` set,
+      `payment_method = 'card'`, `hold_expires_at` cleared, payment intent
+      recorded, seats unchanged at 2/10. Done with a real card on Stripe's
+      hosted page; the `checkout.session.completed` Stripe delivered got a 200.
+      A duplicate delivery changing nothing is covered by the webhook tests.
 - [ ] The confirmation email arrives **with** the payment block, says the
       amount and the confirmation number, and states that admission is not a
       tax-deductible donation. In Spanish too — unlike the donation receipt,
-      this template has both languages.
+      this template has both languages. **A local run cannot close this**: the
+      trigger posts to the *hosted* `send-rsvp-confirmation` (the URL is
+      hardcoded in the migration), which looks the event up by id, does not
+      find a local one, and returns 404 before composing anything. Closing it
+      needs a prepaid booking paid for on the live project.
 - [x] A **pending** booking gets **no** email, and paying it sends exactly
       one. Covered by `event_tickets.sql` §14, which counts rows in
       `net.http_request_queue` rather than trusting the trigger definition.
       This is the regression to watch for: the insert trigger carries a `WHEN`
       clause, and losing it would mean telling somebody they are registered
       while they are still typing their card number.
-- [ ] The return screen polls and shows the confirmed seat, not the query
-      string. Open `?ticket=success&session_id=cs_invalid` directly: it must
-      say the payment could not be found, not congratulate anyone. *(Verified
-      locally: it opens on "your payment is still going through", then shows
-      the amount, party size, confirmation number and the not-deductible line
-      once the row reads paid.)*
-- [ ] **Abandon the payment.** Close Stripe's tab, wait for
-      `checkout.session.expired` (Stripe sends it at the `expires_at`, roughly
-      33 minutes), and confirm the booking goes `failed` and
-      `events.reserved_spots` comes back down by the full party size. *(The
-      handler is verified locally from a signed event; what this adds is that
-      Stripe really does send it, at the deadline this code set.)*
+- [x] The return screen polls and shows the confirmed seat, not the query
+      string. After the real payment Stripe returned the browser to
+      `?ticket=success&session_id=…`, the app routed to the events tab,
+      cleared the parameters, and the panel read "You're registered — payment
+      received" with `Paid: $40.00`, `Party size: 2`, `Confirmation #:
+      F32AE950` and the not-deductible line. An invented session id still says
+      the payment could not be found.
+- [x] **Abandon the payment.** A three-seat booking was taken to Checkout and
+      then expired through the API rather than waiting out the deadline:
+      Stripe delivered `checkout.session.expired`, the booking went `failed`,
+      and all three seats came back (3/10 → 0/10). What remains unobserved is
+      only the clock itself — that Stripe fires it unprompted at `expires_at`.
 - [x] **The lazy sweep.** Covered by `event_tickets.sql` §6 and §7: a hold
       pushed into the past is released before the next capacity check, the
       sweep run twice does not release the same seats twice, and the attendee
       whose payment failed can book again rather than being told they are
       already registered.
 - [ ] **Retry.** Start a payment, abandon it, and immediately book again with
-      the same email. *(The booking half is verified locally — the old hold is
-      released and the new attempt accepted. What needs a real key is the other
-      half: that `checkout.sessions.expire` actually closed the old session so
-      it cannot still be paid. That call is also the one the restricted live
-      key must be allowed to make — see §1.)*
+      the same email. The booking half is covered by the function tests, and
+      `checkout.sessions.expire` is now known to work against a real session
+      (it is what the abandon case above used). The half still unobserved is
+      somebody *trying to pay* an expired session and being refused. The same
+      call is the one the restricted live key must be allowed to make — §1.
 - [ ] **The last-second payment.** Hard to stage and worth reading the code
       for instead: `mark_rsvp_paid` re-takes the seats of a booking whose hold
       was already released, going over `total_spots` if it must and raising a
       warning. Overbooking by one is the chosen failure; charging somebody for
       a seat they cannot have is not.
-- [ ] **Refund.** Refund the charge in Stripe. *(The webhook half is verified
-      locally from a signed `charge.refunded`, including that a second delivery
-      does not release the seat twice, and that a refunded **donation** still
-      finds no booking to touch. What is untested is Stripe actually sending
-      it for a ticket.)*
+- [x] **Refund.** The $40 sandbox charge was refunded through the Stripe API;
+      `charge.refunded` arrived, the booking became `refunded` and both seats
+      were released (2/10 → 0/10). That a second delivery does not release the
+      same seats twice, and that a refunded **donation** finds no booking to
+      touch, are covered by the webhook tests.
 - [x] **Cash. Removed, not tested.** Recording a fee taken in person was built
       and then taken out before it was ever used — see the 2026-10-15 migration.
       An event either charges through this site or this site stays out of the
@@ -221,6 +236,10 @@ reach: Stripe's own hosted page, a card, and an email actually arriving.
       `payment_status = 'not_required'`, no amount, no deadline, and the sweep
       never touches them. Covered by `event_tickets.sql` §12.
 - [ ] The RSVP CSV export carries the four new columns.
+- [x] The confirmation number an attendee is shown is findable in Stripe:
+      `stripe payment_intents search --query 'metadata["confirmation_number"]:"F32AE950"'`
+      returned the $40 payment. That is the whole reason the number is written
+      onto the PaymentIntent and not only the session.
 - [ ] With `VITE_TICKETS_ENABLED` off, a prepaid event's RSVP button opens a
       panel with the organisation's address and **no form** — not a free
       booking for a seat that has a price. *(Verified locally.)*
