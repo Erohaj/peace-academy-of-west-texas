@@ -122,6 +122,27 @@ export async function fetchContactMessages(limit = 200): Promise<Tables<'contact
   return data ?? [];
 }
 
+/**
+ * How many enquiries are still waiting for somebody.
+ *
+ * `head: true` asks PostgREST for the count and no rows, so this stays a
+ * cheap thing to call on a timer — the panel polls it to turn "you have mail"
+ * into something an admin notices without reloading the page.
+ *
+ * Returns 0 rather than throwing when the count comes back null: a badge is a
+ * convenience, and an unreadable count should leave the panel usable rather
+ * than break the nav it lives in.
+ */
+export async function fetchUnhandledMessageCount(): Promise<number> {
+  const { count, error } = await requireSupabase()
+    .from('contact_messages')
+    .select('*', { count: 'exact', head: true })
+    .eq('handled', false);
+
+  if (error) throw error;
+  return count ?? 0;
+}
+
 export async function markContactHandled(id: string, handled: boolean): Promise<void> {
   const { error } = await requireSupabase()
     .from('contact_messages')

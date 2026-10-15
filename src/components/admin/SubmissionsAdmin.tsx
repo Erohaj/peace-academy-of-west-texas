@@ -18,7 +18,13 @@ type DonationRow = Tables<'donations'>;
 type MessageRow = Tables<'contact_messages'>;
 
 interface SubmissionsAdminProps {
-  view: 'rsvps' | 'donations';
+  view: 'rsvps' | 'messages' | 'donations';
+  /**
+   * Called when a message is handled, unhandled or deleted, so the badge in
+   * the panel's nav can move at once instead of at the next poll. Only the
+   * messages view passes it.
+   */
+  onMessagesChanged?: () => void;
 }
 
 const formatDateTime = (iso: string) =>
@@ -108,7 +114,10 @@ const PAYMENT_BADGE: Record<string, { label: string; hint: string; className: st
  * because the RLS policies allow `select` to a profile with `role = 'admin'` —
  * for everyone else the same queries return an empty set.
  */
-export const SubmissionsAdmin: React.FC<SubmissionsAdminProps> = ({ view }) => {
+export const SubmissionsAdmin: React.FC<SubmissionsAdminProps> = ({
+  view,
+  onMessagesChanged
+}) => {
   const events = useAppStore((state) => state.events);
 
   const [rsvps, setRsvps] = useState<RsvpRow[]>([]);
@@ -126,13 +135,13 @@ export const SubmissionsAdmin: React.FC<SubmissionsAdminProps> = ({ view }) => {
     setIsLoading(true);
     setError(null);
     try {
+      // Each view fetches only what it shows. The rosters are the heavy
+      // queries here, and a tab that reads a table it does not render makes
+      // every other tab slower for nothing.
       if (view === 'rsvps') {
-        const [rsvpRows, messageRows] = await Promise.all([
-          fetchAllRsvps(),
-          fetchContactMessages()
-        ]);
-        setRsvps(rsvpRows);
-        setMessages(messageRows);
+        setRsvps(await fetchAllRsvps());
+      } else if (view === 'messages') {
+        setMessages(await fetchContactMessages());
       } else {
         setDonations(await fetchDonations());
       }
@@ -205,6 +214,7 @@ export const SubmissionsAdmin: React.FC<SubmissionsAdminProps> = ({ view }) => {
       setMessages((current) =>
         current.map((row) => (row.id === message.id ? { ...row, handled: !row.handled } : row))
       );
+      onMessagesChanged?.();
     } catch (toggleError) {
       console.error('[PAWTX] Failed to update message', toggleError);
       setError('Could not update that message.');
@@ -227,6 +237,7 @@ export const SubmissionsAdmin: React.FC<SubmissionsAdminProps> = ({ view }) => {
     try {
       await deleteContactMessage(message.id);
       setMessages((current) => current.filter((row) => row.id !== message.id));
+      onMessagesChanged?.();
     } catch (deleteError) {
       console.error('[PAWTX] Failed to delete message', deleteError);
       setError('Could not delete that message.');
@@ -307,8 +318,57 @@ export const SubmissionsAdmin: React.FC<SubmissionsAdminProps> = ({ view }) => {
             </div>
           )}
         </section>
+      ) : view === 'messages' ? (
+          <section className="space-y-4">
+            <h2 className="text-xl font-serif font-bold">Contact messages</h2>
+
+            {messages.length === 0 ? (
+              <p className="text-sm text-charcoal">No messages yet.</p>
+            ) : (
+              <div className="space-y-3">
+                {messages.map((message) => (
+                  <div
+                    key={message.id}
+                    className={`bg-aged-paper border rounded-2xl p-4 ${
+                      message.handled ? 'border-warm-taupe opacity-60' : 'border-terracotta/30'
+                    }`}
+                  >
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="min-w-0">
+                        <div className="font-bold text-sm">{message.full_name}</div>
+                        <a href={`mailto:${message.email}`} className="text-xs text-terracotta hover:underline">
+                          {message.email}
+                        </a>
+                        <div className="text-xs text-charcoal mt-0.5">
+                          {formatDateTime(message.created_at)}
+                        </div>
+                      </div>
+                      <div className="shrink-0 flex items-center gap-1">
+                        <button
+                          onClick={() => toggleHandled(message)}
+                          title={message.handled ? 'Mark as unread' : 'Mark as handled'}
+                          className="pawtx-icon-btn"
+                        >
+                          {message.handled ? <MailOpen className="w-4 h-4" /> : <Mail className="w-4 h-4" />}
+                        </button>
+                        <button
+                          onClick={() => handleDeleteMessage(message)}
+                          title="Delete permanently"
+                          className="pawtx-icon-btn-accent"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                    <p className="text-sm text-graphite mt-3 whitespace-pre-wrap break-words">
+                      {message.message}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </section>
       ) : (
-        <>
           <section className="space-y-4">
             <div className="flex items-center justify-between">
               <h2 className="text-xl font-serif font-bold">RSVPs</h2>
@@ -382,57 +442,6 @@ export const SubmissionsAdmin: React.FC<SubmissionsAdminProps> = ({ view }) => {
               </div>
             )}
           </section>
-
-          <section className="space-y-4">
-            <h2 className="text-xl font-serif font-bold">Contact messages</h2>
-
-            {messages.length === 0 ? (
-              <p className="text-sm text-charcoal">No messages yet.</p>
-            ) : (
-              <div className="space-y-3">
-                {messages.map((message) => (
-                  <div
-                    key={message.id}
-                    className={`bg-aged-paper border rounded-2xl p-4 ${
-                      message.handled ? 'border-warm-taupe opacity-60' : 'border-terracotta/30'
-                    }`}
-                  >
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="min-w-0">
-                        <div className="font-bold text-sm">{message.full_name}</div>
-                        <a href={`mailto:${message.email}`} className="text-xs text-terracotta hover:underline">
-                          {message.email}
-                        </a>
-                        <div className="text-xs text-charcoal mt-0.5">
-                          {formatDateTime(message.created_at)}
-                        </div>
-                      </div>
-                      <div className="shrink-0 flex items-center gap-1">
-                        <button
-                          onClick={() => toggleHandled(message)}
-                          title={message.handled ? 'Mark as unread' : 'Mark as handled'}
-                          className="pawtx-icon-btn"
-                        >
-                          {message.handled ? <MailOpen className="w-4 h-4" /> : <Mail className="w-4 h-4" />}
-                        </button>
-                        <button
-                          onClick={() => handleDeleteMessage(message)}
-                          title="Delete permanently"
-                          className="pawtx-icon-btn-accent"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </div>
-                    <p className="text-sm text-graphite mt-3 whitespace-pre-wrap break-words">
-                      {message.message}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            )}
-          </section>
-        </>
       )}
     </div>
   );
