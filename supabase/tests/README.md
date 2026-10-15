@@ -50,9 +50,9 @@ PASSED` or stopping on the first thing that is not true. It covers the grants
 (`anon` must not be able to confirm its own payment), the constraints, the
 pending hold and its per-attendee price, capacity against held seats,
 idempotent confirmation, expiry, the retry a failed payment must allow, the
-refund, the payment that lands *after* its hold was released, cash and its
-undo, and that free and door-fee bookings behave exactly as they did before
-any of this existed.
+refund, the payment that lands *after* its hold was released, and that an
+event this site takes no money for behaves exactly as it did before any of
+this existed.
 
 It cleans up after itself and can be re-run without a reset.
 

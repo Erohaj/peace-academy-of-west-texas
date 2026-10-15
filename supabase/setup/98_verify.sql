@@ -144,12 +144,12 @@ expected(ord, name, want, got) as (
   -- Пять функций, которые ведут деньги и счётчик мест вместе:
   -- подтверждение оплаты, два вида возврата места, возврат денег и
   -- ручная отметка наличных админом.
-  select 22, 'Функции оплаты брони', '5',
+  select 22, 'Функции оплаты брони', '4',
     (select count(*) from pg_proc p
        join pg_namespace n on n.oid = p.pronamespace
       where n.nspname = 'public'
         and p.proname in ('mark_rsvp_paid', 'release_rsvp_hold', 'mark_rsvp_refunded',
-                          'release_expired_rsvp_holds', 'admin_set_rsvp_payment'))
+                          'release_expired_rsvp_holds'))
   union all
   -- Главная проверка безопасности платежей: посетитель не должен мочь
   -- вызвать ни одну из них — иначе любой сможет пометить свою броню
@@ -161,7 +161,7 @@ expected(ord, name, want, got) as (
        join pg_namespace n on n.oid = p.pronamespace
       where n.nspname = 'public'
         and p.proname in ('mark_rsvp_paid', 'release_rsvp_hold', 'mark_rsvp_refunded',
-                          'release_expired_rsvp_holds', 'admin_set_rsvp_payment')
+                          'release_expired_rsvp_holds')
         and has_function_privilege('anon', p.oid, 'EXECUTE'))
   union all
   -- Письмо уходит двумя путями: сразу — если платить не надо, и после

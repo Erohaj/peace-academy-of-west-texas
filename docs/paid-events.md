@@ -107,7 +107,7 @@ npm run db:push     # or paste supabase/setup/00_full_setup.sql on a fresh proje
       guards let it be re-run — but the live database is not fresh: this adds
       two constraints to `events`, three to `rsvps`, replaces the
       one-row-per-email index with a partial one, rewrites `create_rsvp`, adds
-      five functions and re-points two triggers, all over existing rows.
+      four functions and re-points two triggers, all over existing rows.
       Nothing here backfills, so the risk is a constraint meeting data that
       predates it: every existing booking lands on `payment_status =
       'not_required'` with no amount and no deadline, which satisfies all
@@ -208,14 +208,14 @@ reach: Stripe's own hosted page, a card, and an email actually arriving.
       does not release the seat twice, and that a refunded **donation** still
       finds no booking to touch. What is untested is Stripe actually sending
       it for a ticket.)*
-- [x] **Cash.** Covered by `event_tickets.sql` §11 and §13, under a real
-      admin JWT: marking cash takes the seat back and stamps `marked_paid_by`,
-      un-marking releases it, pressing un-mark twice does not release it twice,
-      and a door-fee booking marked and un-marked keeps the seat it never owed
-      for. What is left to check by hand is that the select reads clearly in
-      the panel.
-- [x] **A card booking refuses the admin select** (PA009), and an invented
-      method is refused too (PA010). Covered by `event_tickets.sql` §11.
+- [x] **Cash. Removed, not tested.** Recording a fee taken in person was built
+      and then taken out before it was ever used — see the 2026-10-15 migration.
+      An event either charges through this site or this site stays out of the
+      money entirely, and the roster reports Stripe's answer rather than
+      offering a control that could contradict it.
+- [x] **No booking can be edited from the panel at all** — there is no control
+      to press. A correction is a refund in Stripe, and the webhook brings it
+      back.
 - [x] Free events, and events with a fee collected at the door, are
       completely unchanged: one-step form, instant confirmation,
       `payment_status = 'not_required'`, no amount, no deadline, and the sweep
@@ -260,14 +260,6 @@ family or per table has no way to say so yet.
 **Ticket revenue does not appear on the Donations tab.** By design, per the tax
 note above. It is on the RSVPs tab with a payment badge, and in that CSV with
 `payment_status`, `amount_usd`, `payment_method` and `paid_at`.
-
-**Marking cash on a booking that is still `pending` leaves its Stripe session
-live.** Nothing in SQL can expire a Checkout session, so if somebody says they
-will pay cash while their own payment page is still open, the admin select will
-confirm the seat and the card can still be charged afterwards — money with no
-matching booking, which then needs refunding by hand. Either wait for the hold
-to lapse (the roster shows "Holding" until it does) or expire the session in
-the Stripe dashboard first. The badge is amber for exactly this half hour.
 
 **A `failed` booking stays in the table.** It is the organisation's record of
 somebody who tried to come, and the partial unique index lets that address book

@@ -8,7 +8,6 @@ import {
   downloadCsv,
   fetchContactMessages,
   markContactHandled,
-  setRsvpPayment,
   toCsv
 } from '../../lib/api/admin';
 import { useAppStore } from '../../store/useAppStore';
@@ -67,8 +66,8 @@ const MEDIA_CONSENT_BADGE: Record<string, { label: string; hint: string; classNa
  * for.
  *
  * `not_required` is the overwhelming majority and deliberately the quietest:
- * a free event, or one whose fee is settled at the door. It is not a problem
- * to be chased, so it does not look like one.
+ * the event asks nothing of this site. It is not a problem to be chased, so it
+ * does not look like one.
  *
  * `pending` is amber rather than red because nothing is wrong yet — somebody
  * is on Stripe's page this minute — and `failed` is the one that means a seat
@@ -77,7 +76,7 @@ const MEDIA_CONSENT_BADGE: Record<string, { label: string; hint: string; classNa
 const PAYMENT_BADGE: Record<string, { label: string; hint: string; className: string }> = {
   not_required: {
     label: '—',
-    hint: 'Nothing owed through the site: a free event, or a fee collected at the door.',
+    hint: 'Nothing owed through this site. A free event, or one whose fee is handled off the record.',
     className: 'bg-warm-taupe text-charcoal border border-[#D6D0C4]'
   },
   pending: {
@@ -87,7 +86,7 @@ const PAYMENT_BADGE: Record<string, { label: string; hint: string; className: st
   },
   paid: {
     label: 'Paid',
-    hint: 'Paid in full. The seat is confirmed and the confirmation email has gone out.',
+    hint: 'Paid in full through Stripe. The seat is confirmed and the confirmation email has gone out.',
     className: 'bg-olive/15 text-[#3F462F] border border-olive/30'
   },
   failed: {
@@ -102,14 +101,6 @@ const PAYMENT_BADGE: Record<string, { label: string; hint: string; className: st
   }
 };
 
-/** How a paid fee was taken, as the roster's one-word answer. */
-const PAYMENT_METHOD_LABEL: Record<string, string> = {
-  card: 'card',
-  cash: 'cash',
-  check: 'cheque',
-  waived: 'waived'
-};
-
 /**
  * Read-only views over the submissions tables, with CSV export.
  *
@@ -119,9 +110,6 @@ const PAYMENT_METHOD_LABEL: Record<string, string> = {
  */
 export const SubmissionsAdmin: React.FC<SubmissionsAdminProps> = ({ view }) => {
   const events = useAppStore((state) => state.events);
-  // Confirming or releasing a fee moves events.reserved_spots, so the public
-  // pages have to be told. Same reason EventsAdmin calls it after a save.
-  const refreshContent = useAppStore((state) => state.refreshContent);
 
   const [rsvps, setRsvps] = useState<RsvpRow[]>([]);
   const [donations, setDonations] = useState<DonationRow[]>([]);
@@ -159,40 +147,6 @@ export const SubmissionsAdmin: React.FC<SubmissionsAdminProps> = ({ view }) => {
   useEffect(() => {
     void load();
   }, [load]);
-
-  /**
-   * Records a fee taken in person, or takes that record back.
-   *
-   * The select is the whole control: choosing a method marks the booking paid,
-   * choosing the blank entry un-marks it. There is no confirmation step
-   * because both directions are one click from each other — unlike deleting a
-   * message, nothing here is lost by a misclick.
-   *
-   * A card booking has no select at all, and the function behind this would
-   * refuse it anyway (PA009): that money is recorded in Stripe and on
-   * somebody's statement, and the two must not be able to disagree.
-   */
-  const changePayment = async (rsvp: RsvpRow, choice: string) => {
-    setError(null);
-    try {
-      const updated =
-        choice === ''
-          ? await setRsvpPayment(rsvp.id, false)
-          : await setRsvpPayment(rsvp.id, true, choice as 'cash' | 'check' | 'waived');
-
-      setRsvps((current) => current.map((row) => (row.id === rsvp.id ? updated : row)));
-      // The seat count moved with it, so the public pages are now stale.
-      await refreshContent();
-    } catch (paymentError) {
-      console.error('[PAWTX] Failed to update the payment', paymentError);
-      const code = (paymentError as { code?: string }).code;
-      setError(
-        code === 'PA009'
-          ? 'That booking was paid by card. Refund or adjust it in Stripe and the webhook will update this row.'
-          : 'Could not update that payment.'
-      );
-    }
-  };
 
   const exportRsvps = () => {
     const rows = rsvps.map((rsvp) => ({
@@ -381,8 +335,6 @@ export const SubmissionsAdmin: React.FC<SubmissionsAdminProps> = ({ view }) => {
                       const consent = MEDIA_CONSENT_BADGE[rsvp.media_consent ?? 'unasked'];
                       const payment = PAYMENT_BADGE[rsvp.payment_status] ?? PAYMENT_BADGE.not_required;
                       const isPaid = rsvp.payment_status === 'paid';
-                      // A card payment is Stripe's record, not this table's.
-                      const isEditable = rsvp.payment_method !== 'card';
                       return (
                         <tr key={rsvp.id} className="border-t border-warm-taupe">
                           <td className="p-4 text-xs">{eventTitles.get(rsvp.event_id) ?? '—'}</td>
@@ -392,42 +344,26 @@ export const SubmissionsAdmin: React.FC<SubmissionsAdminProps> = ({ view }) => {
                             {rsvp.phone && <div className="text-xs text-charcoal">{rsvp.phone}</div>}
                           </td>
                           <td className="p-4 text-xs whitespace-nowrap">{rsvp.guest_count + 1}</td>
+                          {/* A badge and nothing to press. Every payment this
+                              site knows about was taken by Stripe, so the
+                              roster reports rather than edits: a correction is
+                              a refund in the Stripe dashboard, and the webhook
+                              brings it back here. A control that let staff
+                              assert a payment by hand would let this table
+                              disagree with Stripe and with somebody's card
+                              statement, and there is no version of that
+                              disagreement where this table is the one to
+                              believe. */}
                           <td className="p-4 whitespace-nowrap">
-                            <div className="flex flex-col gap-1 items-start">
-                              <span
-                                title={payment.hint}
-                                className={`px-2.5 py-1 rounded-full text-[11px] font-bold ${payment.className}`}
-                              >
-                                {payment.label}
-                                {isPaid && rsvp.amount_cents !== null && rsvp.payment_method !== 'waived'
-                                  ? ` ${formatMoney(rsvp.amount_cents)}`
-                                  : ''}
-                              </span>
-
-                              {isPaid && rsvp.payment_method && (
-                                <span className="text-3xs text-charcoal">
-                                  {PAYMENT_METHOD_LABEL[rsvp.payment_method] ?? rsvp.payment_method}
-                                </span>
-                              )}
-
-                              {isEditable ? (
-                                <select
-                                  value={isPaid ? rsvp.payment_method ?? '' : ''}
-                                  onChange={(e) => void changePayment(rsvp, e.target.value)}
-                                  aria-label={`Payment for ${rsvp.full_name}`}
-                                  className="text-3xs border border-warm-taupe rounded-md bg-parchment px-1.5 py-1 cursor-pointer"
-                                >
-                                  <option value="">not paid</option>
-                                  <option value="cash">paid — cash</option>
-                                  <option value="check">paid — cheque</option>
-                                  <option value="waived">fee waived</option>
-                                </select>
-                              ) : (
-                                <span className="text-3xs text-charcoal">
-                                  in Stripe
-                                </span>
-                              )}
-                            </div>
+                            <span
+                              title={payment.hint}
+                              className={`px-2.5 py-1 rounded-full text-[11px] font-bold ${payment.className}`}
+                            >
+                              {payment.label}
+                              {isPaid && rsvp.amount_cents !== null
+                                ? ` ${formatMoney(rsvp.amount_cents)}`
+                                : ''}
+                            </span>
                           </td>
                           <td className="p-4 whitespace-nowrap">
                             <span
