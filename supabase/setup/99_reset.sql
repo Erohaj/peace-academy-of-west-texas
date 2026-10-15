@@ -41,6 +41,15 @@ drop function if exists public.create_rsvp(uuid, text, text, text, integer, nume
 drop function if exists public.create_rsvp(uuid, text, text, text, integer, numeric, text);
 drop function if exists public.create_rsvp(uuid, text, text, text, integer, numeric);
 drop function if exists public.notify_rsvp_confirmation() cascade;
+-- Функции предоплаты билетов. cascade — из-за триггера stamp_marked_paid_by
+-- на rsvps; сама таблица выше уже снесена, но на наполовину
+-- установленной базе может быть иначе.
+drop function if exists public.mark_rsvp_paid(uuid, text, text);
+drop function if exists public.release_rsvp_hold(uuid);
+drop function if exists public.mark_rsvp_refunded(text);
+drop function if exists public.release_expired_rsvp_holds(uuid);
+drop function if exists public.admin_set_rsvp_payment(uuid, boolean, text);
+drop function if exists public.rsvps_stamp_marked_paid_by() cascade;
 drop function if exists public.verify_certificate(text);
 drop function if exists public.handle_new_user() cascade;
 drop function if exists public.sync_shift_spots_filled() cascade;

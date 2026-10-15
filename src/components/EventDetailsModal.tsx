@@ -139,6 +139,16 @@ export const EventDetailsModal: React.FC = () => {
                 <Ticket className="w-4 h-4 text-olive shrink-0" />
                 <span>{fee}</span>
               </div>
+              {/* When the fee is due is as much a part of the price as the
+                  number: "bring $60" and "pay $60 now to hold the place" are
+                  different commitments, and this is the screen somebody reads
+                  before deciding. Only said when there is a real amount —
+                  "Free, payable at the event" would be nonsense. */}
+              {event.fee !== null && event.fee > 0 && (
+                <p className="text-xs text-charcoal">
+                  {event.paymentRequired ? t('events.feePrepaid') : t('events.feeAtDoor')}
+                </p>
+              )}
             </div>
           )}
         </div>

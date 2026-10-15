@@ -23,6 +23,13 @@ export type VolunteerRoleRow =
   | 'General Support';
 export type DonationFrequencyRow = 'one_time' | 'monthly';
 export type DonationStatusRow = 'pending' | 'paid' | 'failed' | 'refunded';
+export type RsvpPaymentStatusRow =
+  | 'not_required'
+  | 'pending'
+  | 'paid'
+  | 'failed'
+  | 'refunded';
+export type RsvpPaymentMethodRow = 'card' | 'cash' | 'check' | 'waived';
 export type ProfileRoleRow = 'volunteer' | 'admin';
 export type AttendanceRow = 'attended' | 'no_show';
 export type ServiceSourceRow = 'shift' | 'manual';
@@ -94,6 +101,7 @@ export interface Database {
           total_spots: number;
           reserved_spots: number;
           fee: number | null;
+          payment_required: boolean;
           image_key: string | null;
           image_url: string | null;
           status: EventStatusRow;
@@ -115,6 +123,7 @@ export interface Database {
           category: EventCategoryRow;
           total_spots: number;
           fee?: number | null;
+          payment_required?: boolean;
           image_key?: string | null;
           image_url?: string | null;
           status?: EventStatusRow;
@@ -135,6 +144,7 @@ export interface Database {
           category?: EventCategoryRow;
           total_spots?: number;
           fee?: number | null;
+          payment_required?: boolean;
           image_key?: string | null;
           image_url?: string | null;
           status?: EventStatusRow;
@@ -162,9 +172,29 @@ export interface Database {
           // language of the confirmation email; never null, since rows written
           // before the column existed did get an English one.
           language: 'en' | 'es';
+          // Where this booking stands on the money. 'not_required' is the
+          // default and describes every free event, plus every event whose fee
+          // is settled at the door rather than collected here.
+          payment_status: RsvpPaymentStatusRow;
+          // What was owed, in cents: the event fee times the party size. Null
+          // on a booking that was never priced — not 0, which would read as an
+          // issued $0 ticket.
+          amount_cents: number | null;
+          stripe_session_id: string | null;
+          stripe_payment_intent: string | null;
+          payment_method: RsvpPaymentMethodRow | null;
+          paid_at: string | null;
+          // When a pending booking gives its seats back. Null on every other
+          // status — a CHECK constraint requires one only while pending.
+          hold_expires_at: string | null;
+          // The admin who recorded a cash, cheque or waived fee. Null on
+          // anything Stripe settled.
+          marked_paid_by: string | null;
           created_at: string;
         };
         // Direct inserts are revoked; RSVPs are created through create_rsvp().
+        // Updates too: the payment columns move only through the SECURITY
+        // DEFINER functions below, which keep events.reserved_spots in step.
         Insert: never;
         Update: never;
         Relationships: [
@@ -639,6 +669,30 @@ export interface Database {
           // Required by the function when the event has collect_media_consent
           // on; ignored when it does not.
           p_media_consent?: MediaConsentRow | null;
+          // Which side of the bilingual site the booking came from, so the
+          // confirmation email is written in it. Falls back to 'en' inside the
+          // function rather than being rejected.
+          p_language?: 'en' | 'es';
+        };
+        Returns: Database['public']['Tables']['rsvps']['Row'];
+      };
+      /**
+       * Records a fee taken in cash or by cheque, waives one, or undoes
+       * either. Admin only (it checks `is_admin()` itself) and it refuses any
+       * booking Stripe settled — those are corrected in Stripe, and the
+       * webhook brings the correction back.
+       *
+       * The other payment functions — mark_rsvp_paid, release_rsvp_hold,
+       * mark_rsvp_refunded, release_expired_rsvp_holds — are deliberately
+       * absent from this file. EXECUTE on them is revoked from anon and
+       * authenticated, so the browser could not call them if it tried; they
+       * belong to the Edge Functions and to create_rsvp.
+       */
+      admin_set_rsvp_payment: {
+        Args: {
+          p_rsvp_id: string;
+          p_paid: boolean;
+          p_method?: RsvpPaymentMethodRow | null;
         };
         Returns: Database['public']['Tables']['rsvps']['Row'];
       };

@@ -15,9 +15,11 @@ import { RSVPModal } from './components/RSVPModal';
 import { EventDetailsModal } from './components/EventDetailsModal';
 import { ContactModal } from './components/ContactModal';
 import { SearchModal } from './components/SearchModal';
+import { TicketReturn } from './components/TicketReturn';
 import { Footer } from './components/Footer';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { clearDonationParams, readDonationReturn } from './lib/donationReturn';
+import { clearTicketParams, readTicketReturn } from './lib/ticketReturn';
 import { SITE_NAME, SITE_TITLE } from './lib/seo';
 import { ActiveTab } from './types';
 
@@ -68,6 +70,11 @@ export const App: React.FC = () => {
   // below. Read during render for the same reason as `verifyRequest`.
   const [donationReturn] = useState(() => readDonationReturn());
 
+  // Paying for a seat comes back on its own parameter and is its own screen,
+  // mounted at this root like the other dialogs. Dismissing it clears the
+  // state so a closed confirmation stays closed.
+  const [ticketReturn, setTicketReturn] = useState(() => readTicketReturn());
+
   // Loads events, gallery and shifts, and subscribes to auth changes. Guarded
   // inside the store against StrictMode's double effect in development.
   useEffect(() => {
@@ -94,6 +101,16 @@ export const App: React.FC = () => {
     // thank-you screen — and so no child has a reason to touch the URL.
     clearDonationParams();
   }, [donationReturn, setActiveTab]);
+
+  // A paid seat belongs with the events, not on the donate tab: what the
+  // attendee wants next is the date, and the panel offers to put it in their
+  // calendar. Same one-read-one-clear discipline as the donation return — the
+  // parameters are consumed here and nowhere else.
+  useEffect(() => {
+    if (!ticketReturn) return;
+    setActiveTab('events');
+    clearTicketParams();
+  }, [ticketReturn, setActiveTab]);
 
   // ?verify=PAWTX-XXXX-XXXX — what the QR code on a certificate points at.
   // A query parameter rather than a hash so the address survives being typed
@@ -309,6 +326,9 @@ export const App: React.FC = () => {
 
       {/* Modal Dialogs */}
       <RSVPModal />
+      {ticketReturn && (
+        <TicketReturn params={ticketReturn} onClose={() => setTicketReturn(null)} />
+      )}
       <EventDetailsModal />
       <ContactModal isOpen={isContactOpen} onClose={() => setIsContactOpen(false)} />
       <SearchModal />

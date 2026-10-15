@@ -1,18 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { X, CheckCircle2, Calendar, Heart, User, Mail, Phone, Users as UsersIcon, ArrowRight, ExternalLink, AlertCircle, Ticket } from 'lucide-react';
+import { X, CheckCircle2, Calendar, Heart, User, Mail, Phone, Users as UsersIcon, ArrowRight, ExternalLink, AlertCircle, Ticket, CreditCard } from 'lucide-react';
 import { useAppStore } from '../store/useAppStore';
 import { getGoogleCalendarUrl } from '../lib/eventDates';
 import { formatEventFee } from '../lib/eventFee';
 import { ActionError, MediaConsent } from '../types';
-import { emailEnabled, rsvpDonationEnabled } from '../lib/features';
+import { CONTACT_EMAIL, emailEnabled, rsvpDonationEnabled, ticketsEnabled } from '../lib/features';
 import { ModalShell } from './ModalShell';
 
 const TITLE_ID = 'rsvp-modal-title';
 
 export const RSVPModal: React.FC = () => {
   const { t } = useTranslation();
-  const { selectedEventForRsvp, closeRsvpModal, submitRsvp, language } = useAppStore();
+  const { selectedEventForRsvp, closeRsvpModal, submitRsvp, startTicketCheckout, language } =
+    useAppStore();
 
   // Step 4 is the failure screen; the booking can be rejected by the database
   // (the event filled up, this email already registered) and used to land on
@@ -55,6 +56,20 @@ export const RSVPModal: React.FC = () => {
   const needsMediaConsent = selectedEventForRsvp.collectMediaConsent;
   const fee = formatEventFee(selectedEventForRsvp.fee, language, t('events.free'));
 
+  // A prepaid event takes the fee before the seat is real. Everything else —
+  // including an event with a fee printed on it that is collected at the door —
+  // books free, exactly as it always has. The two are separate fields in the
+  // database for precisely this reason, so do not collapse them into `fee > 0`.
+  const prepaid = selectedEventForRsvp.paymentRequired;
+  // `ticketsEnabled` off is not a bug to route around: it means the Edge
+  // Functions that take the money may not be deployed, so the only honest
+  // thing this form can do is hand the visitor an address to write to.
+  const canPrepay = prepaid && ticketsEnabled;
+  const seats = guestCount + 1;
+  const totalDueLabel = prepaid
+    ? formatEventFee((selectedEventForRsvp.fee ?? 0) * seats, language, t('events.free'))
+    : null;
+
   // Singular/plural picked here rather than through i18next's plural suffixes,
   // which nothing else in this project relies on. Only 1 is singular, so the
   // two Spanish and English forms cover every option in the list.
@@ -76,6 +91,15 @@ export const RSVPModal: React.FC = () => {
     e.preventDefault();
     if (!validateStep1()) return;
 
+    // A prepaid seat is booked and paid for in one move, by the Edge Function:
+    // the booking holds the seat, the Checkout session collects the fee, and
+    // this browser leaves for Stripe. There is no local success screen to show
+    // — the confirmation lives on the page Stripe returns them to.
+    if (canPrepay) {
+      void handleTicketCheckout();
+      return;
+    }
+
     // The "Optional Event Support" step offers $10/$25/$50 buttons under
     // copy about tax-deductible giving, but takes no payment — it only
     // writes a number into the rsvps row. Someone who picks $25 leaves
@@ -91,6 +115,30 @@ export const RSVPModal: React.FC = () => {
     }
 
     setStep(2);
+  };
+
+  const handleTicketCheckout = async () => {
+    setIsSubmitting(true);
+    setSubmitError(null);
+
+    const result = await startTicketCheckout({
+      eventId: selectedEventForRsvp.id,
+      fullName,
+      email,
+      phone,
+      guestCount,
+      // Only sent for events that asked; create_rsvp discards it otherwise.
+      mediaConsent: needsMediaConsent ? mediaConsent : null
+    });
+
+    // The success branch is already navigating to Stripe. Clearing the
+    // submitting flag would re-enable the button underneath a page that is
+    // about to go away, which is how one visitor ends up with two held seats.
+    if (!result.ok) {
+      setIsSubmitting(false);
+      setSubmitError(result.error ?? 'network');
+      setStep(4);
+    }
   };
 
   const handleFinalSubmit = async () => {
@@ -150,6 +198,15 @@ export const RSVPModal: React.FC = () => {
           text: t('rsvpModal.errorConsentText'),
           retryable: true
         };
+      // The organisation cannot currently take money for this event — no
+      // Stripe key, or it is marked prepaid with no price. Retrying runs into
+      // the same wall, so the address is the next step rather than the button.
+      case 'payment_unavailable':
+        return {
+          title: t('rsvpModal.paymentClosedTitle'),
+          text: t('rsvpModal.paymentClosedText', { email: CONTACT_EMAIL }),
+          retryable: false
+        };
       default:
         return {
           title: t('rsvpModal.errorGenericTitle'),
@@ -158,6 +215,16 @@ export const RSVPModal: React.FC = () => {
         };
     }
   })();
+
+  // Built here rather than inline so the JSX stays readable, and so the
+  // subject line is the same sentence the modal header uses.
+  const mailtoForEvent =
+    'mailto:' +
+    CONTACT_EMAIL +
+    '?subject=' +
+    encodeURIComponent(t('rsvpModal.forEvent', { title }));
+
+  const payNowLabel = t('rsvpModal.continueToPayment') + ' · ' + totalDueLabel;
 
   const googleCalendarUrl = getGoogleCalendarUrl(selectedEventForRsvp, language === 'es');
 
@@ -200,22 +267,85 @@ export const RSVPModal: React.FC = () => {
         {/* Modal Body */}
         <div className="p-6">
           
+          {/* A prepaid event while this site cannot take the payment. Mirrors
+              what DonationWidget does with donations off: offer the real way
+              in rather than a button that can only fail. Registering them
+              free would be worse still — it would hand out a seat the
+              organisation has priced and expects to be paid for. */}
+          {step === 1 && prepaid && !canPrepay && (
+            <div className="space-y-5">
+              <div className="bg-aged-paper border border-warm-taupe rounded-2xl p-5 space-y-2">
+                <div className="flex items-center gap-2 text-terracotta font-bold text-sm">
+                  <Ticket className="w-4 h-4" aria-hidden="true" />
+                  <span>{t('rsvpModal.paymentClosedTitle')}</span>
+                </div>
+                <p className="text-xs text-charcoal leading-relaxed">
+                  {t('rsvpModal.paymentClosedText', { email: CONTACT_EMAIL })}
+                </p>
+              </div>
+
+              <a
+                href={mailtoForEvent}
+                className="w-full bg-terracotta hover:bg-terracotta-deep text-white py-3 rounded-full font-bold text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-2 shadow-md"
+              >
+                <Mail className="w-4 h-4" aria-hidden="true" />
+                <span>{CONTACT_EMAIL}</span>
+              </a>
+
+              <button
+                type="button"
+                onClick={closeRsvpModal}
+                className="w-full border border-warm-taupe hover:bg-aged-paper text-graphite py-2.5 rounded-full text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer"
+              >
+                {t('rsvpModal.closeModal')}
+              </button>
+            </div>
+          )}
+
           {/* STEP 1: Basic Guest Info */}
-          {step === 1 && (
+          {step === 1 && !(prepaid && !canPrepay) && (
             <form onSubmit={handleNextStep} className="space-y-4">
 
-              {/* The price, where the commitment is actually made. The
-                  site takes no payment for events, so this is a figure to
-                  arrive prepared for, not a charge — which is exactly why
-                  it must not first appear after someone has registered. */}
-              {fee && (
-                <div className="flex items-center gap-2.5 bg-aged-paper border border-warm-taupe rounded-xl px-4 py-3">
-                  <Ticket className="w-4 h-4 text-olive shrink-0" />
-                  <span className="text-xs font-bold uppercase tracking-[0.15em] text-charcoal">
-                    {t('events.fee')}
-                  </span>
-                  <span className="text-sm font-bold text-graphite ml-auto">{fee}</span>
+              {/* The price, where the commitment is actually made — which is
+                  exactly why it must not first appear after someone has
+                  registered. On an event whose fee is settled at the door this
+                  is a figure to arrive prepared for; on a prepaid one it is
+                  what the next button will charge, so that version shows the
+                  arithmetic and the deadline rather than a bare amount. */}
+              {prepaid && canPrepay ? (
+                <div className="bg-aged-paper border border-warm-taupe rounded-xl px-4 py-3 space-y-2">
+                  <div className="flex items-center gap-2.5">
+                    <Ticket className="w-4 h-4 text-olive shrink-0" aria-hidden="true" />
+                    <span className="text-xs font-bold uppercase tracking-[0.15em] text-charcoal">
+                      {t('rsvpModal.prepaidTitle')}
+                    </span>
+                    {/* The multiplication is spelled out because the number of
+                        guests is chosen further down this same form: without
+                        it, adding a guest changes the total unexplained. */}
+                    <span className="text-xs text-charcoal ml-auto">
+                      {t('rsvpModal.prepaidBreakdown', { seats, fee })}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2.5 pt-2 border-t border-warm-taupe">
+                    <span className="text-xs font-bold uppercase tracking-[0.15em] text-charcoal">
+                      {t('rsvpModal.totalDue')}
+                    </span>
+                    <span className="text-base font-bold text-graphite ml-auto">{totalDueLabel}</span>
+                  </div>
+                  <p className="text-[11px] text-charcoal leading-relaxed">
+                    {t('rsvpModal.prepaidNote')}
+                  </p>
                 </div>
+              ) : (
+                fee && (
+                  <div className="flex items-center gap-2.5 bg-aged-paper border border-warm-taupe rounded-xl px-4 py-3">
+                    <Ticket className="w-4 h-4 text-olive shrink-0" />
+                    <span className="text-xs font-bold uppercase tracking-[0.15em] text-charcoal">
+                      {t('events.fee')}
+                    </span>
+                    <span className="text-sm font-bold text-graphite ml-auto">{fee}</span>
+                  </div>
+                )
               )}
               
               <div>
@@ -363,16 +493,29 @@ export const RSVPModal: React.FC = () => {
                   disabled={isSubmitting}
                   className="w-full bg-terracotta hover:bg-terracotta-deep text-white py-3 rounded-full font-bold text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md disabled:opacity-50"
                 >
-                  {/* Without the donation step this button is the last one, so
-                      it must not promise a "step 2" that no longer exists. */}
+                  {/* Three endings, and the button has to name the right one.
+                      Without the donation step it is the last one, so it must
+                      not promise a "step 2" that no longer exists; on a
+                      prepaid event the next thing that happens is a card
+                      payment, and a button reading "Confirm RSVP" would be
+                      taking somebody to Checkout without having said so. */}
                   <span>
                     {isSubmitting
-                      ? t('rsvpModal.submitting')
-                      : rsvpDonationEnabled
-                        ? t('rsvpModal.continueToStep2')
-                        : t('rsvpModal.confirmRsvp')}
+                      ? canPrepay
+                        ? t('rsvpModal.redirecting')
+                        : t('rsvpModal.submitting')
+                      : canPrepay
+                        ? payNowLabel
+                        : rsvpDonationEnabled
+                          ? t('rsvpModal.continueToStep2')
+                          : t('rsvpModal.confirmRsvp')}
                   </span>
-                  {!isSubmitting && <ArrowRight className="w-4 h-4" />}
+                  {!isSubmitting &&
+                    (canPrepay ? (
+                      <CreditCard className="w-4 h-4" aria-hidden="true" />
+                    ) : (
+                      <ArrowRight className="w-4 h-4" />
+                    ))}
                 </button>
               </div>
 

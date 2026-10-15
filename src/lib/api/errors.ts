@@ -15,6 +15,16 @@ const SQLSTATE_TO_ACTION_ERROR: Record<string, ActionError> = {
   PA004: 'invalid_guest_count',
   PA005: 'media_consent_required',
   PA006: 'event_over',
+  // An event marked prepaid with no usable price. Unreachable while the
+  // events_payment_requires_fee constraint stands; mapped anyway, because the
+  // alternative is showing "something went wrong" for a condition only the
+  // organisation can fix.
+  PA007: 'payment_unavailable',
+  // PA008 (no such booking), PA009 (that one was settled by card, correct it in
+  // Stripe) and PA010 (unknown payment method) are raised only by
+  // admin_set_rsvp_payment. They are deliberately absent: they are staff
+  // mistakes with staff-specific remedies, and SubmissionsAdmin says what to do
+  // about each one instead of routing them through a visitor's vocabulary.
   // A shift signup that would exceed spots_total trips the
   // shifts_not_overbooked CHECK constraint inside the sync trigger.
   '23514': 'shift_full',
