@@ -57,13 +57,19 @@ jobs:
           # it the button works, the donor sees a success screen, and nothing
           # is ever charged.
           VITE_DONATIONS_ENABLED: 'true'
-          # Prepaid event tickets — off until docs/paid-events.md has been
-          # worked through. Unlike the donate button, this one can take money
-          # for a specific seat on a specific date, so switching it on commits
-          # the organisation to honouring what it sells. Left here, named and
-          # false, rather than absent: a flag nobody can find is a flag nobody
-          # audits.
-          VITE_TICKETS_ENABLED: 'false'
+          # Prepaid event tickets. On since 2026-10-15. Unlike the donate
+          # button, this one takes money for a specific seat on a specific
+          # date, so it commits the organisation to honouring what it sells —
+          # which is why it went on only after the whole path had been driven
+          # end to end against Stripe's sandbox with a real card.
+          #
+          # On its own it changes nothing a visitor sees: an event has to be
+          # marked "collect the fee up front" before anybody is asked to pay.
+          # Turning it back off is a one-line commit, and the prepaid toggle
+          # then disappears from the admin panel while any event already marked
+          # keeps its setting and shows the contact address instead of a
+          # payment button.
+          VITE_TICKETS_ENABLED: 'true'
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
