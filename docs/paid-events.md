@@ -228,10 +228,13 @@ reach: Stripe's own hosted page, a card, and an email actually arriving.
 ## 5. Go live
 
 - [ ] Live keys back in place.
-- [ ] `VITE_TICKETS_ENABLED="true"` in `.env.local`.
-- [ ] `VITE_TICKETS_ENABLED: 'true'` in `.github/workflows/deploy.yml`.
-      **Production stays off without this line**, whatever `.env.local` says.
-- [ ] Uncomment the flag in `.env.example`.
+- [ ] `VITE_TICKETS_ENABLED="true"` in `.env.local` (only affects your own
+      `npm run dev`; production reads the workflow).
+- [x] `VITE_TICKETS_ENABLED: 'true'` in `.github/workflows/deploy.yml`, since
+      2026-10-15. **Production stays off without this line**, whatever
+      `.env.local` says. On its own it changes nothing a visitor sees: an event
+      still has to be marked prepaid before anybody is asked to pay.
+- [x] Uncomment the flag in `.env.example`.
 - [ ] One real payment for a real seat, with a real card, then refunded —
       confirming the seat comes back.
 
