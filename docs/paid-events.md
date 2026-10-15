@@ -10,20 +10,38 @@ synthetic events — Stripe's signature is an HMAC over the body with the
 endpoint secret, so a local secret makes the real check verifiable rather than
 stubbed. The browser flow was exercised end to end in both languages.
 
-What has **not** happened: a real Stripe Checkout page, a real card, a real
-receipt out of Resend, and a real payout. Those are steps 2 through 5 below.
-Every box here is still open, because each describes something to do against
-the live project — none of them is closed by a local run. The opposite
-mistake, a runbook with boxes ticked from memory, is what
-`docs/donations-go-live.md` had to be dug out of.
+**A full test-mode run against real Stripe has since been completed** (2026-10-15,
+sandbox `acct_1MyLpqApOhsap1HP`): a $40 booking for two seats, paid with card
+`4242 4242 4242 4242` on Stripe's own hosted page, with `stripe listen`
+forwarding the webhooks to a local stack. Stripe's page showed `Qty 2, $20.00
+each`; the payment confirmed the booking and held the seats; the confirmation
+number on the attendee's screen was findable in Stripe by
+`metadata["confirmation_number"]`; refunding released the seats; and expiring
+an abandoned session released them too. The per-item notes in §4 say which
+box that closed.
+
+**And then on the live project, with the live key and a real card** (also
+2026-10-15): a $1 seat on a throwaway event, paid from the Checkout page. That
+closed the one box a sandbox could never reach. The confirmation email arrived
+carrying `Paid: $1.00`, `Method: Card` and confirmation number `42E5F78B` —
+the same number the screen had shown — with the line stating that admission is
+not a tax-deductible donation. Refunding it released the seat without anyone
+touching the database (1/25 → 0/25), and a hold abandoned on another event
+released its own seat when it lapsed (2/32 → 1/32), which is the one piece of
+timing the sandbox run had had to simulate.
+
+What has **not** happened: a payout into the bank account, which cannot happen
+until there is a real balance to pay out. The opposite mistake, a runbook with
+boxes ticked from memory, is what `docs/donations-go-live.md` had to be dug out
+of.
 
 What the local work does mean is that the logic underneath is not guesswork.
 `supabase/tests/README.md` says how to re-run it, and names the one thing that
 has to be granted by hand before the local stack can reach an Edge Function at
 all.
 
-The feature ships **off**: `VITE_TICKETS_ENABLED` is `'false'` in
-`.github/workflows/deploy.yml`, and with it off nothing about the site changes.
+The feature is **on** since 2026-10-15: `VITE_TICKETS_ENABLED` is `'true'` in
+`.github/workflows/deploy.yml`. With it off nothing about the site changes.
 An event's `fee` goes on being a published figure, RSVPs stay free, and the
 admin panel does not offer the prepaid toggle. No event can be marked prepaid
 until somebody turns the flag on, which is why this can sit in `main` safely
@@ -76,25 +94,25 @@ contributions. The ticket confirmation email says so in both languages.
 
 ## 1. Prerequisites
 
-- [ ] **Donations already work.** Tickets share the Stripe account, the
+- [x] **Donations already work.** Tickets share the Stripe account, the
       webhook endpoint and its signing secret, so none of this can be true
       before `docs/donations-go-live.md` is. It is, as of 2026-10-10.
-- [ ] **No new Stripe dashboard configuration.** Worth stating because it
+- [x] **No new Stripe dashboard configuration.** Worth stating because it
       looks like it should need some: the three events tickets rely on —
       `checkout.session.completed`, `checkout.session.expired`,
       `charge.refunded` — are already on both endpoints, live and test, from
       the donation work. `invoice.paid` is the only one tickets never use.
-- [ ] **No new Edge Function secrets.** `STRIPE_SECRET_KEY`,
+- [x] **No new Edge Function secrets.** `STRIPE_SECRET_KEY`,
       `STRIPE_WEBHOOK_SECRET`, `SITE_URL`, `RESEND_API_KEY` and
       `CONTACT_INBOX` are the whole set, all already hosted. `ORG_EIN` is
       deliberately *not* used by the ticket path — see the tax note above.
-- [ ] One **restricted key check**: the live key is an `rk_live_…` granted
-      Write on Checkout Sessions, Products, Prices, Customers and
-      Subscriptions. `create-ticket-session` calls
-      `checkout.sessions.create` and `checkout.sessions.expire`. **Confirm
-      the key can expire a session** — it is a write on Checkout Sessions, so
-      it should be covered, but if it is not, the retry path (§4) fails in a
-      way that only shows up as a warning in the function log.
+- [x] `checkout.sessions.create` works on the live restricted key — a real
+      $1 payment went through it on 2026-10-15.
+- [ ] `checkout.sessions.expire` on the **live** key is still unproven. It is a
+      write on Checkout Sessions so it should be covered by the same grant, and
+      it worked against the sandbox key. If it is not, the retry path (§4)
+      fails as a warning in the function log and nowhere else, which is why
+      this box stays open rather than being assumed.
 
 ## 2. Apply the migration
 
@@ -102,7 +120,7 @@ contributions. The ticket confirmation email says so in both languages.
 npm run db:push     # or paste supabase/setup/00_full_setup.sql on a fresh project
 ```
 
-- [ ] It applies cleanly against the **live** schema. It applies cleanly to a
+- [x] It applies cleanly against the **live** schema. It applies cleanly to a
       fresh local one — twice, which also proves the `drop trigger if exists`
       guards let it be re-run — but the live database is not fresh: this adds
       two constraints to `events`, three to `rsvps`, replaces the
@@ -112,18 +130,19 @@ npm run db:push     # or paste supabase/setup/00_full_setup.sql on a fresh proje
       predates it: every existing booking lands on `payment_status =
       'not_required'` with no amount and no deadline, which satisfies all
       three. Check it anyway.
-- [ ] `supabase/setup/98_verify.sql` reports ✅ on all 24 rows. It does
-      locally. Rows 21–24 are new and are the ones to read: the columns exist,
+- [x] `supabase/setup/98_verify.sql` reports ✅ on all 24 rows locally. On the
+      live project only the four ticket rows were run (21–24, all ✅); the other
+      twenty check things this work does not touch and were green before it. Rows 21–24 are new and are the ones to read: the columns exist,
       the five payment functions exist, **`anon` cannot execute any of them**,
       and both confirmation triggers are in place.
-- [ ] Row 23 in particular. In PostgreSQL a new function is executable by
+- [x] Row 23 in particular — green on the live project. In PostgreSQL a new function is executable by
       PUBLIC by default, so the migration revokes `from public, anon,
       authenticated` rather than from the two roles alone. If that revoke were
       missed, any visitor could call `mark_rsvp_paid` on their own booking and
       walk in without paying. The test suite asserts the same thing from the
       other side, and the revoke is the one line in the migration that would
       be silently catastrophic to lose.
-- [ ] `src/lib/database.types.ts` already carries the new columns, written by
+- [x] `src/lib/database.types.ts` already carries the new columns, written by
       hand to match. If you run `npm run db:types`, diff it rather than
       trusting it — the file is hand-maintained and the generator will also
       reformat everything around it.
@@ -134,10 +153,10 @@ npm run db:push     # or paste supabase/setup/00_full_setup.sql on a fresh proje
 npm run functions:deploy
 ```
 
-- [ ] All seven deploy. Two are new (`create-ticket-session`,
+- [x] All seven deploy. Two are new (`create-ticket-session`,
       `ticket-status`) and two changed (`stripe-webhook`,
       `send-rsvp-confirmation`).
-- [ ] **Check `supabase functions list` for the dates afterwards.** Secrets
+- [x] **Check `supabase functions list` for the dates afterwards.** Secrets
       are read at runtime, so a stale function build behaves like a current
       one right up until it meets something new — which is how the three
       donation functions spent three months on a 27 July build while looking
@@ -157,57 +176,70 @@ rollback, and every webhook branch behind a real signature check. Run those
 first; they take seconds and they fail loudly. This list is what they cannot
 reach: Stripe's own hosted page, a card, and an email actually arriving.
 
-- [ ] A prepaid event's RSVP form shows the breakdown (`3 × $20`), the total,
-      and the half-hour note, and its button says what it will do. *(Verified
-      locally in both languages: the arithmetic follows the guest dropdown
-      live, and the button reads "Continue to payment · $70".)*
-- [ ] Paying confirms the booking: `payment_status = 'paid'`, `paid_at` set,
-      `payment_method = 'card'`, `hold_expires_at` cleared. *(Verified locally
-      from a signed `checkout.session.completed`, including that a duplicate
-      delivery changes nothing.)*
-- [ ] The confirmation email arrives **with** the payment block, says the
+- [x] A prepaid event's RSVP form shows the breakdown, the total, and the
+      half-hour note, and its button says what it will do. Verified in both
+      languages, and carried through to Stripe's own page, which showed the
+      event title, the venue and date line, `Qty 2, $20.00 each` and a
+      prefilled email.
+- [x] Paying confirms the booking: `payment_status = 'paid'`, `paid_at` set,
+      `payment_method = 'card'`, `hold_expires_at` cleared, payment intent
+      recorded, seats unchanged at 2/10. Done with a real card on Stripe's
+      hosted page; the `checkout.session.completed` Stripe delivered got a 200.
+      A duplicate delivery changing nothing is covered by the webhook tests.
+- [x] The confirmation email arrives **with** the payment block, says the
       amount and the confirmation number, and states that admission is not a
-      tax-deductible donation. In Spanish too — unlike the donation receipt,
-      this template has both languages.
+      tax-deductible donation. Closed on the live project, which is the only
+      place it could be: the trigger posts to the *hosted*
+      `send-rsvp-confirmation`, so a local booking's id is one that function
+      cannot find, and it returns 404 before composing anything.
+
+      Worth knowing for the people this is sent to: Gmail filed it under
+      **Updates**, not Primary. It was not missing, it was on another tab. The
+      Spanish side is still unexercised — same code path, different string
+      table, so that is a reading rather than a risk. **A local run cannot close this**: the
+      trigger posts to the *hosted* `send-rsvp-confirmation` (the URL is
+      hardcoded in the migration), which looks the event up by id, does not
+      find a local one, and returns 404 before composing anything. Closing it
+      needs a prepaid booking paid for on the live project.
 - [x] A **pending** booking gets **no** email, and paying it sends exactly
       one. Covered by `event_tickets.sql` §14, which counts rows in
       `net.http_request_queue` rather than trusting the trigger definition.
       This is the regression to watch for: the insert trigger carries a `WHEN`
       clause, and losing it would mean telling somebody they are registered
       while they are still typing their card number.
-- [ ] The return screen polls and shows the confirmed seat, not the query
-      string. Open `?ticket=success&session_id=cs_invalid` directly: it must
-      say the payment could not be found, not congratulate anyone. *(Verified
-      locally: it opens on "your payment is still going through", then shows
-      the amount, party size, confirmation number and the not-deductible line
-      once the row reads paid.)*
-- [ ] **Abandon the payment.** Close Stripe's tab, wait for
-      `checkout.session.expired` (Stripe sends it at the `expires_at`, roughly
-      33 minutes), and confirm the booking goes `failed` and
-      `events.reserved_spots` comes back down by the full party size. *(The
-      handler is verified locally from a signed event; what this adds is that
-      Stripe really does send it, at the deadline this code set.)*
+- [x] The return screen polls and shows the confirmed seat, not the query
+      string. After the real payment Stripe returned the browser to
+      `?ticket=success&session_id=…`, the app routed to the events tab,
+      cleared the parameters, and the panel read "You're registered — payment
+      received" with `Paid: $40.00`, `Party size: 2`, `Confirmation #:
+      F32AE950` and the not-deductible line. An invented session id still says
+      the payment could not be found.
+- [x] **Abandon the payment.** A three-seat booking was taken to Checkout and
+      then expired through the API rather than waiting out the deadline:
+      Stripe delivered `checkout.session.expired`, the booking went `failed`,
+      and all three seats came back (3/10 → 0/10). What remains unobserved is
+      only the clock itself — that Stripe fires it unprompted at `expires_at`.
 - [x] **The lazy sweep.** Covered by `event_tickets.sql` §6 and §7: a hold
       pushed into the past is released before the next capacity check, the
       sweep run twice does not release the same seats twice, and the attendee
       whose payment failed can book again rather than being told they are
       already registered.
 - [ ] **Retry.** Start a payment, abandon it, and immediately book again with
-      the same email. *(The booking half is verified locally — the old hold is
-      released and the new attempt accepted. What needs a real key is the other
-      half: that `checkout.sessions.expire` actually closed the old session so
-      it cannot still be paid. That call is also the one the restricted live
-      key must be allowed to make — see §1.)*
+      the same email. The booking half is covered by the function tests, and
+      `checkout.sessions.expire` is now known to work against a real session
+      (it is what the abandon case above used). The half still unobserved is
+      somebody *trying to pay* an expired session and being refused. The same
+      call is the one the restricted live key must be allowed to make — §1.
 - [ ] **The last-second payment.** Hard to stage and worth reading the code
       for instead: `mark_rsvp_paid` re-takes the seats of a booking whose hold
       was already released, going over `total_spots` if it must and raising a
       warning. Overbooking by one is the chosen failure; charging somebody for
       a seat they cannot have is not.
-- [ ] **Refund.** Refund the charge in Stripe. *(The webhook half is verified
-      locally from a signed `charge.refunded`, including that a second delivery
-      does not release the seat twice, and that a refunded **donation** still
-      finds no booking to touch. What is untested is Stripe actually sending
-      it for a ticket.)*
+- [x] **Refund.** The $40 sandbox charge was refunded through the Stripe API;
+      `charge.refunded` arrived, the booking became `refunded` and both seats
+      were released (2/10 → 0/10). That a second delivery does not release the
+      same seats twice, and that a refunded **donation** finds no booking to
+      touch, are covered by the webhook tests.
 - [x] **Cash. Removed, not tested.** Recording a fee taken in person was built
       and then taken out before it was ever used — see the 2026-10-15 migration.
       An event either charges through this site or this site stays out of the
@@ -221,22 +253,28 @@ reach: Stripe's own hosted page, a card, and an email actually arriving.
       `payment_status = 'not_required'`, no amount, no deadline, and the sweep
       never touches them. Covered by `event_tickets.sql` §12.
 - [ ] The RSVP CSV export carries the four new columns.
+- [x] The confirmation number an attendee is shown is findable in Stripe:
+      `stripe payment_intents search --query 'metadata["confirmation_number"]:"F32AE950"'`
+      returned the $40 payment. That is the whole reason the number is written
+      onto the PaymentIntent and not only the session.
 - [ ] With `VITE_TICKETS_ENABLED` off, a prepaid event's RSVP button opens a
       panel with the organisation's address and **no form** — not a free
       booking for a seat that has a price. *(Verified locally.)*
 
 ## 5. Go live
 
-- [ ] Live keys back in place.
-- [ ] `VITE_TICKETS_ENABLED="true"` in `.env.local` (only affects your own
+- [x] Live keys back in place.
+- [x] `VITE_TICKETS_ENABLED="true"` in `.env.local` (only affects your own
       `npm run dev`; production reads the workflow).
 - [x] `VITE_TICKETS_ENABLED: 'true'` in `.github/workflows/deploy.yml`, since
       2026-10-15. **Production stays off without this line**, whatever
       `.env.local` says. On its own it changes nothing a visitor sees: an event
       still has to be marked prepaid before anybody is asked to pay.
 - [x] Uncomment the flag in `.env.example`.
-- [ ] One real payment for a real seat, with a real card, then refunded —
-      confirming the seat comes back.
+- [x] One real payment for a real seat, with a real card, then refunded —
+      confirming the seat comes back. $1 on 2026-10-15: paid, confirmed,
+      emailed, refunded, and the seat released by the webhook rather than by
+      hand.
 
 ---
 
