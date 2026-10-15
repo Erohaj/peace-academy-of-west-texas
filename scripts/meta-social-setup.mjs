@@ -28,12 +28,40 @@
 // Page token derived from a long-lived User token does not expire, so a leaked
 // one stays useful to whoever finds it until it is revoked by hand.
 
+import { readFileSync } from 'node:fs';
+
 import { ORG_LINKS } from '../src/data/orgLinks.ts';
 
 const GRAPH_VERSION = process.env.META_GRAPH_VERSION || 'v26.0';
 const API = `https://graph.facebook.com/${GRAPH_VERSION}`;
 
-const { META_APP_ID, META_APP_SECRET, META_USER_TOKEN } = process.env;
+const { META_APP_ID, META_APP_SECRET } = process.env;
+
+/**
+ * The token, from the environment or from a file beside the project.
+ *
+ * Meta's Access Token Debugger prints a long-lived token wrapped across three
+ * lines, and copying it takes the line breaks along. In cmd.exe a pasted line
+ * break ends the `set` command, so only the first third of the token reaches
+ * the script -- which Meta rejects as "Cannot parse access token (code 190)",
+ * an error that sounds like the token is wrong rather than truncated.
+ *
+ * Reading from a file sidesteps that: a text editor shows the breaks, and the
+ * whitespace strip below removes them wherever they came from. It also keeps a
+ * credential out of the shell history.
+ */
+function readToken() {
+  const fromEnv = process.env.META_USER_TOKEN;
+  if (fromEnv) return fromEnv.replace(/\s+/g, '');
+
+  try {
+    return readFileSync(new URL('../.meta-token', import.meta.url), 'utf-8').replace(/\s+/g, '');
+  } catch {
+    return '';
+  }
+}
+
+const META_USER_TOKEN = readToken();
 
 // META_APP_SECRET is optional, and leaving it out is the gentler path: showing
 // it on the app's Basic settings page demands the Facebook password, and the
@@ -45,17 +73,21 @@ const { META_APP_ID, META_APP_SECRET, META_USER_TOKEN } = process.env;
 const hasAppCredentials = Boolean(META_APP_ID && META_APP_SECRET);
 
 if (!META_USER_TOKEN) {
-  console.error(`Set META_USER_TOKEN first. Two ways to get one, both from
-developers.facebook.com:
+  console.error(`No token found. Two steps, both at developers.facebook.com:
 
-  Easier -- no password needed:
-    1. Graph API Explorer: generate a User token carrying pages_show_list,
-       pages_read_engagement and instagram_basic.
-    2. Paste it into the Access Token Debugger and press "Extend Access
-       Token" at the bottom. Use the token that comes back.
+  1. Graph API Explorer -- generate a User token carrying pages_show_list
+     and pages_read_engagement (plus instagram_basic if your app offers it).
+  2. Access Token Debugger -- paste it in, press Debug, then "Extend Access
+     Token" at the bottom. The token it hands back is the one to use; without
+     this step the Page token expires within the hour.
 
-  Or also set META_APP_ID and META_APP_SECRET (Settings -> Basic; revealing
-  the secret asks for your password) and this will do the extending itself.`);
+Then save that token into a file named .meta-token in the project root and run
+this again. Line breaks in it do not matter -- they are stripped, which is the
+point: the Debugger prints the token across three lines, and in cmd.exe a
+pasted line break silently truncates it into something Meta rejects as
+"Cannot parse access token".
+
+(META_USER_TOKEN in the environment still works, and takes precedence.)`);
   process.exit(1);
 }
 
@@ -233,6 +265,10 @@ the bottom -- then run this again with the result.`);
 }
 
 main().catch((error) => {
-  console.error(`\nFailed: ${error.message}`);
-  process.exit(1);
+  console.error(`
+Failed: ${error.message}`);
+  // Not process.exit(): on Windows, exiting while a fetch is still unwinding
+  // trips a libuv assertion, so a crash dump lands underneath a message that
+  // had just explained the problem in plain words.
+  process.exitCode = 1;
 });

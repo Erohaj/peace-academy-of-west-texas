@@ -21,8 +21,5 @@ supabase/.branches/
 wix-export/
 
 # A Meta User token pasted here for scripts/meta-social-setup.mjs. It is a
-# credential: never commit it. Also ignored on social-feed-setup, which is
-# where this rule was written -- repeated here because that branch has not
-# landed on main yet, and a branch cut from main therefore sees the file bare.
-# Whichever lands second will conflict on these lines; keep one copy.
+# credential: never commit it.
 .meta-token
