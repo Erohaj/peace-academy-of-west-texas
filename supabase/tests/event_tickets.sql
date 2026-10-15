@@ -14,8 +14,6 @@ delete from public.rsvps where email in ('ada@example.com', 'grace@example.com',
   'katherine@example.com', 'mary@example.com', 'dorothy@example.com');
 delete from public.events where title in ('TEST prepaid workshop', 'TEST door fee dinner',
   'Unpriced prepaid', 'Free prepaid');
-delete from public.profiles where id = '00000000-0000-4000-8000-00000000ad01';
-delete from auth.users where id = '00000000-0000-4000-8000-00000000ad01';
 
 -- ===========================================================================
 -- 1. Grants: nothing here may be callable by a visitor
@@ -30,12 +28,12 @@ begin
     'anon can call mark_rsvp_refunded';
   assert not has_function_privilege('anon', 'public.release_expired_rsvp_holds(uuid)', 'execute'),
     'anon can call release_expired_rsvp_holds';
-  assert not has_function_privilege('anon', 'public.admin_set_rsvp_payment(uuid,boolean,text)', 'execute'),
-    'anon can call admin_set_rsvp_payment';
+  assert (select count(*) from pg_proc p
+            join pg_namespace n on n.oid = p.pronamespace
+           where n.nspname = 'public' and p.proname = 'admin_set_rsvp_payment') = 0,
+    'admin_set_rsvp_payment still exists -- payments are Stripe''s alone now';
   assert not has_function_privilege('authenticated', 'public.mark_rsvp_paid(uuid,text,text)', 'execute'),
     'authenticated can call mark_rsvp_paid';
-  assert has_function_privilege('authenticated', 'public.admin_set_rsvp_payment(uuid,boolean,text)', 'execute'),
-    'authenticated cannot call admin_set_rsvp_payment -- the admin panel would get 42501';
   assert has_function_privilege('service_role', 'public.mark_rsvp_paid(uuid,text,text)', 'execute'),
     'service_role cannot call mark_rsvp_paid -- the webhook could not confirm a payment';
   assert has_function_privilege('service_role', 'public.create_rsvp(uuid,text,text,text,integer,numeric,text,text)', 'execute'),
@@ -159,7 +157,6 @@ begin
   assert v_rsvp.hold_expires_at is null, 'a paid booking still carries a deadline';
   assert v_rsvp.payment_method = 'card', 'the payment method was not recorded';
   assert v_rsvp.stripe_payment_intent = 'pi_test_ada', 'the payment intent was not recorded';
-  assert v_rsvp.marked_paid_by is null, 'a card payment recorded a staff member';
 
   assert (select reserved_spots from public.events
            where title = 'TEST prepaid workshop') = 3,
@@ -342,82 +339,6 @@ begin
 end $$;
 
 -- ===========================================================================
--- 11. Cash at the door, and the undo
--- ===========================================================================
-do $$
-declare
-  v_admin    uuid := '00000000-0000-4000-8000-00000000ad01';
-  v_event_id uuid;
-  v_rsvp     public.rsvps;
-  v_code     text;
-begin
-  -- An admin to be. profiles references auth.users, so the account comes
-  -- first; this is a local database and nothing here reaches a real project.
-  insert into auth.users (id, instance_id, aud, role, email, created_at, updated_at)
-  values (v_admin, '00000000-0000-0000-0000-000000000000', 'authenticated',
-          'authenticated', 'admin@example.com', now(), now())
-  on conflict (id) do nothing;
-
-  insert into public.profiles (id, email, full_name, role)
-  values (v_admin, 'admin@example.com', 'Test Admin', 'admin')
-  on conflict (id) do update set role = 'admin';
-
-  -- is_admin() reads auth.uid(), which reads this setting.
-  perform set_config('request.jwt.claims', json_build_object('sub', v_admin)::text, true);
-  assert public.is_admin(), 'the test admin is not recognised as one';
-
-  select id into v_event_id from public.events where title = 'TEST prepaid workshop';
-
-  -- A prepaid booking whose hold lapsed: somebody turns up with cash anyway.
-  select * into v_rsvp from public.rsvps
-   where email = 'grace@example.com' and payment_status = 'failed'
-   order by created_at desc limit 1;
-
-  v_rsvp := public.admin_set_rsvp_payment(v_rsvp.id, true, 'cash');
-
-  assert v_rsvp.payment_status = 'paid', 'the cash payment did not confirm the seat';
-  assert v_rsvp.payment_method = 'cash', 'the method was not recorded as cash';
-  assert v_rsvp.marked_paid_by = v_admin,
-    format('marked_paid_by is %s, expected the admin', v_rsvp.marked_paid_by);
-  assert (select reserved_spots from public.events where id = v_event_id) = 3,
-    'the cash booking did not take its seat back';
-
-  -- Undo, twice. The second press must not release the seats again.
-  v_rsvp := public.admin_set_rsvp_payment(v_rsvp.id, false);
-  assert v_rsvp.payment_status = 'failed', 'un-marking did not return it to failed';
-  assert v_rsvp.payment_method is null, 'un-marking left a payment method';
-  assert v_rsvp.marked_paid_by is null, 'un-marking left a staff member on the row';
-  assert (select reserved_spots from public.events where id = v_event_id) = 2,
-    'un-marking did not release the seat';
-
-  v_rsvp := public.admin_set_rsvp_payment(v_rsvp.id, false);
-  assert (select reserved_spots from public.events where id = v_event_id) = 2,
-    'un-marking twice released the same seat twice';
-
-  -- A card booking is Stripe's record, not this table's.
-  begin
-    perform public.admin_set_rsvp_payment(
-      (select id from public.rsvps where email = 'ada@example.com'), false);
-    assert false, 'the admin was allowed to edit a card payment';
-  exception when others then
-    v_code := sqlstate;
-  end;
-  assert v_code = 'PA009', format('expected PA009, got %s', v_code);
-
-  -- And an invented method is refused.
-  begin
-    perform public.admin_set_rsvp_payment(v_rsvp.id, true, 'bitcoin');
-    assert false, 'an unknown payment method was accepted';
-  exception when others then
-    v_code := sqlstate;
-  end;
-  assert v_code = 'PA010', format('expected PA010, got %s', v_code);
-
-  perform set_config('request.jwt.claims', '', true);
-  raise notice '11. cash, waiver, undo and the card refusal OK';
-end $$;
-
--- ===========================================================================
 -- 12. Nothing changed for a free event, or one paid at the door
 -- ===========================================================================
 do $$
@@ -448,38 +369,7 @@ begin
   assert (select reserved_spots from public.events where id = v_event_id) = 3,
     'the sweep changed the count on a door-fee event';
 
-  raise notice '12. unpriced and door-fee bookings unchanged OK';
-end $$;
-
--- ===========================================================================
--- 13. Cash recorded for a door fee keeps its seat and stays not_required
--- ===========================================================================
-do $$
-declare
-  v_admin    uuid := '00000000-0000-4000-8000-00000000ad01';
-  v_event_id uuid;
-  v_rsvp     public.rsvps;
-begin
-  perform set_config('request.jwt.claims', json_build_object('sub', v_admin)::text, true);
-
-  select id into v_event_id from public.events where title = 'TEST door fee dinner';
-  select * into v_rsvp from public.rsvps where email = 'katherine@example.com';
-
-  v_rsvp := public.admin_set_rsvp_payment(v_rsvp.id, true, 'cash');
-  assert v_rsvp.payment_status = 'paid', 'the door fee was not recorded';
-  assert (select reserved_spots from public.events where id = v_event_id) = 3,
-    'recording a door fee changed the seat count';
-
-  -- Un-marking returns it to not_required, not failed: the booking was never
-  -- contingent on a payment, so it keeps its seats.
-  v_rsvp := public.admin_set_rsvp_payment(v_rsvp.id, false);
-  assert v_rsvp.payment_status = 'not_required',
-    format('expected not_required, got %s', v_rsvp.payment_status);
-  assert (select reserved_spots from public.events where id = v_event_id) = 3,
-    'un-marking a door fee released a seat that was never contingent on it';
-
-  perform set_config('request.jwt.claims', '', true);
-  raise notice '13. door-fee cash keeps its seat OK';
+  raise notice '11. an event this site takes no money for is unchanged OK';
 end $$;
 
 -- ===========================================================================
@@ -538,12 +428,16 @@ begin
   assert (select count(*) from pg_proc p join pg_namespace n on n.oid = p.pronamespace
            where n.nspname = 'public'
              and p.proname in ('mark_rsvp_paid', 'release_rsvp_hold', 'mark_rsvp_refunded',
-                               'release_expired_rsvp_holds', 'admin_set_rsvp_payment')) = 5,
-    'not all five payment functions exist';
+                               'release_expired_rsvp_holds')) = 4,
+    'not all four payment functions exist';
   assert (select count(*) from pg_trigger
            where tgrelid = 'public.rsvps'::regclass
              and tgname in ('send_rsvp_confirmation', 'send_rsvp_confirmation_on_payment')) = 2,
     'both confirmation triggers are not in place';
+  assert (select count(*) from information_schema.columns
+           where table_schema = 'public' and table_name = 'rsvps'
+             and column_name = 'marked_paid_by') = 0,
+    'marked_paid_by survived -- it only ever recorded a manual payment';
   assert (select count(*) from pg_proc p join pg_namespace n on n.oid = p.pronamespace
            where n.nspname = 'public' and p.proname = 'create_rsvp' and p.pronargs = 8) = 1,
     'create_rsvp is not the single 8-argument version';
@@ -555,7 +449,5 @@ end $$;
 delete from public.rsvps where email in ('ada@example.com', 'grace@example.com',
   'katherine@example.com', 'mary@example.com', 'dorothy@example.com');
 delete from public.events where title in ('TEST prepaid workshop', 'TEST door fee dinner');
-delete from public.profiles where id = '00000000-0000-4000-8000-00000000ad01';
-delete from auth.users where id = '00000000-0000-4000-8000-00000000ad01';
 
 \echo 'ALL TICKET TESTS PASSED'

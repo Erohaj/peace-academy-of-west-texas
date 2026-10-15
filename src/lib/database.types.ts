@@ -29,7 +29,8 @@ export type RsvpPaymentStatusRow =
   | 'paid'
   | 'failed'
   | 'refunded';
-export type RsvpPaymentMethodRow = 'card' | 'cash' | 'check' | 'waived';
+// Only one value: Stripe is the single way this site takes money for a seat.
+export type RsvpPaymentMethodRow = 'card';
 export type ProfileRoleRow = 'volunteer' | 'admin';
 export type AttendanceRow = 'attended' | 'no_show';
 export type ServiceSourceRow = 'shift' | 'manual';
@@ -187,9 +188,6 @@ export interface Database {
           // When a pending booking gives its seats back. Null on every other
           // status — a CHECK constraint requires one only while pending.
           hold_expires_at: string | null;
-          // The admin who recorded a cash, cheque or waived fee. Null on
-          // anything Stripe settled.
-          marked_paid_by: string | null;
           created_at: string;
         };
         // Direct inserts are revoked; RSVPs are created through create_rsvp().
@@ -677,25 +675,12 @@ export interface Database {
         Returns: Database['public']['Tables']['rsvps']['Row'];
       };
       /**
-       * Records a fee taken in cash or by cheque, waives one, or undoes
-       * either. Admin only (it checks `is_admin()` itself) and it refuses any
-       * booking Stripe settled — those are corrected in Stripe, and the
-       * webhook brings the correction back.
-       *
-       * The other payment functions — mark_rsvp_paid, release_rsvp_hold,
+       * The payment functions — mark_rsvp_paid, release_rsvp_hold,
        * mark_rsvp_refunded, release_expired_rsvp_holds — are deliberately
        * absent from this file. EXECUTE on them is revoked from anon and
        * authenticated, so the browser could not call them if it tried; they
        * belong to the Edge Functions and to create_rsvp.
        */
-      admin_set_rsvp_payment: {
-        Args: {
-          p_rsvp_id: string;
-          p_paid: boolean;
-          p_method?: RsvpPaymentMethodRow | null;
-        };
-        Returns: Database['public']['Tables']['rsvps']['Row'];
-      };
       is_admin: {
         Args: Record<string, never>;
         Returns: boolean;

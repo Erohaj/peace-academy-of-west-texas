@@ -130,10 +130,9 @@ Deno.serve(async (req) => {
         footer: '¿Cambiaron tus planes? Responde a este correo y liberaremos tu lugar.',
         paidHeading: 'Comprobante de pago',
         paidAmount: 'Pagado',
-        paidWaived: 'Cuota exonerada',
         paidConfirmation: 'N.º de confirmación',
         paidMethod: 'Método',
-        paidMethods: { card: 'Tarjeta', cash: 'Efectivo', check: 'Cheque', waived: 'Exonerado' },
+        paidMethodCard: 'Tarjeta',
         paidNote:
           'Este es el comprobante del pago de tu entrada al evento. Como recibes ' +
           'la entrada a cambio, no se trata de un donativo deducible de impuestos.'
@@ -150,10 +149,9 @@ Deno.serve(async (req) => {
         footer: "Plans changed? Just reply to this email and we'll free up your spot.",
         paidHeading: 'Payment confirmation',
         paidAmount: 'Paid',
-        paidWaived: 'Fee waived',
         paidConfirmation: 'Confirmation #',
         paidMethod: 'Method',
-        paidMethods: { card: 'Card', cash: 'Cash', check: 'Check', waived: 'Waived' },
+        paidMethodCard: 'Card',
         paidNote:
           'This is the confirmation of your payment for admission to this event. ' +
           'Because you receive admission in return, it is not a tax-deductible donation.'
@@ -235,10 +233,9 @@ Deno.serve(async (req) => {
 interface PaidCopy {
   paidHeading: string;
   paidAmount: string;
-  paidWaived: string;
   paidConfirmation: string;
   paidMethod: string;
-  paidMethods: Record<string, string>;
+  paidMethodCard: string;
   paidNote: string;
 }
 
@@ -250,31 +247,13 @@ interface PaidCopy {
  * still how most of them work. Those attendees get the letter they always got.
  */
 function buildPaidBlock(rsvp: RsvpRecord, copy: PaidCopy): string {
-  if (rsvp.payment_status !== 'paid') return '';
+  // Only a Stripe payment ever reaches this state, and only with an amount:
+  // create_rsvp prices every booking it marks for payment. The amount guard is
+  // here because a receipt with no figure on it is worse than no receipt.
+  if (rsvp.payment_status !== 'paid' || rsvp.amount_cents === null) return '';
 
-  const method = rsvp.payment_method ?? 'card';
-  const methodLabel = copy.paidMethods[method] ?? method;
-
-  // Three cases, and conflating any two of them misstates what happened.
-  //
-  // A waived fee is not a payment, so it prints no amount: saying "Paid:
-  // $60.00" to somebody who was waved in would be the organisation's own
-  // record contradicting itself, and the attendee's if they ever had to
-  // produce it.
-  //
-  // A booking with no `amount_cents` was never priced here — that is an event
-  // whose fee is settled at the door — so it can confirm the payment and the
-  // method but has no figure to quote. It must not fall through to the waived
-  // branch, which would tell somebody who just handed over cash that they were
-  // let in free.
-  const amountLine =
-    method === 'waived'
-      ? `<div>${copy.paidWaived}</div>`
-      : rsvp.amount_cents === null
-        ? `<div><strong>${copy.paidAmount}</strong></div>
-           <div>${copy.paidMethod}: ${escapeHtml(methodLabel)}</div>`
-        : `<div><strong>${copy.paidAmount}: ${formatUsd(rsvp.amount_cents)}</strong></div>
-           <div>${copy.paidMethod}: ${escapeHtml(methodLabel)}</div>`;
+  const amountLine = `<div><strong>${copy.paidAmount}: ${formatUsd(rsvp.amount_cents)}</strong></div>
+           <div>${copy.paidMethod}: ${escapeHtml(copy.paidMethodCard)}</div>`;
 
   return `
     <div style="background:#F4F1ED;border:1px solid #E5E0D8;border-radius:12px;padding:16px;font-size:13px;line-height:1.7;margin-top:12px;">
@@ -294,9 +273,7 @@ function describePaymentForOrg(rsvp: RsvpRecord): string {
 
   switch (rsvp.payment_status) {
     case 'paid':
-      return rsvp.payment_method === 'waived'
-        ? 'fee waived'
-        : `${amount ?? 'paid'} — ${rsvp.payment_method ?? 'card'}`;
+      return `${amount ?? 'paid'} — card`;
     case 'pending':
       return `${amount ?? ''} awaiting payment`.trim();
     default:

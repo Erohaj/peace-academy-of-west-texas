@@ -20,11 +20,9 @@ const SQLSTATE_TO_ACTION_ERROR: Record<string, ActionError> = {
   // alternative is showing "something went wrong" for a condition only the
   // organisation can fix.
   PA007: 'payment_unavailable',
-  // PA008 (no such booking), PA009 (that one was settled by card, correct it in
-  // Stripe) and PA010 (unknown payment method) are raised only by
-  // admin_set_rsvp_payment. They are deliberately absent: they are staff
-  // mistakes with staff-specific remedies, and SubmissionsAdmin says what to do
-  // about each one instead of routing them through a visitor's vocabulary.
+  // PA008 (no such booking) is raised only by mark_rsvp_paid, which nothing in
+  // the browser can call. It is deliberately absent, along with the codes that
+  // went with the manual-payment function when that was removed.
   // A shift signup that would exceed spots_total trips the
   // shifts_not_overbooked CHECK constraint inside the sync trigger.
   '23514': 'shift_full',

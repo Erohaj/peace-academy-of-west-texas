@@ -131,35 +131,6 @@ export async function markContactHandled(id: string, handled: boolean): Promise<
 }
 
 /**
- * Records an event fee taken in cash or by cheque, waives one, or undoes
- * either.
- *
- * Goes through the `admin_set_rsvp_payment` RPC rather than an update, because
- * confirming a seat is two writes that must not come apart: the booking's
- * status and `events.reserved_spots`. Direct writes to `rsvps` are revoked
- * from everyone, admins included, for exactly that reason.
- *
- * The function refuses any booking Stripe settled (SQLSTATE PA009). A card
- * payment is mirrored in Stripe's records and on somebody's statement, so
- * correcting one here would make this table disagree with both; the remedy is
- * to refund or capture it in Stripe and let the webhook bring that back.
- */
-export async function setRsvpPayment(
-  rsvpId: string,
-  paid: boolean,
-  method: 'cash' | 'check' | 'waived' = 'cash'
-): Promise<Tables<'rsvps'>> {
-  const { data, error } = await requireSupabase().rpc('admin_set_rsvp_payment', {
-    p_rsvp_id: rsvpId,
-    p_paid: paid,
-    p_method: method
-  });
-
-  if (error) throw error;
-  return data as Tables<'rsvps'>;
-}
-
-/**
  * Permanently removes one contact message.
  *
  * Allowed only for admins, by the RLS policy added in
