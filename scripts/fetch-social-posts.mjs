@@ -89,10 +89,7 @@ async function fetchFacebookPosts() {
       commentsCount: post.comments?.summary?.total_count ?? 0,
       sharesCount: post.shares?.count ?? 0,
       postUrl: post.permalink_url,
-      tags: extractTags(post.message),
-      isLiked: false,
-      isBookmarked: false,
-      commentsList: []
+      tags: extractTags(post.message)
     }));
 }
 
@@ -117,10 +114,7 @@ async function fetchInstagramMedia() {
     commentsCount: media.comments_count ?? 0,
     sharesCount: 0,
     postUrl: media.permalink,
-    tags: extractTags(media.caption),
-    isLiked: false,
-    isBookmarked: false,
-    commentsList: []
+    tags: extractTags(media.caption)
   }));
 }
 

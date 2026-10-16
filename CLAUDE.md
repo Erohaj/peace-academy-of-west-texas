@@ -102,7 +102,7 @@ Pushing to `main` triggers `.github/workflows/deploy.yml`, which runs `npm run b
 
 - **Error handling** — the `ErrorBoundary` class component wraps both the root (`main.tsx`) and the main content region (`App.tsx`).
 
-- **Optional Gemini AI** — `SocialMediaFeed`'s "AI summary" **lazily** `import('@google/genai')` only when an API key exists (guarded `process.env.API_KEY`, falling back to `import.meta.env.VITE_API_KEY`); with no key it shows a hardcoded fallback summary. Keep this lazy — a static import pulls the heavy SDK into the initial bundle.
+- **The social feed is read-only, on purpose.** Cards show the like and comment counts Meta reported at the last fetch and link out to the post; there is no like, comment, bookmark or refresh control, and no AI summary. Those used to exist and none of them reached Meta — a like changed the count in one tab, a comment toasted "Comment posted" and went nowhere, refresh waited 700 ms and claimed to have checked the channels, and with no Gemini key (which cannot safely be in a static bundle anyway) the summary fell back to three invented bullets. Interacting with a post happens on the platform. Do not reintroduce a control the backend cannot honour.
 
 ## Conventions & gotchas
 
