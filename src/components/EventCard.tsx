@@ -6,6 +6,7 @@ import { PAWTXEvent } from '../types';
 import { useAppStore } from '../store/useAppStore';
 import { categoryBadgeClass, categoryLabelKey } from '../lib/eventCategory';
 import { formatEventFee } from '../lib/eventFee';
+import { ShareEventButton } from './ShareEventButton';
 
 interface EventCardProps extends PageTitleProps {
   event: PAWTXEvent;
@@ -146,13 +147,22 @@ export const EventCard: React.FC<EventCardProps> = ({ event, asPageTitle }) => {
             <ArrowRight className="w-4 h-4" />
           </button>
 
-          <button
-            onClick={() => openEventDetails(event)}
-            className="w-full py-2.5 px-6 rounded-full font-bold text-xs uppercase tracking-widest text-graphite bg-parchment hover:bg-warm-taupe border border-warm-taupe transition-colors flex items-center justify-center gap-2 cursor-pointer pawtx-focus"
-          >
-            <Info className="w-3.5 h-3.5 text-olive" />
-            <span>{t('events.viewDetails')}</span>
-          </button>
+          {/* Details and share share a row. Most sharing happens here rather
+              than after registering -- somebody browsing sends an event to a
+              friend who would like it -- but a third full-width button would
+              make every card in the grid taller, so this one is the icon
+              alone. */}
+          <div className="flex gap-2">
+            <button
+              onClick={() => openEventDetails(event)}
+              className="flex-1 py-2.5 px-6 rounded-full font-bold text-xs uppercase tracking-widest text-graphite bg-parchment hover:bg-warm-taupe border border-warm-taupe transition-colors flex items-center justify-center gap-2 cursor-pointer pawtx-focus"
+            >
+              <Info className="w-3.5 h-3.5 text-olive" />
+              <span>{t('events.viewDetails')}</span>
+            </button>
+
+            <ShareEventButton event={event} variant="compact" />
+          </div>
         </div>
 
       </div>
