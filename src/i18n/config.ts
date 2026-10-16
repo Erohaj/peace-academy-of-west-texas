@@ -364,6 +364,16 @@ const resources = {
         languageHeading: "Language / Idioma",
         copyright: "© {{year}} Peace Academy of West Texas. All rights reserved."
       },
+      // Offered on the two screens that confirm a place -- see
+      // ShareEventButton. `message` is what the recipient reads in the chat
+      // app; it has to carry the event itself, because a shared link unfurls
+      // as the organisation rather than as the event.
+      eventShare: {
+        button: "Invite a Friend",
+        copied: "Link Copied",
+        failed: "We couldn't copy the link. The address in your browser bar is the one to send.",
+        message: "{{title}} - {{date}}, {{location}}. Come with me to this Peace Academy of West Texas event."
+      },
       common: {
         loading: "Loading...",
         loadErrorTitle: "We couldn't load this content",
@@ -738,6 +748,12 @@ const resources = {
           "Al servicio de los condados de Ector y Midland con programas de educación cultural y seguridad alimentaria.",
         languageHeading: "Idioma / Language",
         copyright: "© {{year}} Peace Academy of West Texas. Todos los derechos reservados."
+      },
+      eventShare: {
+        button: "Invita a un Amigo",
+        copied: "Enlace Copiado",
+        failed: "No pudimos copiar el enlace. La dirección en tu barra del navegador es la que hay que enviar.",
+        message: "{{title}} - {{date}}, {{location}}. Acompáñame a este evento de Peace Academy of West Texas."
       },
       common: {
         loading: "Cargando...",

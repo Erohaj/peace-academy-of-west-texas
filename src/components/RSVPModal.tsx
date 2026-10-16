@@ -7,6 +7,7 @@ import { formatEventFee } from '../lib/eventFee';
 import { ActionError, MediaConsent } from '../types';
 import { CONTACT_EMAIL, emailEnabled, rsvpDonationEnabled, ticketsEnabled } from '../lib/features';
 import { ModalShell } from './ModalShell';
+import { ShareEventButton } from './ShareEventButton';
 
 const TITLE_ID = 'rsvp-modal-title';
 
@@ -635,7 +636,7 @@ export const RSVPModal: React.FC = () => {
                 </div>
               </div>
 
-              {/* Actions: Add to Calendar & Pass */}
+              {/* Actions: Add to Calendar, Share & Pass */}
               <div className="flex flex-col gap-2 pt-2">
                 <a
                   href={googleCalendarUrl}
@@ -646,6 +647,11 @@ export const RSVPModal: React.FC = () => {
                   <ExternalLink className="w-4 h-4" />
                   <span>{t('rsvpModal.addToCalendar')}</span>
                 </a>
+
+                {/* Above Close, below the calendar: the attendee's own diary
+                    comes first, but telling somebody else is worth more to the
+                    organisation than the button that dismisses the dialog. */}
+                <ShareEventButton event={selectedEventForRsvp} />
 
                 <button
                   onClick={closeRsvpModal}

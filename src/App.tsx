@@ -13,6 +13,7 @@ import { Gallery } from './components/Gallery';
 import { DonationWidget } from './components/DonationWidget';
 import { RSVPModal } from './components/RSVPModal';
 import { EventDetailsModal } from './components/EventDetailsModal';
+import { clearEventParam, readEventRequest } from './lib/eventShare';
 import { ContactModal } from './components/ContactModal';
 import { SearchModal } from './components/SearchModal';
 import { TicketReturn } from './components/TicketReturn';
@@ -53,8 +54,17 @@ const LINKABLE_TABS: ActiveTab[] = [
 ];
 
 export const App: React.FC = () => {
-  const { activeTab, setActiveTab, initialize, dataStatus, dataError, refreshContent, language } =
-    useAppStore();
+  const {
+    activeTab,
+    setActiveTab,
+    initialize,
+    dataStatus,
+    dataError,
+    refreshContent,
+    language,
+    events,
+    openEventDetails
+  } = useAppStore();
   const [isContactOpen, setIsContactOpen] = useState(false);
   const { t } = useTranslation();
 
@@ -65,6 +75,11 @@ export const App: React.FC = () => {
       ? null
       : new URLSearchParams(window.location.search).get('verify')
   );
+
+  // ?event=<id> — the address the share button hands out. Read during render
+  // like the two above, and held in state because it has to be given up once
+  // acted on; see the effect further down for why it cannot act immediately.
+  const [eventRequest, setEventRequest] = useState(() => readEventRequest());
 
   // The Stripe return is read here, once, and handed down — see the effect
   // below. Read during render for the same reason as `verifyRequest`.
@@ -118,6 +133,29 @@ export const App: React.FC = () => {
   useEffect(() => {
     if (verifyRequest) setActiveTab('verify');
   }, [verifyRequest, setActiveTab]);
+
+  /**
+   * Opens the event a shared link asked for.
+   *
+   * Waits for the content, because an id means nothing until there are events
+   * to match it against -- on a cold load this effect runs first with an empty
+   * list, and `initialize` filling it is what brings it back.
+   *
+   * The parameter is given up either way. An id that matches nothing is an
+   * event taken down since the link was sent, and the events tab is the honest
+   * answer to that; keeping the parameter would only re-run the lookup on
+   * every render and ride along in whatever the recipient shares next.
+   */
+  useEffect(() => {
+    if (!eventRequest || dataStatus !== 'ready') return;
+
+    const match = events.find((candidate) => candidate.id === eventRequest);
+    setActiveTab('events');
+    if (match) openEventDetails(match);
+
+    setEventRequest(null);
+    clearEventParam();
+  }, [eventRequest, dataStatus, events, setActiveTab, openEventDetails]);
 
   // Bookmarkable section links, e.g. .../#admin — the admin panel is otherwise
   // reachable only through a footer link that appears after signing in, which
