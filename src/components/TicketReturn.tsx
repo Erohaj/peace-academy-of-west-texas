@@ -7,6 +7,7 @@ import type { TicketReturn as TicketReturnParams } from '../lib/ticketReturn';
 import { CONTACT_EMAIL } from '../lib/features';
 import { useAppStore } from '../store/useAppStore';
 import { getGoogleCalendarUrl } from '../lib/eventDates';
+import { ShareEventButton } from './ShareEventButton';
 
 const TITLE_ID = 'ticket-return-title';
 
@@ -233,6 +234,11 @@ export const TicketReturn: React.FC<TicketReturnProps> = ({ params, onClose }) =
               <span>{t('rsvpModal.addToCalendar')}</span>
             </a>
           )}
+
+          {/* Same offer as the free path's success screen. Gated on `isPaid`
+              beside the calendar link for the same reason: while the payment
+              is still going through there is no place to invite anyone to. */}
+          {isPaid && event && <ShareEventButton event={event} />}
 
           <button
             onClick={onClose}
