@@ -11,22 +11,22 @@ import {
   MessageCircle,
   Share2,
   ExternalLink,
-  RefreshCw,
-  Sparkles,
   CheckCircle2,
-  Send,
   X as CloseIcon,
   Globe,
   Radio,
   SlidersHorizontal,
-  Bookmark,
-  ArrowUp
+  Play
 } from 'lucide-react';
-import { SocialPost, SocialPlatform, SocialPostComment } from '../types';
+import { SocialPost, SocialPlatform } from '../types';
 import { INITIAL_SOCIAL_POSTS } from '../data/socialPosts';
 import { useAppStore } from '../store/useAppStore';
 import { AnimatedSection } from './AnimatedSection';
 import { formatRelativeTime } from '../lib/relativeTime';
+import { ModalShell } from './ModalShell';
+import logoImg from '../assets/logo.webp';
+
+const LIGHTBOX_TITLE_ID = 'social-lightbox-title';
 
 export const SocialMediaFeed: React.FC<PageTitleProps> = ({ asPageTitle }) => {
   const Title = titleTag(asPageTitle);
@@ -36,7 +36,6 @@ export const SocialMediaFeed: React.FC<PageTitleProps> = ({ asPageTitle }) => {
 
   const [posts, setPosts] = useState<SocialPost[]>(INITIAL_SOCIAL_POSTS);
   const [selectedPlatform, setSelectedPlatform] = useState<SocialPlatform>('all');
-  const [isFetching, setIsFetching] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   // Load real Instagram/Facebook posts written by the fetch-social GitHub
@@ -77,16 +76,8 @@ export const SocialMediaFeed: React.FC<PageTitleProps> = ({ asPageTitle }) => {
     };
   }, []);
 
-  // Active Comment Drawer state
-  const [expandedCommentPostId, setExpandedCommentPostId] = useState<string | null>(null);
-  const [commentInput, setCommentInput] = useState('');
-
   // Media Modal state
   const [previewMediaPost, setPreviewMediaPost] = useState<SocialPost | null>(null);
-
-  // AI Summary State
-  const [aiSummary, setAiSummary] = useState<string | null>(null);
-  const [isGeneratingAiSummary, setIsGeneratingAiSummary] = useState(false);
 
   // Filter posts
   const filteredPosts = useMemo(() => {
@@ -95,9 +86,9 @@ export const SocialMediaFeed: React.FC<PageTitleProps> = ({ asPageTitle }) => {
   }, [posts, selectedPlatform]);
 
   // Until the Meta integration is connected there is nothing real to show, and
-  // the controls below all act on posts — summarising, re-fetching and
-  // filtering an empty feed are dead buttons that make the section look broken
-  // rather than unfinished. The follow banner stays: those links are real.
+  // the filters below act on posts — filtering an empty feed is a dead button
+  // that makes the section look broken rather than unfinished. The follow
+  // banner stays: those links are real.
   const hasPosts = posts.length > 0;
 
   const showToast = (msg: string) => {
@@ -107,139 +98,26 @@ export const SocialMediaFeed: React.FC<PageTitleProps> = ({ asPageTitle }) => {
     }, 3000);
   };
 
-  // Simulate Fetching latest posts
-  const handleFetchLatest = () => {
-    setIsFetching(true);
-    setTimeout(() => {
-      setIsFetching(false);
-      showToast(
-        language === 'es'
-          ? '¡Feed actualizado! Se han verificado las últimas publicaciones.'
-          : 'Social feed updated! Checked latest channels.'
-      );
-    }, 700);
-  };
-
-  // Toggle Like
-  const handleToggleLike = (postId: string) => {
-    setPosts((prev) =>
-      prev.map((post) => {
-        if (post.id === postId) {
-          const newIsLiked = !post.isLiked;
-          return {
-            ...post,
-            isLiked: newIsLiked,
-            likesCount: newIsLiked ? post.likesCount + 1 : post.likesCount - 1
-          };
-        }
-        return post;
-      })
-    );
-  };
-
-  // Toggle Bookmark
-  const handleToggleBookmark = (postId: string) => {
-    setPosts((prev) =>
-      prev.map((post) => {
-        if (post.id === postId) {
-          const newBookmarked = !post.isBookmarked;
-          showToast(
-            newBookmarked
-              ? language === 'es' ? 'Publicación guardada' : 'Post saved to bookmarks'
-              : language === 'es' ? 'Publicación eliminada de guardados' : 'Post removed from bookmarks'
-          );
-          return { ...post, isBookmarked: newBookmarked };
-        }
-        return post;
-      })
-    );
-  };
-
-  // Copy share link
+  // The only action a card offers on this page. Liking, commenting and saving
+  // used to be here too, and none of them reached Meta: a like bumped the real
+  // count in this tab only, and a comment toasted "Comment posted" under a
+  // stock-photo avatar and went nowhere. On real posts that reads as having
+  // commented on the org's Instagram. They happen on the platform now, behind
+  // the external link; the counts stay, read-only, as last fetched.
   const handleShare = (postUrl: string) => {
-    navigator.clipboard.writeText(postUrl);
-    showToast(t('social.shareCopied'));
+    navigator.clipboard
+      .writeText(postUrl)
+      .then(() => showToast(t('social.shareCopied')))
+      .catch(() => window.open(postUrl, '_blank', 'noopener,noreferrer'));
   };
 
-  // Add Comment
-  const handleAddComment = (postId: string) => {
-    if (!commentInput.trim()) return;
-
-    const newComment: SocialPostComment = {
-      id: `comm-${Date.now()}`,
-      authorName: 'Community Member',
-      authorAvatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=100&q=80',
-      text: commentInput.trim(),
-      createdAt: language === 'es' ? 'Ahora mismo' : 'Just now'
-    };
-
-    setPosts((prev) =>
-      prev.map((post) => {
-        if (post.id === postId) {
-          const currentList = post.commentsList || [];
-          return {
-            ...post,
-            commentsCount: post.commentsCount + 1,
-            commentsList: [newComment, ...currentList]
-          };
-        }
-        return post;
-      })
-    );
-
-    setCommentInput('');
-    showToast(language === 'es' ? 'Comentario publicado' : 'Comment posted');
-  };
-
-  // AI Gemini Social Pulse Summarizer
-  const handleGenerateAiSummary = async () => {
-    setIsGeneratingAiSummary(true);
-    setAiSummary(null);
-
-    const postContents = posts.map((p) => `[${p.platform.toUpperCase()}] ${p.content}`).join('\n');
-
-    try {
-      const apiKey =
-        (typeof process !== 'undefined' ? process.env?.API_KEY : undefined) ||
-        (import.meta as any).env?.VITE_API_KEY ||
-        '';
-      if (apiKey) {
-        // Lazily load the Gemini SDK only when actually needed (keeps it out of the initial bundle)
-        const { GoogleGenAI } = await import('@google/genai');
-        const ai = new GoogleGenAI({ apiKey });
-        const response = await ai.models.generateContent({
-          model: 'gemini-2.5-flash',
-          contents: `Summarize the following social media posts from Peace Academy of West Texas into 3 bullet points highlighting recent events, achievements, and community announcements. Format as clean bullet points without markdown bold symbols. Language: ${language === 'es' ? 'Spanish' : 'English'}.\n\nPosts:\n${postContents}`
-        });
-
-        if (response.text) {
-          setAiSummary(response.text);
-          setIsGeneratingAiSummary(false);
-          return;
-        }
-      }
-    } catch (e) {
-      console.warn('Gemini API call skipped or fallback triggered:', e);
-    }
-
-    // Fallback if API key unavailable or failed
-    setTimeout(() => {
-      if (language === 'es') {
-        setAiSummary(
-          '• Taller de Cocina Internacional de Odessa: Gran éxito con 25+ participantes; próxima fecha el 15 de agosto.\n' +
-          '• Desfile y Festival de la Herencia 2026: Inscripciones y pases gratuitos ya disponibles para más de 15 pabellones culturales.\n' +
-          '• Impacto de Ayuda Humanitaria: Más de 40 voluntarios entregaron 150+ paquetes de alimento y ropa en Midland.'
-        );
-      } else {
-        setAiSummary(
-          '• Odessa International Cooking Workshop: Sold-out gathering with 25+ community members; next date August 15th.\n' +
-          '• 2026 Heritage Parade & Festival: Free passes and volunteer registration officially open for 15+ cultural pavilions.\n' +
-          '• Community Relief Drive Impact: 40+ volunteers distributed over 150 emergency food and warm coat kits in Midland.'
-        );
-      }
-      setIsGeneratingAiSummary(false);
-    }, 900);
-  };
+  // There was also an AI summary here. With no Gemini key in the build — and
+  // there must not be one, Vite inlines VITE_ variables into the public bundle
+  // — it fell back to three hardcoded bullets about a cooking workshop, a
+  // heritage parade and a relief drive that nobody could source, presented as
+  // a summary of the org's own posts. Beside it sat a refresh button that
+  // waited 700 ms and announced "Checked latest channels" without fetching
+  // anything. Both are gone; the feed refreshes on the fetch-social schedule.
 
   // Helper for platform badge design
   const getPlatformBadge = (platform: SocialPost['platform']) => {
@@ -301,15 +179,13 @@ export const SocialMediaFeed: React.FC<PageTitleProps> = ({ asPageTitle }) => {
         <AnimatedSection direction="down">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-warm-taupe pb-6">
             <div className="space-y-3 max-w-2xl">
-              {/* A pulsing "live" badge over an empty feed claims something
-                  the section cannot back up, so it only appears once there
-                  are real posts behind it. */}
+              {/* Only once there are real posts behind it. It used to say
+                  LIVE SOCIAL STREAM over a pulsing dot, but the feed is a
+                  file rebuilt every six hours, so it no longer claims to be
+                  live either. */}
               {hasPosts && (
                 <div className="inline-flex items-center gap-2 bg-aged-paper border border-warm-taupe px-3.5 py-1.5 rounded-full">
-                  <span className="relative flex h-2.5 w-2.5">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
-                  </span>
+                  <span className="inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500" aria-hidden="true"></span>
                   <span className="text-[11px] font-bold text-terracotta uppercase tracking-wider">
                     {t('social.liveBadge')}
                   </span>
@@ -324,37 +200,6 @@ export const SocialMediaFeed: React.FC<PageTitleProps> = ({ asPageTitle }) => {
               </p>
             </div>
 
-            {/* Action Buttons: AI Summary & Refresh */}
-            {hasPosts && (
-              <div className="flex flex-wrap items-center gap-3">
-                <button
-                  onClick={handleGenerateAiSummary}
-                  disabled={isGeneratingAiSummary}
-                  className="px-4 py-2.5 rounded-full bg-gradient-to-r from-amber-600 via-amber-700 to-amber-800 text-white text-xs font-bold shadow-md hover:shadow-lg transition-all flex items-center gap-2 cursor-pointer disabled:opacity-60"
-                >
-                  <Sparkles className={`w-4 h-4 ${isGeneratingAiSummary ? 'animate-spin' : ''}`} />
-                  <span>{isGeneratingAiSummary ? t('social.aiSummarizing') : t('social.aiSummarizeBtn')}</span>
-                </button>
-
-                <button
-                  onClick={handleFetchLatest}
-                  disabled={isFetching}
-                  className="px-4 py-2.5 rounded-full bg-parchment border border-warm-taupe text-graphite hover:bg-white text-xs font-bold shadow-xs transition-all flex items-center gap-2 cursor-pointer"
-                >
-                  <RefreshCw className={`w-3.5 h-3.5 text-terracotta ${isFetching ? 'animate-spin' : ''}`} />
-                  <span>{isFetching ? t('social.fetching') : t('social.refreshFeed')}</span>
-                </button>
-
-                <button
-                  onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-                  className="px-3.5 py-2.5 rounded-full bg-parchment border border-warm-taupe text-charcoal hover:text-graphite hover:bg-white text-xs font-bold shadow-xs transition-all flex items-center gap-1.5 cursor-pointer"
-                  title="Scroll to Top"
-                >
-                  <ArrowUp className="w-3.5 h-3.5 text-terracotta" />
-                  <span className="hidden sm:inline">{language === 'es' ? 'Ir Arriba' : 'Top'}</span>
-                </button>
-              </div>
-            )}
           </div>
         </AnimatedSection>
 
@@ -422,32 +267,6 @@ export const SocialMediaFeed: React.FC<PageTitleProps> = ({ asPageTitle }) => {
           </div>
         </AnimatedSection>
 
-        {/* Gemini AI Social Pulse Summary Card */}
-        {aiSummary && (
-          <AnimatedSection direction="fade">
-            <div className="bg-gradient-to-r from-[#FFFDF9] via-[#FAF6EE] to-[#F4EDE0] border border-amber-200/80 rounded-3xl p-6 shadow-sm relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-amber-400/10 rounded-full blur-2xl pointer-events-none" />
-              <div className="flex items-start justify-between gap-4">
-                <div className="space-y-3">
-                  <div className="flex items-center gap-2 text-amber-800 text-xs font-bold tracking-wider uppercase">
-                    <Sparkles className="w-4 h-4 text-amber-600" />
-                    <span>{t('social.aiSummaryTitle')}</span>
-                  </div>
-                  <div className="text-sm text-graphite space-y-2 whitespace-pre-line leading-relaxed font-sans">
-                    {aiSummary}
-                  </div>
-                </div>
-                <button
-                  onClick={() => setAiSummary(null)}
-                  className="p-1.5 text-gray-400 hover:text-gray-600 rounded-full hover:bg-black/5 transition-colors cursor-pointer"
-                >
-                  <CloseIcon className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-          </AnimatedSection>
-        )}
-
         {/* Platform Channel Filter Tabs — icon-only, so they read as controls
             rather than a second set of links next to the follow banner above.
             The channel name stays in title/aria-label: without a visible label
@@ -505,7 +324,6 @@ export const SocialMediaFeed: React.FC<PageTitleProps> = ({ asPageTitle }) => {
             const timeAgo =
               formatRelativeTime(post.publishedAt, language) ||
               (language === 'es' ? post.publishedAtRelativeEs : post.publishedAtRelative);
-            const isCommentsExpanded = expandedCommentPostId === post.id;
 
             return (
               <AnimatedSection key={post.id} direction="up" delayMs={50 + (idx % 3) * 80}>
@@ -515,8 +333,8 @@ export const SocialMediaFeed: React.FC<PageTitleProps> = ({ asPageTitle }) => {
                   <div className="p-5 flex items-center justify-between border-b border-warm-taupe/60 bg-white/40">
                     <div className="flex items-center gap-3">
                       <img
-                        src={post.author.avatarUrl}
-                        alt={post.author.name}
+                        src={post.author.avatarUrl || logoImg}
+                        alt=""
                         loading="lazy"
                         decoding="async"
                         className="w-10 h-10 rounded-full object-cover border border-warm-taupe"
@@ -545,29 +363,33 @@ export const SocialMediaFeed: React.FC<PageTitleProps> = ({ asPageTitle }) => {
 
                   {/* Post Media Preview */}
                   {post.mediaUrl && (
-                    <div
+                    <button
+                      type="button"
                       onClick={() => setPreviewMediaPost(post)}
-                      className="relative h-60 bg-warm-taupe overflow-hidden cursor-pointer group/media"
+                      aria-label={t('social.expandMedia')}
+                      className="relative block w-full h-60 bg-warm-taupe overflow-hidden cursor-pointer group/media pawtx-focus"
                     >
                       <img
                         src={post.mediaUrl}
-                        alt="Social Media Preview"
+                        alt=""
                         loading="lazy"
                         decoding="async"
                         className="w-full h-full object-cover group-hover/media:scale-105 transition-transform duration-500"
                       />
-                      <div className="absolute inset-0 bg-black/20 opacity-0 group-hover/media:opacity-100 transition-opacity flex items-center justify-center">
+                      <span className="absolute inset-0 bg-black/20 opacity-0 group-hover/media:opacity-100 group-focus-visible/media:opacity-100 transition-opacity flex items-center justify-center">
                         <span className="bg-white/90 text-graphite text-xs font-bold px-3 py-1.5 rounded-full shadow-md backdrop-blur-sm">
-                          {language === 'es' ? 'Ver Multimedia' : 'Expand Media'}
+                          {t('social.expandMedia')}
                         </span>
-                      </div>
+                      </span>
+                      {/* Instagram reels are videos too, so a play glyph rather
+                          than the YouTube logo this used to carry. */}
                       {post.mediaType === 'video' && (
-                        <div className="absolute bottom-3 right-3 bg-red-600/90 text-white px-2.5 py-1 rounded-md text-[10px] font-bold flex items-center gap-1 shadow-md">
-                          <Youtube className="w-3 h-3" />
-                          <span>VIDEO</span>
-                        </div>
+                        <span className="absolute bottom-3 right-3 bg-black/75 text-white px-2.5 py-1 rounded-md text-[10px] font-bold flex items-center gap-1 shadow-md">
+                          <Play className="w-3 h-3 fill-white" />
+                          <span>{t('social.video')}</span>
+                        </span>
                       )}
-                    </div>
+                    </button>
                   )}
 
                   {/* Post Content Body */}
@@ -587,107 +409,53 @@ export const SocialMediaFeed: React.FC<PageTitleProps> = ({ asPageTitle }) => {
                       </div>
                     )}
 
-                    {/* Engagement Metrics & Interactive Buttons Bar */}
+                    {/* Engagement counts as Meta reported them at the last
+                        fetch — read-only, because nothing on this page can
+                        like or comment on the real post. */}
                     <div className="pt-3 border-t border-warm-taupe flex items-center justify-between text-charcoal">
-                      
-                      {/* Left: Like & Comment Controls */}
-                      <div className="flex items-center gap-4">
-                        <button
-                          onClick={() => handleToggleLike(post.id)}
-                          className={`flex items-center gap-1.5 text-xs font-bold transition-all cursor-pointer ${
-                            post.isLiked ? 'text-[#C10008]' : 'hover:text-[#C10008]'
-                          }`}
+                      <div className="flex items-center gap-4 text-xs font-bold">
+                        <span
+                          className="flex items-center gap-1.5"
+                          role="img"
+                          aria-label={t('social.likesCount', { count: post.likesCount })}
+                          title={t('social.likesCount', { count: post.likesCount })}
                         >
-                          <Heart className={`w-4 h-4 ${post.isLiked ? 'fill-[#C10008] text-[#C10008]' : ''}`} />
-                          <span>{post.likesCount}</span>
-                        </button>
-
-                        <button
-                          onClick={() =>
-                            setExpandedCommentPostId(isCommentsExpanded ? null : post.id)
-                          }
-                          className="flex items-center gap-1.5 text-xs font-bold hover:text-graphite transition-all cursor-pointer"
+                          <Heart className="w-4 h-4" aria-hidden="true" />
+                          <span aria-hidden="true">{post.likesCount}</span>
+                        </span>
+                        <span
+                          className="flex items-center gap-1.5"
+                          role="img"
+                          aria-label={t('social.commentsCount', { count: post.commentsCount })}
+                          title={t('social.commentsCount', { count: post.commentsCount })}
                         >
-                          <MessageCircle className="w-4 h-4" />
-                          <span>{post.commentsCount}</span>
-                        </button>
-
-                        <button
-                          onClick={() => handleShare(post.postUrl)}
-                          className="flex items-center gap-1.5 text-xs font-bold hover:text-graphite transition-all cursor-pointer"
-                          title={t('social.share')}
-                        >
-                          <Share2 className="w-4 h-4" />
-                        </button>
+                          <MessageCircle className="w-4 h-4" aria-hidden="true" />
+                          <span aria-hidden="true">{post.commentsCount}</span>
+                        </span>
                       </div>
 
-                      {/* Right: Save & External Link */}
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-1">
                         <button
-                          onClick={() => handleToggleBookmark(post.id)}
-                          className={`p-1.5 rounded-full hover:bg-black/5 transition-colors cursor-pointer ${
-                            post.isBookmarked ? 'text-terracotta' : ''
-                          }`}
-                          title="Bookmark"
+                          type="button"
+                          onClick={() => handleShare(post.postUrl)}
+                          className="p-1.5 rounded-full hover:bg-black/5 hover:text-graphite transition-colors cursor-pointer pawtx-focus"
+                          title={t('social.share')}
+                          aria-label={t('social.share')}
                         >
-                          <Bookmark className={`w-4 h-4 ${post.isBookmarked ? 'fill-terracotta' : ''}`} />
+                          <Share2 className="w-4 h-4" />
                         </button>
 
                         <a
                           href={post.postUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="p-1.5 rounded-full hover:bg-black/5 text-charcoal hover:text-graphite transition-colors"
-                          title={t('social.viewPost')}
+                          className="px-3 py-1.5 rounded-full hover:bg-black/5 text-xs font-bold text-terracotta-deep hover:text-graphite transition-colors flex items-center gap-1.5 pawtx-focus"
                         >
-                          <ExternalLink className="w-4 h-4" />
+                          <span>{t('social.viewOn', { platform: badge.label })}</span>
+                          <ExternalLink className="w-3.5 h-3.5" aria-hidden="true" />
                         </a>
                       </div>
                     </div>
-
-                    {/* Inline Comment Drawer */}
-                    {isCommentsExpanded && (
-                      <div className="pt-3 border-t border-warm-taupe space-y-3 bg-parchment p-3 rounded-2xl">
-                        <div className="flex items-center justify-between text-[11px] font-bold text-graphite">
-                          <span>{t('social.commentsTitle', { count: post.commentsCount })}</span>
-                        </div>
-
-                        {/* Existing Comments List */}
-                        <div className="max-h-36 overflow-y-auto space-y-2 pr-1 text-[11px]">
-                          {post.commentsList && post.commentsList.length > 0 ? (
-                            post.commentsList.map((comm) => (
-                              <div key={comm.id} className="bg-white p-2.5 rounded-xl border border-warm-taupe/60 space-y-1">
-                                <div className="flex items-center justify-between font-bold text-graphite">
-                                  <span>{comm.authorName}</span>
-                                  <span className="text-[9px] text-charcoal font-normal">{comm.createdAt}</span>
-                                </div>
-                                <p className="text-graphite">{comm.text}</p>
-                              </div>
-                            ))
-                          ) : (
-                            <p className="text-charcoal italic">{t('social.noCommentsYet')}</p>
-                          )}
-                        </div>
-
-                        {/* Add Comment Input */}
-                        <div className="flex items-center gap-2 pt-1">
-                          <input
-                            type="text"
-                            value={commentInput}
-                            onChange={(e) => setCommentInput(e.target.value)}
-                            onKeyDown={(e) => e.key === 'Enter' && handleAddComment(post.id)}
-                            placeholder={t('social.addCommentPlaceholder')}
-                            className="flex-1 bg-white border border-warm-taupe rounded-full px-3 py-1.5 text-xs pawtx-focus focus:border-terracotta"
-                          />
-                          <button
-                            onClick={() => handleAddComment(post.id)}
-                            className="p-1.5 bg-terracotta text-white rounded-full hover:bg-terracotta-deep transition-colors cursor-pointer"
-                          >
-                            <Send className="w-3.5 h-3.5" />
-                          </button>
-                        </div>
-                      </div>
-                    )}
 
                   </div>
                 </div>
@@ -697,41 +465,47 @@ export const SocialMediaFeed: React.FC<PageTitleProps> = ({ asPageTitle }) => {
         </div>
         )}
 
-        {/* Media Lightbox Modal */}
-        {previewMediaPost && (
-          <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-            <div className="bg-parchment rounded-3xl overflow-hidden max-w-3xl w-full max-h-[90vh] flex flex-col border border-warm-taupe shadow-2xl relative">
-              
-              {/* Modal Close Button */}
+        {/* Media lightbox — ModalShell, so it has the Escape, click-outside,
+            focus trap and scroll lock the site's other overlays have. */}
+        <ModalShell
+          isOpen={previewMediaPost !== null}
+          onClose={() => setPreviewMediaPost(null)}
+          labelledBy={LIGHTBOX_TITLE_ID}
+          panelClassName="max-w-3xl w-full max-h-[90vh] flex flex-col overflow-hidden"
+        >
+          {previewMediaPost && (
+            <>
               <button
+                type="button"
                 onClick={() => setPreviewMediaPost(null)}
-                className="absolute top-4 right-4 z-10 p-2 bg-black/60 hover:bg-black text-white rounded-full transition-colors cursor-pointer"
+                aria-label={t('social.close')}
+                className="absolute top-4 right-4 z-10 p-2 bg-black/60 hover:bg-black text-white rounded-full transition-colors cursor-pointer pawtx-focus"
               >
                 <CloseIcon className="w-5 h-5" />
               </button>
 
-              {/* Media Content */}
               <div className="bg-black flex items-center justify-center max-h-[60vh] overflow-hidden">
                 <img
                   src={previewMediaPost.mediaUrl}
-                  alt="Full Media View"
+                  alt=""
                   className="max-h-[60vh] w-auto object-contain"
                 />
               </div>
 
-              {/* Caption details */}
               <div className="p-6 space-y-4 overflow-y-auto">
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between gap-4">
                   <div className="flex items-center gap-3">
                     <img
-                      src={previewMediaPost.author.avatarUrl}
-                      alt={previewMediaPost.author.name}
+                      src={previewMediaPost.author.avatarUrl || logoImg}
+                      alt=""
                       loading="lazy"
                       decoding="async"
                       className="w-10 h-10 rounded-full border border-warm-taupe"
                     />
                     <div>
-                      <div className="font-bold text-sm text-graphite">{previewMediaPost.author.name}</div>
+                      <div id={LIGHTBOX_TITLE_ID} className="font-bold text-sm text-graphite">
+                        {previewMediaPost.author.name}
+                      </div>
                       <div className="text-xs text-[#6B6B69]">{previewMediaPost.author.handle}</div>
                     </div>
                   </div>
@@ -740,21 +514,20 @@ export const SocialMediaFeed: React.FC<PageTitleProps> = ({ asPageTitle }) => {
                     href={previewMediaPost.postUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="px-4 py-2 rounded-full bg-terracotta text-white text-xs font-bold flex items-center gap-2 hover:bg-terracotta-deep transition-colors"
+                    className="px-4 py-2 rounded-full bg-terracotta text-white text-xs font-bold flex items-center gap-2 hover:bg-terracotta-deep transition-colors shrink-0 pawtx-focus"
                   >
-                    <span>{t('social.viewPost')}</span>
-                    <ExternalLink className="w-3.5 h-3.5" />
+                    <span>{t('social.viewOn', { platform: getPlatformBadge(previewMediaPost.platform).label })}</span>
+                    <ExternalLink className="w-3.5 h-3.5" aria-hidden="true" />
                   </a>
                 </div>
 
-                <p className="text-xs text-graphite leading-relaxed">
+                <p className="text-xs text-graphite leading-relaxed whitespace-pre-line">
                   {language === 'es' ? previewMediaPost.contentEs : previewMediaPost.content}
                 </p>
               </div>
-
-            </div>
-          </div>
-        )}
+            </>
+          )}
+        </ModalShell>
 
       </div>
     </section>

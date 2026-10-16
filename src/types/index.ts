@@ -191,14 +191,6 @@ export type ActionResult = { ok: true; error?: undefined } | { ok: false; error:
 
 export type SocialPlatform = 'all' | 'instagram' | 'facebook' | 'youtube' | 'x';
 
-export interface SocialPostComment {
-  id: string;
-  authorName: string;
-  authorAvatar: string;
-  text: string;
-  createdAt: string;
-}
-
 export interface SocialPost {
   id: string;
   platform: 'instagram' | 'facebook' | 'youtube' | 'x';
@@ -220,7 +212,4 @@ export interface SocialPost {
   sharesCount: number;
   postUrl: string;
   tags?: string[];
-  isLiked?: boolean;
-  isBookmarked?: boolean;
-  commentsList?: SocialPostComment[];
 }
