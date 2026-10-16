@@ -8,6 +8,12 @@ on:
 permissions:
   contents: write
 
+# A manual dispatch landing on top of a scheduled run would otherwise race it
+# to push to main, and the loser fails on a non-fast-forward.
+concurrency:
+  group: fetch-social
+  cancel-in-progress: false
+
 jobs:
   fetch:
     runs-on: ubuntu-latest
@@ -18,7 +24,14 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
+          cache: npm
+
+      # sharp, which converts each post's image to WebP before it is committed.
+      # Meta's own image URLs expire, so the feed serves copies from
+      # public/social-media/ instead.
+      - name: Install dependencies
+        run: npm ci
 
       - name: Fetch latest Facebook & Instagram posts
         env:
@@ -27,10 +40,15 @@ jobs:
           IG_USER_ID: ${{ secrets.IG_USER_ID }}
         run: node scripts/fetch-social-posts.mjs
 
+      # Runs even when the fetch step failed. The script exits non-zero when one
+      # platform's fetch fails -- that is what turns a revoked token into an
+      # email -- but it has still written the other platform's fresh posts and
+      # kept the failed one's previous posts, and that file is worth publishing.
       - name: Commit updated feed
+        if: ${{ !cancelled() }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add public/social-posts.json
+          git add -A public/
           git diff --cached --quiet || git commit -m "chore: refresh social feed"
           git push

@@ -53,6 +53,15 @@ export const SocialMediaFeed: React.FC<PageTitleProps> = ({ asPageTitle }) => {
       .then((res) => (res.ok ? res.json() : []))
       .then((livePosts: SocialPost[]) => {
         if (cancelled || !Array.isArray(livePosts) || livePosts.length === 0) return;
+        // The fetcher stores each image under public/social-media/ and writes
+        // a root-relative path, because Meta's own image URLs expire within
+        // days. Resolved against BASE_URL here, like the JSON itself, so the
+        // feed survives the site moving back under a sub-path.
+        livePosts = livePosts.map((post) =>
+          post.mediaUrl && !/^https?:\/\//.test(post.mediaUrl)
+            ? { ...post, mediaUrl: `${import.meta.env.BASE_URL}${post.mediaUrl}` }
+            : post
+        );
         // Empty today, since INITIAL_SOCIAL_POSTS is. Kept because the merge
         // is what a future hand-written post from a channel the fetcher cannot
         // reach -- YouTube, say -- would need, and it is the Facebook and

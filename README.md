@@ -249,6 +249,18 @@ worse than showing nothing.
 dispatch from the Actions tab), writes the results to `public/social-posts.json`, and commits
 them — the push to `main` then triggers the existing deploy workflow to rebuild and republish.
 
+Two things it does that are easy to undo by accident:
+
+- **Images are copied, not linked.** Meta's image URLs are signed CDN links that stop working
+  within days, so each post's photo is converted to WebP (1000px long edge) and committed under
+  `public/social-media/`, named after the post. A file is written once and never re-encoded, so
+  a refresh that only changes like counts adds no binaries; images of posts that have dropped
+  off the feed are deleted.
+- **A failed fetch keeps the last good posts.** If Facebook or Instagram returns an error — a
+  revoked token, a Graph outage — that platform's previous posts stay in the file and the run
+  is marked **failed**, which is what emails the repository owner. It used to write an empty
+  list instead and stay green, emptying the feed on the live site with nobody told.
+
 To turn it on, add these as **repository secrets** (Settings → Secrets and variables → Actions):
 
 - `FB_PAGE_ACCESS_TOKEN` — a Page access token, derived from a **long-lived** User token so
