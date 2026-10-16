@@ -18,6 +18,7 @@ import { categoryBadgeClass, categoryLabelKey } from '../lib/eventCategory';
 import { formatEventFee } from '../lib/eventFee';
 import { getGoogleCalendarUrl } from '../lib/eventDates';
 import { ModalShell } from './ModalShell';
+import { ShareEventButton } from './ShareEventButton';
 
 const TITLE_ID = 'event-details-title';
 const PHOTO_TITLE_ID = 'event-photo-title';
@@ -283,6 +284,11 @@ export const EventDetailsModal: React.FC = () => {
           <ExternalLink className="w-3.5 h-3.5 text-olive" />
           <span>{t('events.addToCalendar')}</span>
         </a>
+
+        {/* Labelled here, unlike on the card: the two buttons beside it are
+            labelled, and an unexplained icon among them would be the only
+            thing on the screen asking to be guessed at. */}
+        <ShareEventButton event={event} />
       </div>
     </ModalShell>
 

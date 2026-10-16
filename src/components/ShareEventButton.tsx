@@ -5,19 +5,33 @@ import { PAWTXEvent } from '../types';
 import { useAppStore } from '../store/useAppStore';
 import { eventShareUrl, shareEvent, ShareOutcome } from '../lib/eventShare';
 
+interface ShareEventButtonProps {
+  event: PAWTXEvent;
+  /**
+   * `full` is a labelled pill, for the action stacks where the buttons beside
+   * it are labelled too — the confirmation screens and the details dialog.
+   *
+   * `compact` is the icon alone, for the event card: the grid shows these
+   * three to a row, and a third full-width button on each would push the next
+   * row of events further down every screen on the site.
+   */
+  variant?: 'full' | 'compact';
+}
+
 /**
- * "Come with me" — offered on the two screens that confirm a place.
+ * Passing an event on to somebody else.
  *
- * Somebody who has just registered is the one person on the site with a
- * reason to tell a friend, and the moment they are handed a confirmation is
- * the moment they have it. Before this, that impulse had nowhere to go but
- * copying whatever was in the address bar, which pointed at the home page.
- *
- * Shared by the free path's success screen (RSVPModal) and the prepaid path's
- * (TicketReturn), which are the same moment rendered in two places because
- * Stripe takes the browser away in between.
+ * Offered in three places, because sharing happens at two different moments
+ * and they are not the same person's. Someone browsing the events sends one
+ * to a friend who would like it — that is the card and the details dialog.
+ * Someone who has just registered says "come with me" — that is the two
+ * confirmation screens, free and prepaid, which are one moment rendered twice
+ * because Stripe takes the browser away in between.
  */
-export const ShareEventButton: React.FC<{ event: PAWTXEvent }> = ({ event }) => {
+export const ShareEventButton: React.FC<ShareEventButtonProps> = ({
+  event,
+  variant = 'full'
+}) => {
   const { t } = useTranslation();
   const language = useAppStore((state) => state.language);
   const [outcome, setOutcome] = useState<ShareOutcome | null>(null);
@@ -56,18 +70,54 @@ export const ShareEventButton: React.FC<{ event: PAWTXEvent }> = ({ event }) => 
   };
 
   const copied = outcome === 'copied';
+  const failed = outcome === 'failed';
+
+  const Icon = copied ? Check : Share2;
+
+  // The compact button has no label to change, so its accessible name carries
+  // the outcome instead — including the failure, which otherwise has nowhere
+  // to go in a row of card buttons without pushing the grid about.
+  const accessibleName = copied
+    ? t('eventShare.copied')
+    : failed
+      ? t('eventShare.failed')
+      : t('eventShare.button');
+
+  if (variant === 'compact') {
+    return (
+      <>
+        <button
+          type="button"
+          onClick={() => void handleShare()}
+          aria-label={accessibleName}
+          title={accessibleName}
+          className={`shrink-0 px-4 py-2.5 rounded-full border transition-colors cursor-pointer pawtx-focus flex items-center justify-center ${
+            failed
+              ? 'border-terracotta text-terracotta'
+              : 'border-warm-taupe hover:bg-warm-taupe text-graphite'
+          }`}
+        >
+          <Icon
+            className={`w-4 h-4 ${copied ? 'text-olive' : failed ? 'text-terracotta' : 'text-olive'}`}
+            aria-hidden="true"
+          />
+        </button>
+
+        <span role="status" aria-live="polite" className="sr-only">
+          {copied || failed ? accessibleName : ''}
+        </span>
+      </>
+    );
+  }
 
   return (
     <div className="space-y-1.5">
       <button
+        type="button"
         onClick={() => void handleShare()}
-        className="w-full border border-warm-taupe hover:bg-aged-paper text-graphite py-2.5 rounded-full text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-colors cursor-pointer pawtx-focus"
+        className="w-full border border-warm-taupe hover:bg-aged-paper text-graphite py-2.5 px-6 rounded-full text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-colors cursor-pointer pawtx-focus"
       >
-        {copied ? (
-          <Check className="w-4 h-4 text-olive" aria-hidden="true" />
-        ) : (
-          <Share2 className="w-4 h-4 text-olive" aria-hidden="true" />
-        )}
+        <Icon className={`w-4 h-4 ${copied ? 'text-olive' : 'text-olive'}`} aria-hidden="true" />
         <span>{copied ? t('eventShare.copied') : t('eventShare.button')}</span>
       </button>
 
@@ -79,7 +129,7 @@ export const ShareEventButton: React.FC<{ event: PAWTXEvent }> = ({ event }) => 
 
       {/* Failure needs more than a word: there is nothing on the clipboard, so
           it has to say where the link can be got instead. */}
-      {outcome === 'failed' && (
+      {failed && (
         <p className="text-[11px] text-terracotta leading-relaxed text-center">
           {t('eventShare.failed')}
         </p>
