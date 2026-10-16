@@ -74,6 +74,20 @@ const unlockBodyScroll = () => {
   document.body.style.paddingRight = restorePaddingRight;
 };
 
+/*
+ * Which dialog is on top, for Escape.
+ *
+ * Every open dialog listens on `window`, so one press used to reach all of
+ * them: opening an event's poster over its details and pressing Escape shut
+ * both, landing the reader back on the page instead of the event they were
+ * reading. Escape should undo one step, so only the last one opened answers.
+ *
+ * Dialogs that do not close on Escape still take their place in the stack —
+ * being on top is what makes them shield the one underneath, whether or not
+ * they choose to close themselves.
+ */
+const dialogStack: object[] = [];
+
 export const useDialog = ({
   isOpen,
   onClose,
@@ -84,6 +98,8 @@ export const useDialog = ({
 }: UseDialogOptions) => {
   const panelRef = useRef<HTMLDivElement>(null);
   const returnFocusTo = useRef<Element | null>(null);
+  // Identity only — this hook's seat in the stack above.
+  const token = useRef({}).current;
 
   // Lock the page, remember where focus came from, and give it back on close.
   useEffect(() => {
@@ -91,6 +107,7 @@ export const useDialog = ({
 
     returnFocusTo.current = document.activeElement;
     lockBodyScroll();
+    dialogStack.push(token);
 
     // Once, on open — not on every render. The RSVP modal re-renders on each
     // keystroke and changes step four times; re-focusing here would yank the
@@ -98,23 +115,30 @@ export const useDialog = ({
     if (moveFocus) panelRef.current?.focus({preventScroll: true});
 
     return () => {
+      const seat = dialogStack.lastIndexOf(token);
+      if (seat !== -1) dialogStack.splice(seat, 1);
+
       unlockBodyScroll();
       const target = returnFocusTo.current;
       if (target instanceof HTMLElement && document.contains(target)) {
         target.focus({preventScroll: true});
       }
     };
-  }, [isOpen, moveFocus]);
+  }, [isOpen, moveFocus, token]);
 
   useEffect(() => {
     if (!isOpen || !closeOnEscape) return;
 
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') onClose();
+      if (event.key !== 'Escape') return;
+      // Read at press time, not at subscribe time: a dialog opened over this
+      // one after the listener was attached is the one that should answer.
+      if (dialogStack[dialogStack.length - 1] !== token) return;
+      onClose();
     };
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
-  }, [isOpen, closeOnEscape, onClose]);
+  }, [isOpen, closeOnEscape, onClose, token]);
 
   // Tab and Shift+Tab wrap inside the panel. Without this, tabbing past the
   // last control walks into the page behind the dialog, which a sighted mouse
