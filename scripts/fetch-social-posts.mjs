@@ -5,7 +5,7 @@
 // .github/workflows/fetch-social.yml; committing the output triggers the
 // existing deploy.yml (push to main) so the site republishes automatically.
 
-import { writeFile } from 'node:fs/promises';
+import { access, mkdir, readdir, readFile, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
 // v21.0 was current when this was written and sunsets on 21 January 2027.
@@ -16,6 +16,10 @@ import path from 'node:path';
 // commit.
 const GRAPH_VERSION = process.env.META_GRAPH_VERSION || 'v26.0';
 const OUTPUT_PATH = path.resolve(process.cwd(), 'public/social-posts.json');
+const MEDIA_DIR = path.resolve(process.cwd(), 'public/social-media');
+// Relative to the site root; SocialMediaFeed prefixes BASE_URL.
+const MEDIA_PUBLIC_PREFIX = 'social-media/';
+const MEDIA_MAX_EDGE = 1000;
 
 const {
   FB_PAGE_ID,
@@ -118,24 +122,122 @@ async function fetchInstagramMedia() {
   }));
 }
 
+async function readPreviousPosts() {
+  try {
+    const posts = JSON.parse(await readFile(OUTPUT_PATH, 'utf-8'));
+    return Array.isArray(posts) ? posts : [];
+  } catch {
+    return [];
+  }
+}
+
+// Meta's image URLs are signed CDN links (scontent-*.fbcdn.net, with an `oe=`
+// expiry in the query string) and stop resolving after a few days. Written
+// into the JSON as they are, every photo in the feed would turn into a broken
+// image the first time the refresh stopped running -- a revoked token, a
+// paused schedule -- while the captions beside them stayed. So each image is
+// copied into public/social-media/ once, as WebP at the size the cards
+// actually render, and the post points at that copy.
+//
+// The file is named after the post id and never rewritten once it exists, so
+// a refresh that only moves the like counts adds no binary churn to the repo.
+async function localiseMedia(post, sharp) {
+  if (!post.mediaUrl || !/^https?:\/\//.test(post.mediaUrl)) return post;
+
+  const fileName = `${post.id.replace(/[^\w-]/g, '_')}.webp`;
+  const filePath = path.join(MEDIA_DIR, fileName);
+  const localUrl = `${MEDIA_PUBLIC_PREFIX}${fileName}`;
+
+  try {
+    await access(filePath);
+    return { ...post, mediaUrl: localUrl };
+  } catch {
+    // Not downloaded yet.
+  }
+
+  try {
+    const res = await fetch(post.mediaUrl);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const original = Buffer.from(await res.arrayBuffer());
+    // Same treatment as scripts/optimize-images.mjs gives the bundled photos:
+    // a 1000px long edge is already more than a feed card or the lightbox
+    // shows, and Instagram serves up to 1440.
+    const webp = await sharp(original)
+      .rotate()
+      .resize(MEDIA_MAX_EDGE, MEDIA_MAX_EDGE, { fit: 'inside', withoutEnlargement: true })
+      .webp({ quality: 80 })
+      .toBuffer();
+    await writeFile(filePath, webp);
+    return { ...post, mediaUrl: localUrl };
+  } catch (err) {
+    // The remote URL still works today; the next run retries the download.
+    console.warn(`Could not store media for ${post.id} (${err.message}); keeping Meta's URL for now.`);
+    return post;
+  }
+}
+
+// Images belonging to posts that have dropped off the end of the feed. Without
+// this public/social-media/ only ever grows, and every file in it ships with
+// each deploy.
+async function pruneMedia(posts) {
+  const referenced = new Set(
+    posts
+      .map((post) => post.mediaUrl)
+      .filter((url) => url && url.startsWith(MEDIA_PUBLIC_PREFIX))
+      .map((url) => url.slice(MEDIA_PUBLIC_PREFIX.length))
+  );
+  const files = await readdir(MEDIA_DIR).catch(() => []);
+  await Promise.all(
+    files.filter((file) => !referenced.has(file)).map((file) => rm(path.join(MEDIA_DIR, file)))
+  );
+}
+
 async function main() {
+  const previous = await readPreviousPosts();
+  const failures = [];
+
+  // A platform whose fetch fails keeps the posts it had. This used to fall
+  // back to an empty list, so one rejected token or one Graph outage wrote
+  // `[]`, the workflow committed it, and the deploy emptied the feed on the
+  // live site -- with the run still green, because the error was caught here.
+  // Now the run is marked failed instead (below), which is what mails the
+  // repository owner, and the site keeps showing the last good posts.
+  const fetchPlatform = async (platform, label, fetcher) => {
+    try {
+      return await fetcher();
+    } catch (err) {
+      failures.push(`${label}: ${err.message}`);
+      return previous.filter((post) => post.platform === platform);
+    }
+  };
+
   const [fbPosts, igPosts] = await Promise.all([
-    fetchFacebookPosts().catch((err) => {
-      console.error('Facebook fetch failed:', err.message);
-      return [];
-    }),
-    fetchInstagramMedia().catch((err) => {
-      console.error('Instagram fetch failed:', err.message);
-      return [];
-    })
+    fetchPlatform('facebook', 'Facebook', fetchFacebookPosts),
+    fetchPlatform('instagram', 'Instagram', fetchInstagramMedia)
   ]);
 
   const merged = [...fbPosts, ...igPosts].sort(
     (a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
   );
 
-  await writeFile(OUTPUT_PATH, JSON.stringify(merged, null, 2) + '\n', 'utf-8');
-  console.log(`Wrote ${merged.length} live posts to ${OUTPUT_PATH}`);
+  // Imported here rather than at the top so the not-configured exit above
+  // does not need node_modules -- sharp is a devDependency.
+  const { default: sharp } = await import('sharp');
+  await mkdir(MEDIA_DIR, { recursive: true });
+  const posts = [];
+  for (const post of merged) {
+    posts.push(await localiseMedia(post, sharp));
+  }
+  await pruneMedia(posts);
+
+  await writeFile(OUTPUT_PATH, JSON.stringify(posts, null, 2) + '\n', 'utf-8');
+  console.log(`Wrote ${posts.length} live posts to ${OUTPUT_PATH}`);
+
+  if (failures.length > 0) {
+    for (const failure of failures) console.error(`Fetch failed -- ${failure}`);
+    console.error('Kept the previous posts for the platform(s) above.');
+    process.exitCode = 1;
+  }
 }
 
 main().catch((err) => {
