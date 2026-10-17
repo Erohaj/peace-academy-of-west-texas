@@ -72,7 +72,15 @@ async function fetchJson(url) {
 
 async function fetchFacebookPosts() {
   if (!FB_PAGE_ID) return [];
-  const fields = 'message,created_time,permalink_url,full_picture,likes.summary(true),comments.summary(true),shares';
+  // reactions, not likes: against the real Page on v26.0, likes.summary(true)
+  // with comments.summary(true) came back with 6 posts for limit=10 and every
+  // comment count at 0, while this asked-for-counts-only form returned all 10
+  // with the comment counts Facebook itself shows. Reactions are also what the
+  // number under a Facebook post counts -- a heart or a laugh is not a like.
+  // .limit(0) asks for the totals without the individual people.
+  const fields =
+    'message,created_time,permalink_url,full_picture,' +
+    'reactions.summary(total_count).limit(0),comments.summary(total_count).limit(0),shares';
   const url = `https://graph.facebook.com/${GRAPH_VERSION}/${FB_PAGE_ID}/posts?fields=${fields}&limit=10&access_token=${FB_PAGE_ACCESS_TOKEN}`;
   const data = await fetchJson(url);
 
@@ -89,7 +97,7 @@ async function fetchFacebookPosts() {
       publishedAt: post.created_time,
       publishedAtRelative: '',
       publishedAtRelativeEs: '',
-      likesCount: post.likes?.summary?.total_count ?? 0,
+      likesCount: post.reactions?.summary?.total_count ?? 0,
       commentsCount: post.comments?.summary?.total_count ?? 0,
       sharesCount: post.shares?.count ?? 0,
       postUrl: post.permalink_url,

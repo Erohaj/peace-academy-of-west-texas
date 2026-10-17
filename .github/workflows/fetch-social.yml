@@ -7,6 +7,8 @@ on:
 
 permissions:
   contents: write
+  # To start deploy.yml once the feed is committed -- see the last step.
+  actions: write
 
 # A manual dispatch landing on top of a scheduled run would otherwise race it
 # to push to main, and the loser fails on a non-fast-forward.
@@ -45,10 +47,29 @@ jobs:
       # email -- but it has still written the other platform's fresh posts and
       # kept the failed one's previous posts, and that file is worth publishing.
       - name: Commit updated feed
+        id: commit
         if: ${{ !cancelled() }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add -A public/
-          git diff --cached --quiet || git commit -m "chore: refresh social feed"
-          git push
+          if git diff --cached --quiet; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            git commit -m "chore: refresh social feed"
+            git push
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      # The push above does not deploy anything by itself. GitHub does not start
+      # workflows for events caused by this job's own GITHUB_TOKEN -- a guard
+      # against workflows triggering each other in a loop -- so deploy.yml's
+      # `on: push` never fires for these commits. The first real fetch, on
+      # 2026-10-17, committed ten Instagram posts to main and the live site went
+      # on showing "not connected yet". workflow_dispatch is the documented
+      # exception to that rule, so the deploy is started explicitly.
+      - name: Deploy the refreshed feed
+        if: ${{ !cancelled() && steps.commit.outputs.changed == 'true' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run deploy.yml --ref main
