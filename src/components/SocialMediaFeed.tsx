@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useLayoutEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { PageTitleProps, subTitleTag, titleTag } from './pageTitle';
 import { ORG_LINKS } from '../data/orgLinks';
@@ -27,6 +27,57 @@ import { ModalShell } from './ModalShell';
 import logoImg from '../assets/logo.webp';
 
 const LIGHTBOX_TITLE_ID = 'social-lightbox-title';
+
+/**
+ * A post caption cut to six lines, with a toggle to read the rest.
+ *
+ * Instagram captions run long — hashtags and all — and a grid row is as tall
+ * as its tallest card, so on the first real fetch one long post stretched its
+ * two neighbours into mostly empty space. The
+ * toggle appears only when the text is actually cut: measured, not guessed
+ * from a character count, because emoji, line breaks and the card width all
+ * change where six lines end. Re-measured on resize for the same reason.
+ */
+const ClampedCaption: React.FC<{ text: string }> = ({ text }) => {
+  const { t } = useTranslation();
+  const ref = useRef<HTMLParagraphElement>(null);
+  const [expanded, setExpanded] = useState(false);
+  const [overflows, setOverflows] = useState(false);
+
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el || expanded) return;
+    const measure = () => setOverflows(el.scrollHeight > el.clientHeight + 1);
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [text, expanded]);
+
+  return (
+    <div className="space-y-1.5">
+      <p
+        ref={ref}
+        className={`text-xs text-graphite leading-relaxed font-sans whitespace-pre-line ${expanded ? '' : 'line-clamp-6'}`}
+      >
+        {/* Collapsed, the blank lines between paragraphs go: six lines is
+            little enough that one of them landing on a gap left the ellipsis
+            alone on its own line. Expanded shows the caption as written. */}
+        {expanded ? text : text.replace(/\n\s*\n/g, '\n')}
+      </p>
+      {(overflows || expanded) && (
+        <button
+          type="button"
+          onClick={() => setExpanded((value) => !value)}
+          aria-expanded={expanded}
+          className="text-xs font-bold text-terracotta-deep hover:text-graphite transition-colors cursor-pointer pawtx-focus rounded"
+        >
+          {expanded ? t('social.showLess') : t('social.readMore')}
+        </button>
+      )}
+    </div>
+  );
+};
 
 export const SocialMediaFeed: React.FC<PageTitleProps> = ({ asPageTitle }) => {
   const Title = titleTag(asPageTitle);
@@ -403,9 +454,7 @@ export const SocialMediaFeed: React.FC<PageTitleProps> = ({ asPageTitle }) => {
 
                   {/* Post Content Body */}
                   <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
-                    <p className="text-xs text-graphite leading-relaxed font-sans whitespace-pre-line">
-                      {contentText}
-                    </p>
+                    <ClampedCaption text={contentText} />
 
                     {/* Tags */}
                     {post.tags && post.tags.length > 0 && (
