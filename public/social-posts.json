@@ -1,5 +1,27 @@
 [
   {
+    "id": "fb-106152660936815_1569682475186791",
+    "platform": "facebook",
+    "author": {
+      "name": "Peace Academy of West Texas",
+      "handle": "@pawtx",
+      "avatarUrl": "",
+      "verified": false
+    },
+    "content": "🌍💃 The world dances in Odessa!\n\nJoin us at the International Cultural Festival for Turkish Zeybek & Kids’ Erik Dalı, Tajik Children’s Dance, Kyrgyzstan’s Kochmondor Dance, and performances representing Mexico, China, India, the Philippines, Ecuador, Nigeria, Gambia, Iraq, and Jordan—plus a special Navajo Nation blessing ceremony!\n\n📅 Saturday, October 24, 2026\n🕓 4:00–7:00 PM\n📍 Odessa College Downtown Greenspace\n\n🎤 Want to represent your country through dance or song? Please message us to join!\n\nBring your family and celebrate cultures from around the world! 🎉\nOdessa Hispanic Chamber\nCity of Odessa, Texas Odessa CollegeInternational Student Club- UTPBHispanic Heritage of Odessa",
+    "contentEs": "🌍💃 The world dances in Odessa!\n\nJoin us at the International Cultural Festival for Turkish Zeybek & Kids’ Erik Dalı, Tajik Children’s Dance, Kyrgyzstan’s Kochmondor Dance, and performances representing Mexico, China, India, the Philippines, Ecuador, Nigeria, Gambia, Iraq, and Jordan—plus a special Navajo Nation blessing ceremony!\n\n📅 Saturday, October 24, 2026\n🕓 4:00–7:00 PM\n📍 Odessa College Downtown Greenspace\n\n🎤 Want to represent your country through dance or song? Please message us to join!\n\nBring your family and celebrate cultures from around the world! 🎉\nOdessa Hispanic Chamber\nCity of Odessa, Texas Odessa CollegeInternational Student Club- UTPBHispanic Heritage of Odessa",
+    "mediaUrl": "social-media/fb-106152660936815_1569682475186791.webp",
+    "mediaType": "image",
+    "publishedAt": "2026-10-20T20:11:02+0000",
+    "publishedAtRelative": "",
+    "publishedAtRelativeEs": "",
+    "likesCount": 4,
+    "commentsCount": 1,
+    "sharesCount": 0,
+    "postUrl": "https://www.facebook.com/1566649342156771/posts/1569682475186791",
+    "tags": []
+  },
+  {
     "id": "ig-17985168324105739",
     "platform": "instagram",
     "author": {
@@ -19,28 +41,6 @@
     "commentsCount": 0,
     "sharesCount": 0,
     "postUrl": "https://www.instagram.com/p/DesvyzfxVu3/",
-    "tags": []
-  },
-  {
-    "id": "fb-106152660936815_1568874661934239",
-    "platform": "facebook",
-    "author": {
-      "name": "Peace Academy of West Texas",
-      "handle": "@pawtx",
-      "avatarUrl": "",
-      "verified": false
-    },
-    "content": "🌎💃 The world dances in Odessa!\n\nExperience colorful cultural dances—one of the highlights of our International Cultural Festival! See the flyer for our current lineup, plus a special Navajo Nation blessing ceremony.\n\n📅 Saturday, October 24, 2026 | 4–7 PM\n📍 Odessa College Downtown Greenspace\n\nWant to represent your culture through dance? Message us to join the lineup!\n\nBring your family and celebrate with us! 🎉\nCity of Odessa, Texas\nOdessa College Hispanic Heritage of Odessa International Student Club- UTPB\nOdessa Hispanic Chamber",
-    "contentEs": "🌎💃 The world dances in Odessa!\n\nExperience colorful cultural dances—one of the highlights of our International Cultural Festival! See the flyer for our current lineup, plus a special Navajo Nation blessing ceremony.\n\n📅 Saturday, October 24, 2026 | 4–7 PM\n📍 Odessa College Downtown Greenspace\n\nWant to represent your culture through dance? Message us to join the lineup!\n\nBring your family and celebrate with us! 🎉\nCity of Odessa, Texas\nOdessa College Hispanic Heritage of Odessa International Student Club- UTPB\nOdessa Hispanic Chamber",
-    "mediaUrl": "social-media/fb-106152660936815_1568874661934239.webp",
-    "mediaType": "image",
-    "publishedAt": "2026-10-20T02:18:34+0000",
-    "publishedAtRelative": "",
-    "publishedAtRelativeEs": "",
-    "likesCount": 17,
-    "commentsCount": 0,
-    "sharesCount": 1,
-    "postUrl": "https://www.facebook.com/1566649342156771/posts/1568874661934239",
     "tags": []
   },
   {
@@ -85,9 +85,9 @@
     "publishedAt": "2026-10-19T18:58:11+0000",
     "publishedAtRelative": "",
     "publishedAtRelativeEs": "",
-    "likesCount": 82,
+    "likesCount": 92,
     "commentsCount": 1,
-    "sharesCount": 16,
+    "sharesCount": 17,
     "postUrl": "https://www.facebook.com/1566649342156771/posts/1568623485292690",
     "tags": [
       "OdessaTX",
