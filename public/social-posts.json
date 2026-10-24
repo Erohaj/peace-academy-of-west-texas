@@ -1,5 +1,49 @@
 [
   {
+    "id": "ig-18120789058952104",
+    "platform": "instagram",
+    "author": {
+      "name": "Peace Academy of West Texas",
+      "handle": "@paowtx",
+      "avatarUrl": "",
+      "verified": false
+    },
+    "content": "Today only hours away!\nFree admission\nEveryone is welcome",
+    "contentEs": "Today only hours away!\nFree admission\nEveryone is welcome",
+    "mediaUrl": "social-media/ig-18120789058952104.webp",
+    "mediaType": "image",
+    "publishedAt": "2026-10-24T17:29:59+0000",
+    "publishedAtRelative": "",
+    "publishedAtRelativeEs": "",
+    "likesCount": 2,
+    "commentsCount": 0,
+    "sharesCount": 0,
+    "postUrl": "https://www.instagram.com/p/De4q6FSxJdk/",
+    "tags": []
+  },
+  {
+    "id": "fb-106152660936815_1573646284790410",
+    "platform": "facebook",
+    "author": {
+      "name": "Peace Academy of West Texas",
+      "handle": "@pawtx",
+      "avatarUrl": "",
+      "verified": false
+    },
+    "content": "Today only hours away!\nFree admission\nEveryone is welcome",
+    "contentEs": "Today only hours away!\nFree admission\nEveryone is welcome",
+    "mediaUrl": "social-media/fb-106152660936815_1573646284790410.webp",
+    "mediaType": "image",
+    "publishedAt": "2026-10-24T17:10:11+0000",
+    "publishedAtRelative": "",
+    "publishedAtRelativeEs": "",
+    "likesCount": 5,
+    "commentsCount": 0,
+    "sharesCount": 1,
+    "postUrl": "https://www.facebook.com/1566649342156771/posts/1573646284790410",
+    "tags": []
+  },
+  {
     "id": "fb-106152660936815_1572631431558562",
     "platform": "facebook",
     "author": {
@@ -43,7 +87,7 @@
     "publishedAtRelativeEs": "",
     "likesCount": 54,
     "commentsCount": 1,
-    "sharesCount": 19,
+    "sharesCount": 20,
     "postUrl": "https://www.facebook.com/1566649342156771/posts/1569682475186791",
     "tags": []
   },
@@ -111,9 +155,9 @@
     "publishedAt": "2026-10-19T18:58:11+0000",
     "publishedAtRelative": "",
     "publishedAtRelativeEs": "",
-    "likesCount": 198,
+    "likesCount": 200,
     "commentsCount": 9,
-    "sharesCount": 52,
+    "sharesCount": 54,
     "postUrl": "https://www.facebook.com/1566649342156771/posts/1568623485292690",
     "tags": [
       "OdessaTX",
@@ -414,28 +458,6 @@
     "tags": []
   },
   {
-    "id": "fb-106152660936815_1546853910802981",
-    "platform": "facebook",
-    "author": {
-      "name": "Peace Academy of West Texas",
-      "handle": "@pawtx",
-      "avatarUrl": "",
-      "verified": false
-    },
-    "content": "Today, Peace Academy of West Texas volunteers joined the Chinese community’s Mid-Autumn Festival celebration at Midcities Community Church  in Midland. It was a lovely day of sharing food, traditions, and conversation—and a chance for our communities to get to know one another better. 🏮\n\nWe were happy to welcome Apple Rouse  and friends to one of our gatherings recently, and we’re grateful to Apple for inviting our volunteers today. We’re also excited that the Chinese community plans to take a bigger part in this year’s International Cultural Festival!\n\nThank you to everyone who made our volunteers feel so welcome. We look forward to more moments together. ❤️",
-    "contentEs": "Today, Peace Academy of West Texas volunteers joined the Chinese community’s Mid-Autumn Festival celebration at Midcities Community Church  in Midland. It was a lovely day of sharing food, traditions, and conversation—and a chance for our communities to get to know one another better. 🏮\n\nWe were happy to welcome Apple Rouse  and friends to one of our gatherings recently, and we’re grateful to Apple for inviting our volunteers today. We’re also excited that the Chinese community plans to take a bigger part in this year’s International Cultural Festival!\n\nThank you to everyone who made our volunteers feel so welcome. We look forward to more moments together. ❤️",
-    "mediaUrl": "social-media/fb-106152660936815_1546853910802981.webp",
-    "mediaType": "image",
-    "publishedAt": "2026-09-28T04:34:33+0000",
-    "publishedAtRelative": "",
-    "publishedAtRelativeEs": "",
-    "likesCount": 33,
-    "commentsCount": 2,
-    "sharesCount": 0,
-    "postUrl": "https://www.facebook.com/1566649342156771/posts/1546853910802981",
-    "tags": []
-  },
-  {
     "id": "ig-17884721457620238",
     "platform": "instagram",
     "author": {
@@ -460,27 +482,5 @@
       "OdessaChamber",
       "OdessaTX"
     ]
-  },
-  {
-    "id": "ig-18632558269042343",
-    "platform": "instagram",
-    "author": {
-      "name": "Peace Academy of West Texas",
-      "handle": "@paowtx",
-      "avatarUrl": "",
-      "verified": false
-    },
-    "content": "A lovely evening with friends from the Chinese community! 🥮\n\nWe enjoyed dinner with Apple Rouse, George, Ms. Lolita, and Mr. Glen Miller. It was a pleasure to introduce them to our friends, share what Peace Academy does, and talk about this year’s Culture Festival.\n\nThank you for inviting our community to the Mooncake event in Midland. We look forward to joining you! ❤️",
-    "contentEs": "A lovely evening with friends from the Chinese community! 🥮\n\nWe enjoyed dinner with Apple Rouse, George, Ms. Lolita, and Mr. Glen Miller. It was a pleasure to introduce them to our friends, share what Peace Academy does, and talk about this year’s Culture Festival.\n\nThank you for inviting our community to the Mooncake event in Midland. We look forward to joining you! ❤️",
-    "mediaUrl": "social-media/ig-18632558269042343.webp",
-    "mediaType": "video",
-    "publishedAt": "2026-09-24T04:26:23+0000",
-    "publishedAtRelative": "",
-    "publishedAtRelativeEs": "",
-    "likesCount": 12,
-    "commentsCount": 1,
-    "sharesCount": 0,
-    "postUrl": "https://www.instagram.com/reel/DdqBeZ7xdtX/",
-    "tags": []
   }
 ]
