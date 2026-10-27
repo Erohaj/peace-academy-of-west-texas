@@ -1,5 +1,105 @@
 [
   {
+    "id": "ig-17881450392547501",
+    "platform": "instagram",
+    "author": {
+      "name": "Peace Academy of West Texas",
+      "handle": "@paowtx",
+      "avatarUrl": "",
+      "verified": false
+    },
+    "content": "More beautiful moments from 3rd International Cultural Festival! 🇲🇽💃 This wonderful Mexican dance brought smiles and joy to everyone. Thank you for sharing your culture with us! ❤️",
+    "contentEs": "More beautiful moments from 3rd International Cultural Festival! 🇲🇽💃 This wonderful Mexican dance brought smiles and joy to everyone. Thank you for sharing your culture with us! ❤️",
+    "mediaUrl": "social-media/ig-17881450392547501.webp",
+    "mediaType": "video",
+    "publishedAt": "2026-10-27T17:05:39+0000",
+    "publishedAtRelative": "",
+    "publishedAtRelativeEs": "",
+    "likesCount": 0,
+    "commentsCount": 0,
+    "sharesCount": 0,
+    "postUrl": "https://www.instagram.com/reel/DfAWPlPxJHj/",
+    "tags": []
+  },
+  {
+    "id": "fb-106152660936815_1576721927816179",
+    "platform": "facebook",
+    "author": {
+      "name": "Peace Academy of West Texas",
+      "handle": "@pawtx",
+      "avatarUrl": "",
+      "verified": false
+    },
+    "content": "More beautiful moments from our 3rd International Cultural Festival! 🇲🇽💃 This wonderful #Mexican dance brought smiles and joy to everyone. Thank you for sharing your culture with us! ❤️",
+    "contentEs": "More beautiful moments from our 3rd International Cultural Festival! 🇲🇽💃 This wonderful #Mexican dance brought smiles and joy to everyone. Thank you for sharing your culture with us! ❤️",
+    "mediaUrl": "social-media/fb-106152660936815_1576721927816179.webp",
+    "mediaType": "image",
+    "publishedAt": "2026-10-27T16:40:48+0000",
+    "publishedAtRelative": "",
+    "publishedAtRelativeEs": "",
+    "likesCount": 6,
+    "commentsCount": 0,
+    "sharesCount": 1,
+    "postUrl": "https://www.facebook.com/reel/1391448789423744/",
+    "tags": [
+      "Mexican"
+    ]
+  },
+  {
+    "id": "fb-106152660936815_1576480017840370",
+    "platform": "facebook",
+    "author": {
+      "name": "Peace Academy of West Texas",
+      "handle": "@pawtx",
+      "avatarUrl": "",
+      "verified": false
+    },
+    "content": "A beautiful celebration of Mexican culture! 🇲🇽✨ These young dancers brought joy, color, and wonderful energy to our 3rd International Cultural Festival. Thank you for sharing your culture and making us all smile! ❤️🌎\n\n#PeaceAcademyOfWestTexas #InternationalCulturalFestival #MexicanCulture #OdessaTX",
+    "contentEs": "A beautiful celebration of Mexican culture! 🇲🇽✨ These young dancers brought joy, color, and wonderful energy to our 3rd International Cultural Festival. Thank you for sharing your culture and making us all smile! ❤️🌎\n\n#PeaceAcademyOfWestTexas #InternationalCulturalFestival #MexicanCulture #OdessaTX",
+    "mediaUrl": "social-media/fb-106152660936815_1576480017840370.webp",
+    "mediaType": "image",
+    "publishedAt": "2026-10-27T12:18:15+0000",
+    "publishedAtRelative": "",
+    "publishedAtRelativeEs": "",
+    "likesCount": 11,
+    "commentsCount": 1,
+    "sharesCount": 0,
+    "postUrl": "https://www.facebook.com/reel/2060999167928099/",
+    "tags": [
+      "PeaceAcademyOfWestTexas",
+      "InternationalCulturalFestival",
+      "MexicanCulture",
+      "OdessaTX"
+    ]
+  },
+  {
+    "id": "ig-18116566133018209",
+    "platform": "instagram",
+    "author": {
+      "name": "Peace Academy of West Texas",
+      "handle": "@paowtx",
+      "avatarUrl": "",
+      "verified": false
+    },
+    "content": "A beautiful celebration of Mexican culture! 🇲🇽✨ These young dancers brought joy, color, and wonderful energy to our 3rd International Cultural Festival. Thank you for sharing your culture and making us all smile! ❤️🌎\n\n#PeaceAcademyOfWestTexas #InternationalCulturalFestival #MexicanCulture #OdessaTX",
+    "contentEs": "A beautiful celebration of Mexican culture! 🇲🇽✨ These young dancers brought joy, color, and wonderful energy to our 3rd International Cultural Festival. Thank you for sharing your culture and making us all smile! ❤️🌎\n\n#PeaceAcademyOfWestTexas #InternationalCulturalFestival #MexicanCulture #OdessaTX",
+    "mediaUrl": "social-media/ig-18116566133018209.webp",
+    "mediaType": "video",
+    "publishedAt": "2026-10-27T12:18:00+0000",
+    "publishedAtRelative": "",
+    "publishedAtRelativeEs": "",
+    "likesCount": 4,
+    "commentsCount": 0,
+    "sharesCount": 0,
+    "postUrl": "https://www.instagram.com/reel/De_1h9TRJ9B/",
+    "tags": [
+      "PeaceAcademyOfWestTexas",
+      "InternationalCulturalFestival",
+      "MexicanCulture",
+      "OdessaTX"
+    ]
+  },
+  {
     "id": "fb-106152660936815_1576040084551030",
     "platform": "facebook",
     "author": {
@@ -15,9 +115,9 @@
     "publishedAt": "2026-10-27T02:18:57+0000",
     "publishedAtRelative": "",
     "publishedAtRelativeEs": "",
-    "likesCount": 17,
+    "likesCount": 27,
     "commentsCount": 0,
-    "sharesCount": 2,
+    "sharesCount": 3,
     "postUrl": "https://www.facebook.com/reel/1660964759145010/",
     "tags": [
       "PeaceAcademy",
@@ -41,7 +141,7 @@
     "publishedAt": "2026-10-27T02:18:44+0000",
     "publishedAtRelative": "",
     "publishedAtRelativeEs": "",
-    "likesCount": 7,
+    "likesCount": 11,
     "commentsCount": 0,
     "sharesCount": 0,
     "postUrl": "https://www.instagram.com/reel/De-xC7HR1vz/",
@@ -67,7 +167,7 @@
     "publishedAt": "2026-10-26T17:51:53+0000",
     "publishedAtRelative": "",
     "publishedAtRelativeEs": "",
-    "likesCount": 18,
+    "likesCount": 25,
     "commentsCount": 0,
     "sharesCount": 0,
     "postUrl": "https://www.facebook.com/reel/1432721551634305/",
@@ -121,7 +221,7 @@
     "publishedAt": "2026-10-26T13:31:27+0000",
     "publishedAtRelative": "",
     "publishedAtRelativeEs": "",
-    "likesCount": 22,
+    "likesCount": 25,
     "commentsCount": 1,
     "sharesCount": 1,
     "postUrl": "https://www.facebook.com/reel/2266716494086554/",
@@ -177,9 +277,9 @@
     "publishedAt": "2026-10-26T04:17:16+0000",
     "publishedAtRelative": "",
     "publishedAtRelativeEs": "",
-    "likesCount": 52,
+    "likesCount": 53,
     "commentsCount": 3,
-    "sharesCount": 4,
+    "sharesCount": 5,
     "postUrl": "https://www.facebook.com/1566649342156771/posts/1575094027978969",
     "tags": [
       "PeaceAcademyOfWestTexas",
@@ -203,7 +303,7 @@
     "publishedAt": "2026-10-26T02:57:57+0000",
     "publishedAtRelative": "",
     "publishedAtRelativeEs": "",
-    "likesCount": 55,
+    "likesCount": 59,
     "commentsCount": 1,
     "sharesCount": 2,
     "postUrl": "https://www.facebook.com/reel/1049049198167317/",
@@ -256,7 +356,7 @@
     "publishedAt": "2026-10-25T21:28:18+0000",
     "publishedAtRelative": "",
     "publishedAtRelativeEs": "",
-    "likesCount": 21,
+    "likesCount": 22,
     "commentsCount": 1,
     "sharesCount": 0,
     "postUrl": "https://www.facebook.com/1566649342156771/posts/1574826068005765",
@@ -300,7 +400,7 @@
     "publishedAt": "2026-10-25T19:18:40+0000",
     "publishedAtRelative": "",
     "publishedAtRelativeEs": "",
-    "likesCount": 19,
+    "likesCount": 20,
     "commentsCount": 0,
     "sharesCount": 0,
     "postUrl": "https://www.facebook.com/reel/1875102223626084/",
@@ -366,7 +466,7 @@
     "publishedAt": "2026-10-25T02:04:23+0000",
     "publishedAtRelative": "",
     "publishedAtRelativeEs": "",
-    "likesCount": 37,
+    "likesCount": 38,
     "commentsCount": 0,
     "sharesCount": 0,
     "postUrl": "https://www.instagram.com/p/De5l5gUESxN/",
@@ -376,55 +476,6 @@
       "InternationalCulturalFestival",
       "OdessaTX"
     ]
-  },
-  {
-    "id": "fb-106152660936815_1573964228091949",
-    "platform": "facebook",
-    "author": {
-      "name": "Peace Academy of West Texas",
-      "handle": "@pawtx",
-      "avatarUrl": "",
-      "verified": false
-    },
-    "content": "🌎 Different cultures, but one community. ❤️\n\nWhat a beautiful celebration! Our 3rd International Cultural Festival brought together so many cultures, countries, and traditions in a joyful celebration of friendship and community.\n\nFrom 4 to 7, the excitement never stopped! Colorful traditional clothing, wonderful dance performances, delicious food, and smiling faces filled the afternoon. Everyone proudly shared their heritage while celebrating together under the American flag, here in our shared home of Texas. 🇺🇸\n\nOur heartfelt thanks go to our organizing committee and every volunteer whose hard work and care made this day possible. To all the countries and cultural communities represented: thank you for sharing your food, music, dances, and traditions with such generosity and pride. And to everyone who joined us—thank you for bringing your warmth and friendship!\n\nThis celebration reflected the heart of Peace Academy of West Texas: bringing people together, learning from one another, and building lasting friendships.\n\nDifferent cultures. One community. Beautiful memories together. 💙\n\n#PeaceAcademyOfWestTexas #DifferentCulturesOneCommunity #InternationalCulturalFestival #OdessaTX",
-    "contentEs": "🌎 Different cultures, but one community. ❤️\n\nWhat a beautiful celebration! Our 3rd International Cultural Festival brought together so many cultures, countries, and traditions in a joyful celebration of friendship and community.\n\nFrom 4 to 7, the excitement never stopped! Colorful traditional clothing, wonderful dance performances, delicious food, and smiling faces filled the afternoon. Everyone proudly shared their heritage while celebrating together under the American flag, here in our shared home of Texas. 🇺🇸\n\nOur heartfelt thanks go to our organizing committee and every volunteer whose hard work and care made this day possible. To all the countries and cultural communities represented: thank you for sharing your food, music, dances, and traditions with such generosity and pride. And to everyone who joined us—thank you for bringing your warmth and friendship!\n\nThis celebration reflected the heart of Peace Academy of West Texas: bringing people together, learning from one another, and building lasting friendships.\n\nDifferent cultures. One community. Beautiful memories together. 💙\n\n#PeaceAcademyOfWestTexas #DifferentCulturesOneCommunity #InternationalCulturalFestival #OdessaTX",
-    "mediaUrl": "social-media/fb-106152660936815_1573964228091949.webp",
-    "mediaType": "image",
-    "publishedAt": "2026-10-25T01:58:16+0000",
-    "publishedAtRelative": "",
-    "publishedAtRelativeEs": "",
-    "likesCount": 134,
-    "commentsCount": 9,
-    "sharesCount": 6,
-    "postUrl": "https://www.facebook.com/1566649342156771/posts/1573964228091949",
-    "tags": [
-      "PeaceAcademyOfWestTexas",
-      "DifferentCulturesOneCommunity",
-      "InternationalCulturalFestival",
-      "OdessaTX"
-    ]
-  },
-  {
-    "id": "fb-106152660936815_1573781468110225",
-    "platform": "facebook",
-    "author": {
-      "name": "Peace Academy of West Texas",
-      "handle": "@pawtx",
-      "avatarUrl": "",
-      "verified": false
-    },
-    "content": "Cultural Festival is about to begin; we look forward to seeing everyone there.\nOdessa College Downtown Greenspace",
-    "contentEs": "Cultural Festival is about to begin; we look forward to seeing everyone there.\nOdessa College Downtown Greenspace",
-    "mediaUrl": "social-media/fb-106152660936815_1573781468110225.webp",
-    "mediaType": "image",
-    "publishedAt": "2026-10-24T20:39:43+0000",
-    "publishedAtRelative": "",
-    "publishedAtRelativeEs": "",
-    "likesCount": 86,
-    "commentsCount": 5,
-    "sharesCount": 6,
-    "postUrl": "https://www.facebook.com/1566649342156771/posts/1573781468110225",
-    "tags": []
   },
   {
     "id": "ig-18046814933827748",
@@ -446,50 +497,6 @@
     "commentsCount": 0,
     "sharesCount": 0,
     "postUrl": "https://www.instagram.com/p/De5As53lJEW/",
-    "tags": []
-  },
-  {
-    "id": "ig-18159905125502884",
-    "platform": "instagram",
-    "author": {
-      "name": "Peace Academy of West Texas",
-      "handle": "@paowtx",
-      "avatarUrl": "",
-      "verified": false
-    },
-    "content": "Cultural Festival is about to begin; we look forward to seeing everyone there.\nOdessa College Downtown Greenspace",
-    "contentEs": "Cultural Festival is about to begin; we look forward to seeing everyone there.\nOdessa College Downtown Greenspace",
-    "mediaUrl": "social-media/ig-18159905125502884.webp",
-    "mediaType": "video",
-    "publishedAt": "2026-10-24T20:33:07+0000",
-    "publishedAtRelative": "",
-    "publishedAtRelativeEs": "",
-    "likesCount": 8,
-    "commentsCount": 0,
-    "sharesCount": 0,
-    "postUrl": "https://www.instagram.com/reel/De4_5VJpzC7/",
-    "tags": []
-  },
-  {
-    "id": "ig-18120789058952104",
-    "platform": "instagram",
-    "author": {
-      "name": "Peace Academy of West Texas",
-      "handle": "@paowtx",
-      "avatarUrl": "",
-      "verified": false
-    },
-    "content": "Today only hours away!\nFree admission\nEveryone is welcome",
-    "contentEs": "Today only hours away!\nFree admission\nEveryone is welcome",
-    "mediaUrl": "social-media/ig-18120789058952104.webp",
-    "mediaType": "image",
-    "publishedAt": "2026-10-24T17:29:59+0000",
-    "publishedAtRelative": "",
-    "publishedAtRelativeEs": "",
-    "likesCount": 5,
-    "commentsCount": 0,
-    "sharesCount": 0,
-    "postUrl": "https://www.instagram.com/p/De4q6FSxJdk/",
     "tags": []
   }
 ]
