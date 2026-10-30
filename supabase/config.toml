@@ -21,9 +21,11 @@ major_version = 15
 enabled = true
 port = 54323
 
-# Inbucket catches every outbound email locally (magic links, RSVP
-# confirmations, donation receipts) so nothing real gets sent during dev.
-[inbucket]
+# The local SMTP catcher takes every outbound email (magic links, RSVP
+# confirmations, donation receipts) so nothing real gets sent during dev. Still
+# Inbucket underneath, and still on the same port — the CLI renamed the section
+# to [local_smtp] and warns on every command while it is called the old thing.
+[local_smtp]
 enabled = true
 port = 54324
 
