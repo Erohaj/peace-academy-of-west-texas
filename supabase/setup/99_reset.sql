@@ -18,6 +18,7 @@ drop trigger if exists on_auth_user_created on auth.users;
 
 -- Порядок — от зависимых к базовым, хотя cascade снял бы и произвольный.
 drop table if exists
+  public.rate_limit_hits,
   public.document_signatures,
   public.volunteer_certificates,
   public.volunteer_applications,
@@ -51,6 +52,7 @@ drop function if exists public.release_expired_rsvp_holds(uuid);
 drop function if exists public.admin_set_rsvp_payment(uuid, boolean, text);
 drop function if exists public.rsvps_stamp_marked_paid_by() cascade;
 drop function if exists public.verify_certificate(text);
+drop function if exists public.record_rate_limit_hit(text, text, integer, integer);
 drop function if exists public.handle_new_user() cascade;
 drop function if exists public.sync_shift_spots_filled() cascade;
 drop function if exists public.touch_updated_at() cascade;

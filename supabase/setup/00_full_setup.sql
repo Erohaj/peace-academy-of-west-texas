@@ -4236,6 +4236,224 @@ comment on function public.mark_rsvp_paid(uuid, text, text) is
   'Confirms a booking once Stripe reports its fee paid, re-taking the seats if the hold had already lapsed. Idempotent. Called by the stripe-webhook Edge Function with the service role, always with p_method => ''card''.';
 
 -- ============================================================
+-- ФАЙЛ: supabase/migrations/20261029120000_rsvp_webhook_secret.sql
+-- ============================================================
+
+-- Stop send-rsvp-confirmation being an open mail relay.
+--
+-- The trigger authenticated itself to the Edge Function with the project's
+-- anon key, and the comment where it did so argued that this was safe because
+-- "the Edge Function's JWT check only needs some valid project token, not a
+-- privileged one". That is true, and it is exactly the problem: the anon key
+-- ships inside the front-end bundle to every visitor, so the JWT gate admits
+-- the whole internet. The function takes its recipient straight from
+-- `record.email`, which made it a way for anyone to send "You're registered"
+-- from the organisation's own verified sender to any address they chose --
+-- cheap phishing with a real nonprofit's name on it, and a fast way to get
+-- mail.pawtx.org onto a blocklist and take every donation receipt down with
+-- it. The second POST in that function goes to CONTACT_INBOX, so the org's own
+-- inbox was reachable the same way.
+--
+-- The anon key stays in the Authorization header because the platform's JWT
+-- gate still wants a valid project token. It is simply no longer mistaken for
+-- proof of who is calling. That proof is now a shared secret the front-end
+-- bundle does not contain.
+--
+-- Set it in both places, to the same value, before applying this:
+--
+--   supabase secrets set RSVP_WEBHOOK_SECRET=<value>
+--   select vault.create_secret('<value>', 'rsvp_webhook_secret');
+--
+-- Deliberately read from the vault rather than written into this file: a
+-- secret committed to the repository is not a secret, which is the whole
+-- reason the anon key was used here in the first place.
+--
+-- Both triggers (send_rsvp_confirmation, send_rsvp_confirmation_on_payment)
+-- already point at this function and stay attached across create or replace,
+-- so they are not touched.
+
+create or replace function public.notify_rsvp_confirmation()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_secret text;
+begin
+  -- The dispatch is wrapped because this runs *inside* the booking's
+  -- transaction: an unhandled error here would roll back the INSERT, and
+  -- create_rsvp would report a failure to someone whose seat was fine. Mail is
+  -- the courtesy; the booking is the thing that matters. Same reasoning as
+  -- sendEmail() swallowing a missing RESEND_API_KEY.
+  begin
+    select decrypted_secret
+      into v_secret
+      from vault.decrypted_secrets
+     where name = 'rsvp_webhook_secret';
+
+    -- No secret means no mail, not mail sent without one. The function refuses
+    -- an unsigned request anyway, so posting regardless would turn every
+    -- booking into a guaranteed 403 in the logs and hide the real cause. A
+    -- warning names it instead.
+    if v_secret is null or btrim(v_secret) = '' then
+      raise warning '[PAWTX] rsvp_webhook_secret is missing from the vault — no confirmation sent for rsvp %', new.id;
+      return new;
+    end if;
+
+    perform net.http_post(
+      url := 'https://zusgxrezbffxxhztggev.supabase.co/functions/v1/send-rsvp-confirmation',
+      headers := jsonb_build_object(
+        'Content-Type', 'application/json',
+        -- Satisfies the platform's JWT gate. Public by design, and no longer
+        -- load-bearing for authentication.
+        'Authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp1c2d4cmV6YmZmeHhoenRnZ2V2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUwOTk2NDgsImV4cCI6MjEwMDY3NTY0OH0.lTfRJ2T-IhHGLH1RvGjFAbYrYeJ5xY05EB_UIA4kIyE',
+        -- This is the part that actually says the call came from the database.
+        'x-pawtx-webhook-secret', v_secret
+      ),
+      -- Shaped like the dashboard's own payload, because the function already
+      -- reads `record` out of it and should not have to care which built it.
+      body := jsonb_build_object(
+        'type', tg_op,
+        'table', 'rsvps',
+        'schema', 'public',
+        'record', to_jsonb(new),
+        'old_record', case when tg_op = 'UPDATE' then to_jsonb(old) else null end
+      ),
+      timeout_milliseconds := 10000
+    );
+  exception when others then
+    raise warning '[PAWTX] could not queue the RSVP confirmation: %', sqlerrm;
+  end;
+
+  return new;
+end;
+$$;
+
+comment on function public.notify_rsvp_confirmation() is
+  'Posts a confirmed RSVP to send-rsvp-confirmation, signed with rsvp_webhook_secret from the vault — the anon key in the Authorization header satisfies the platform JWT gate but proves nothing, since it ships in the browser bundle. pg_net queues the request and returns immediately, so the booking is never held up waiting on mail.';
+
+-- ============================================================
+-- ФАЙЛ: supabase/migrations/20261029130000_rate_limit_hits.sql
+-- ============================================================
+
+-- A counter for the unauthenticated endpoints that cost something to call.
+--
+-- `create-ticket-session` reserves seats before any money exists: it calls
+-- create_rsvp, which takes a hold against events.reserved_spots. Looping it
+-- with fresh email addresses parks an event's whole capacity behind unpaid
+-- holds, and while they last a real attendee is told the event is full. The
+-- per-event unique index on (event_id, lower(email)) stops one person booking
+-- twice; it does nothing about one person using twenty addresses.
+--
+-- `create-checkout-session` is cheaper to abuse but not free: each call writes
+-- a pending donation row and creates a Stripe Checkout Session, so a loop
+-- fills the donations table with noise the org has to read past, and spends
+-- someone else's API quota doing it.
+--
+-- Kept out of `rsvps` on purpose. Counting there would mean giving bookings an
+-- IP column, and an address sitting next to a name, an email and a phone
+-- number is a different kind of record to keep about people who come to a
+-- community event. This table holds the counter and nothing else, for a day.
+
+create table if not exists public.rate_limit_hits (
+  id         bigint generated always as identity primary key,
+  -- Which endpoint, so one limit cannot consume another's budget.
+  bucket     text        not null check (length(btrim(bucket)) between 1 and 64),
+  -- Text rather than inet: this comes from a header the client controls, and a
+  -- malformed value should spend a row, not raise an error inside a payment
+  -- request.
+  source_ip  text        not null check (length(source_ip) between 1 and 64),
+  created_at timestamptz not null default now()
+);
+
+create index if not exists rate_limit_hits_lookup_idx
+  on public.rate_limit_hits (bucket, source_ip, created_at desc);
+
+create index if not exists rate_limit_hits_pruning_idx
+  on public.rate_limit_hits (created_at);
+
+-- RLS on with no policies at all is the correct configuration here, not an
+-- oversight: every reader and writer is an Edge Function holding the service
+-- role key, which bypasses RLS entirely. With no policy, anon and
+-- authenticated are denied outright. The revoke is belt and braces, because
+-- Supabase grants ALL on new public tables to both roles by default.
+alter table public.rate_limit_hits enable row level security;
+revoke all on public.rate_limit_hits from anon, authenticated;
+
+-- ---------------------------------------------------------------------------
+-- Count and record in one call
+-- ---------------------------------------------------------------------------
+--
+-- One function rather than a select followed by an insert from the Edge
+-- Function, so two simultaneous requests cannot both read the old count and
+-- both be allowed through.
+
+create or replace function public.record_rate_limit_hit(
+  p_bucket         text,
+  p_source_ip      text,
+  p_window_seconds integer,
+  p_limit          integer
+)
+returns boolean
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_window interval;
+  v_count  integer;
+begin
+  if p_source_ip is null or btrim(p_source_ip) = '' then
+    return true;
+  end if;
+
+  if p_window_seconds is null or p_window_seconds <= 0 or p_limit is null or p_limit < 0 then
+    raise exception 'invalid_rate_limit_arguments' using errcode = '22023';
+  end if;
+
+  v_window := make_interval(secs => p_window_seconds);
+
+  -- Pruned here rather than on a schedule, because this project has no cron
+  -- and a table that only grows would eventually make the lookup the slow part
+  -- of taking a payment. Done on roughly one call in a hundred: deleting on
+  -- every request would add a write to every payment, and would contend for
+  -- locks hardest during exactly the flood this exists to limit.
+  if random() < 0.01 then
+    delete from public.rate_limit_hits where created_at < now() - interval '1 day';
+  end if;
+
+  select count(*)
+    into v_count
+    from public.rate_limit_hits
+   where bucket = p_bucket
+     and source_ip = p_source_ip
+     and created_at >= now() - v_window;
+
+  if v_count >= p_limit then
+    return false;
+  end if;
+
+  insert into public.rate_limit_hits (bucket, source_ip)
+  values (p_bucket, p_source_ip);
+
+  return true;
+end;
+$$;
+
+comment on function public.record_rate_limit_hit(text, text, integer, integer) is
+  'Records one hit for (bucket, source_ip) and returns whether the caller is still under p_limit within the trailing p_window_seconds. Counting and recording are one statement so concurrent callers cannot both pass on a stale count.';
+
+-- A new function is granted EXECUTE to PUBLIC by default, so revoking from
+-- anon and authenticated alone would leave that grant standing and the limiter
+-- callable by the browser -- which could then spend somebody else's budget, or
+-- read nothing but still burn rows.
+revoke execute on function public.record_rate_limit_hit(text, text, integer, integer)
+  from public, anon, authenticated;
+grant execute on function public.record_rate_limit_hit(text, text, integer, integer)
+  to service_role;
+
+-- ============================================================
 -- ФАЙЛ: supabase/seed.sql
 -- ============================================================
 

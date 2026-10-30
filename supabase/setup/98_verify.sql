@@ -9,23 +9,30 @@ with pawtx_tables(name) as (
   values ('profiles'), ('events'), ('rsvps'), ('gallery_items'),
          ('shifts'), ('shift_signups'), ('donations'), ('contact_messages'),
          ('service_log'), ('legal_documents'), ('legal_document_versions'),
-         ('volunteer_applications'), ('document_signatures'), ('volunteer_certificates')
+         ('volunteer_applications'), ('document_signatures'), ('volunteer_certificates'),
+         ('rate_limit_hits')
 ),
 -- Таблицы с персональными данными: заявки, подписи, часы, сертификаты, RSVP,
 -- донаты, обращения. Ни у одной не должно быть политики для роли anon —
 -- anon-ключ лежит в бандле и есть у каждого посетителя сайта.
+--
+-- rate_limit_hits здесь же: IP-адрес — тоже персональные данные, и у этой
+-- таблицы политик нет вообще. Пишет и читает её только Edge Function с
+-- service-role ключом, который RLS обходит, так что включённый RLS без
+-- политик — это и есть «никому, кроме сервера».
 private_tables(name) as (
   values ('profiles'), ('rsvps'), ('donations'), ('contact_messages'),
          ('shift_signups'), ('service_log'), ('volunteer_applications'),
-         ('document_signatures'), ('volunteer_certificates')
+         ('document_signatures'), ('volunteer_certificates'),
+         ('rate_limit_hits')
 ),
 expected(ord, name, want, got) as (
-  select 1, 'Таблиц создано', '14',
+  select 1, 'Таблиц создано', '15',
     (select count(*) from pg_tables
       where schemaname = 'public'
         and tablename in (select name from pawtx_tables))
   union all
-  select 2, 'RLS включён на всех таблицах', '14',
+  select 2, 'RLS включён на всех таблицах', '15',
     (select count(*) from pg_tables
       where schemaname = 'public' and rowsecurity
         and tablename in (select name from pawtx_tables))
