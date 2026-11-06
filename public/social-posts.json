@@ -1,5 +1,53 @@
 [
   {
+    "id": "ig-18643866508043067",
+    "platform": "instagram",
+    "author": {
+      "name": "Peace Academy of West Texas",
+      "handle": "@paowtx",
+      "avatarUrl": "",
+      "verified": false
+    },
+    "content": "After the International Cultural Festival, we’re keeping the momentum going! Our Cooking Class is tomorrow, and only a few spots are left. Sign up now to join us!\n\n RSVP by scanning the QR code on the flyer or visiting:\nhttps://pawtx.org/#events\n\n📞 432-202-4722",
+    "contentEs": "After the International Cultural Festival, we’re keeping the momentum going! Our Cooking Class is tomorrow, and only a few spots are left. Sign up now to join us!\n\n RSVP by scanning the QR code on the flyer or visiting:\nhttps://pawtx.org/#events\n\n📞 432-202-4722",
+    "mediaUrl": "social-media/ig-18643866508043067.webp",
+    "mediaType": "image",
+    "publishedAt": "2026-11-06T20:19:43+0000",
+    "publishedAtRelative": "",
+    "publishedAtRelativeEs": "",
+    "likesCount": 2,
+    "commentsCount": 0,
+    "sharesCount": 0,
+    "postUrl": "https://www.instagram.com/p/DfacvoOJLUX/",
+    "tags": [
+      "events"
+    ]
+  },
+  {
+    "id": "fb-106152660936815_1587813293373709",
+    "platform": "facebook",
+    "author": {
+      "name": "Peace Academy of West Texas",
+      "handle": "@pawtx",
+      "avatarUrl": "",
+      "verified": false
+    },
+    "content": "After the International Cultural Festival, we’re keeping the momentum going! Our Cooking Class is tomorrow, and only a few spots are left. Sign up now to join us!\n\n RSVP by scanning the QR code on the flyer or visiting:\nhttps://pawtx.org/#events\n\n📞 432-202-4722",
+    "contentEs": "After the International Cultural Festival, we’re keeping the momentum going! Our Cooking Class is tomorrow, and only a few spots are left. Sign up now to join us!\n\n RSVP by scanning the QR code on the flyer or visiting:\nhttps://pawtx.org/#events\n\n📞 432-202-4722",
+    "mediaUrl": "social-media/fb-106152660936815_1587813293373709.webp",
+    "mediaType": "image",
+    "publishedAt": "2026-11-06T19:59:29+0000",
+    "publishedAtRelative": "",
+    "publishedAtRelativeEs": "",
+    "likesCount": 10,
+    "commentsCount": 0,
+    "sharesCount": 2,
+    "postUrl": "https://www.facebook.com/1566649342156771/posts/1587813293373709",
+    "tags": [
+      "events"
+    ]
+  },
+  {
     "id": "fb-106152660936815_1584533733701665",
     "platform": "facebook",
     "author": {
@@ -484,61 +532,5 @@
     "sharesCount": 1,
     "postUrl": "https://www.facebook.com/1566649342156771/posts/1577790831042622",
     "tags": []
-  },
-  {
-    "id": "ig-18132596485769419",
-    "platform": "instagram",
-    "author": {
-      "name": "Peace Academy of West Texas",
-      "handle": "@paowtx",
-      "avatarUrl": "",
-      "verified": false
-    },
-    "content": "A beautiful celebration of Chinese culture! 🇨🇳💃✨\n\nThank you to the Chinese community for this wonderful dance performance, and a special thank you to Apple Rouse for leading the group! ❤️\n\n#PeaceAcademy #InternationalCulturalFestival #ChineseCulture #CulturalDance #OdessaTX",
-    "contentEs": "A beautiful celebration of Chinese culture! 🇨🇳💃✨\n\nThank you to the Chinese community for this wonderful dance performance, and a special thank you to Apple Rouse for leading the group! ❤️\n\n#PeaceAcademy #InternationalCulturalFestival #ChineseCulture #CulturalDance #OdessaTX",
-    "mediaUrl": "social-media/ig-18132596485769419.webp",
-    "mediaType": "video",
-    "publishedAt": "2026-10-28T15:35:14+0000",
-    "publishedAtRelative": "",
-    "publishedAtRelativeEs": "",
-    "likesCount": 12,
-    "commentsCount": 0,
-    "sharesCount": 0,
-    "postUrl": "https://www.instagram.com/reel/DfCw_r8Rj6p/",
-    "tags": [
-      "PeaceAcademy",
-      "InternationalCulturalFestival",
-      "ChineseCulture",
-      "CulturalDance",
-      "OdessaTX"
-    ]
-  },
-  {
-    "id": "fb-106152660936815_1577746387713733",
-    "platform": "facebook",
-    "author": {
-      "name": "Peace Academy of West Texas",
-      "handle": "@pawtx",
-      "avatarUrl": "",
-      "verified": false
-    },
-    "content": "More beautiful moments from our 3rd International Cultural Festival! 🇨🇳💃🌎\n\nA big thank you to the #Chinese community for sharing their culture through this beautiful dance, and to Apple Rouse  for her leadership and support! ❤️\n\n#PeaceAcademy #InternationalCulturalFestival #ChineseCommunity #OdessaTX",
-    "contentEs": "More beautiful moments from our 3rd International Cultural Festival! 🇨🇳💃🌎\n\nA big thank you to the #Chinese community for sharing their culture through this beautiful dance, and to Apple Rouse  for her leadership and support! ❤️\n\n#PeaceAcademy #InternationalCulturalFestival #ChineseCommunity #OdessaTX",
-    "mediaUrl": "social-media/fb-106152660936815_1577746387713733.webp",
-    "mediaType": "image",
-    "publishedAt": "2026-10-28T15:34:19+0000",
-    "publishedAtRelative": "",
-    "publishedAtRelativeEs": "",
-    "likesCount": 22,
-    "commentsCount": 1,
-    "sharesCount": 0,
-    "postUrl": "https://www.facebook.com/reel/1695683422090931/",
-    "tags": [
-      "Chinese",
-      "PeaceAcademy",
-      "InternationalCulturalFestival",
-      "ChineseCommunity",
-      "OdessaTX"
-    ]
   }
 ]
