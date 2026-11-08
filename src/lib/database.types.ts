@@ -342,6 +342,44 @@ export interface Database {
         ];
       };
 
+      /**
+       * Sign-ups for a shift that carry no account.
+       *
+       * No `user_id`, and that absence is the point: hours are credited to a
+       * profile id, so nothing here can reach service_log or a certificate.
+       */
+      event_volunteers: {
+        Row: {
+          id: string;
+          shift_id: string;
+          full_name: string;
+          email: string;
+          phone: string | null;
+          note: string | null;
+          attendance: AttendanceRow | null;
+          language: 'en' | 'es';
+          created_at: string;
+        };
+        // Direct inserts are revoked; sign-ups are created through
+        // signup_event_volunteer(), which checks the shift's capacity under a
+        // row lock. Same arrangement as rsvps above.
+        Insert: never;
+        // Admins only, and one column: what staff observed. The name, email
+        // and phone stay as the volunteer wrote them — the table-wide UPDATE
+        // is revoked and only `attendance` granted back.
+        Update: {
+          attendance?: AttendanceRow | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'event_volunteers_shift_id_fkey';
+            columns: ['shift_id'];
+            referencedRelation: 'shifts';
+            referencedColumns: ['id'];
+          }
+        ];
+      };
+
       service_log: {
         Row: {
           id: string;
@@ -681,6 +719,22 @@ export interface Database {
        * authenticated, so the browser could not call them if it tried; they
        * belong to the Edge Functions and to create_rsvp.
        */
+      /**
+       * The no-account path onto a shift. Like create_rsvp it holds a
+       * `FOR UPDATE` lock on the row that carries the capacity while it
+       * checks it, which is what stops two people taking one last place.
+       */
+      signup_event_volunteer: {
+        Args: {
+          p_shift_id: string;
+          p_full_name: string;
+          p_email: string;
+          p_phone?: string | null;
+          p_note?: string | null;
+          p_language?: 'en' | 'es';
+        };
+        Returns: Database['public']['Tables']['event_volunteers']['Row'];
+      };
       is_admin: {
         Args: Record<string, never>;
         Returns: boolean;

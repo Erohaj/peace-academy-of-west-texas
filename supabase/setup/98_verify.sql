@@ -10,7 +10,7 @@ with pawtx_tables(name) as (
          ('shifts'), ('shift_signups'), ('donations'), ('contact_messages'),
          ('service_log'), ('legal_documents'), ('legal_document_versions'),
          ('volunteer_applications'), ('document_signatures'), ('volunteer_certificates'),
-         ('rate_limit_hits')
+         ('rate_limit_hits'), ('event_volunteers')
 ),
 -- Таблицы с персональными данными: заявки, подписи, часы, сертификаты, RSVP,
 -- донаты, обращения. Ни у одной не должно быть политики для роли anon —
@@ -24,15 +24,15 @@ private_tables(name) as (
   values ('profiles'), ('rsvps'), ('donations'), ('contact_messages'),
          ('shift_signups'), ('service_log'), ('volunteer_applications'),
          ('document_signatures'), ('volunteer_certificates'),
-         ('rate_limit_hits')
+         ('rate_limit_hits'), ('event_volunteers')
 ),
 expected(ord, name, want, got) as (
-  select 1, 'Таблиц создано', '15',
+  select 1, 'Таблиц создано', '16',
     (select count(*) from pg_tables
       where schemaname = 'public'
         and tablename in (select name from pawtx_tables))
   union all
-  select 2, 'RLS включён на всех таблицах', '15',
+  select 2, 'RLS включён на всех таблицах', '16',
     (select count(*) from pg_tables
       where schemaname = 'public' and rowsecurity
         and tablename in (select name from pawtx_tables))
@@ -178,6 +178,36 @@ expected(ord, name, want, got) as (
     (select count(*) from pg_trigger
       where tgrelid = 'public.rsvps'::regclass
         and tgname in ('send_rsvp_confirmation', 'send_rsvp_confirmation_on_payment'))
+  union all
+  -- Запись волонтёров без аккаунта. Функция — единственный путь в таблицу:
+  -- она берёт блокировку смены и сверяет места, поэтому два человека не
+  -- займут одно последнее место.
+  select 25, 'Функция signup_event_volunteer', '1',
+    (select count(*) from pg_proc p
+       join pg_namespace n on n.oid = p.pronamespace
+      where n.nspname = 'public' and p.proname = 'signup_event_volunteer')
+  union all
+  -- Прямая вставка должна быть снята с обеих ролей. Останется — и место можно
+  -- будет занять, минуя проверку вместимости.
+  select 26, 'Записаться можно только через функцию', '0',
+    (select count(*) from information_schema.table_privileges
+      where table_schema = 'public' and table_name = 'event_volunteers'
+        and privilege_type = 'INSERT' and grantee in ('anon', 'authenticated'))
+  union all
+  -- В записи волонтёра правится ровно одно поле — отметка о явке. Имя, почту и
+  -- телефон, как человек их написал, задним числом менять нельзя.
+  select 27, 'В записи волонтёра правится только явка', '1',
+    (select count(*) from information_schema.column_privileges
+      where table_schema = 'public' and table_name = 'event_volunteers'
+        and privilege_type = 'UPDATE' and grantee = 'authenticated')
+  union all
+  -- Счётчик мест на смене один для обоих путей записи: и портал, и форма без
+  -- аккаунта двигают shifts.spots_filled одним и тем же триггером. Останется
+  -- один — вместимость начнёт считаться двумя разными способами.
+  select 28, 'Счётчик мест на смене ведут оба пути', '2',
+    (select count(*) from pg_trigger
+      where tgname in ('shift_signups_sync_count', 'event_volunteers_sync_count')
+        and not tgisinternal)
 )
 select
   name    as "Проверка",

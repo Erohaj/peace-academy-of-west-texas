@@ -96,6 +96,12 @@ export type VolunteerRole = 'Food Prep' | 'Event Setup' | 'Greeter' | 'Translato
 
 export interface Shift {
   id: string;
+  /**
+   * The event this shift belongs to. Nullable in the database — `on delete set
+   * null` keeps a shift whose event was removed — and so nullable here, which
+   * is also what keeps a standing shift out of any one event's volunteer form.
+   */
+  eventId: string | null;
   title: string;
   titleEs: string;
   role: VolunteerRole;
@@ -112,6 +118,27 @@ export interface Shift {
   description: string;
   descriptionEs: string;
   isTakenByMe?: boolean;
+}
+
+/**
+ * One person who signed up for a shift without an account.
+ *
+ * Has no `id` of a profile and never will: this is the low-barrier path for a
+ * single event, and the hours ledger a certificate reads from only credits
+ * accounts. `attendance` is what staff observed on the day and credits
+ * nothing — see supabase/migrations/*_event_volunteers.sql.
+ */
+export interface EventVolunteer {
+  id: string;
+  shiftId: string;
+  fullName: string;
+  email: string;
+  phone: string | null;
+  note: string | null;
+  attendance: 'attended' | 'no_show' | null;
+  language: 'en' | 'es';
+  /** ISO timestamp; the admin list is ordered by it. */
+  createdAt: string;
 }
 
 export interface VolunteerProfile {
@@ -171,6 +198,18 @@ export type ActionError =
   | 'media_consent_required'
   | 'event_over'
   | 'shift_full'
+  // The shift behind a signup link is gone or was unpublished while the page
+  // sat open. Distinct from 'event_not_found' because the volunteer form talks
+  // about shifts, and telling somebody the event does not exist when it is the
+  // shift that went away sends them looking in the wrong place.
+  | 'shift_not_found'
+  // The shift has finished. Checked in the database rather than the browser:
+  // a page left open since yesterday would otherwise still submit.
+  | 'shift_over'
+  // signup_event_volunteer rejected the name or the address. The form checks
+  // both before submitting, so this is the defensive case — mapped anyway,
+  // because "something went wrong" would hide a fixable typo.
+  | 'invalid_volunteer_details'
   | 'not_configured'
   | 'unauthenticated'
   | 'rate_limited'

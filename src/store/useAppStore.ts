@@ -31,6 +31,7 @@ import {
 import { ProfileRow, fetchMyProfile, mapProfileRow, updateMyProfile } from '../lib/api/profile';
 import { ServiceLogRow, fetchMyServiceLog } from '../lib/api/serviceLog';
 import { createRsvp } from '../lib/api/rsvps';
+import { signUpEventVolunteer } from '../lib/api/eventVolunteers';
 import { createTicketSession } from '../lib/api/tickets';
 
 /**
@@ -110,6 +111,24 @@ interface AppState {
   selectedEventForDetails: PAWTXEvent | null;
   openEventDetails: (event: PAWTXEvent) => void;
   closeEventDetails: () => void;
+  /** The event whose volunteer form is open, if any. See EventVolunteerModal. */
+  selectedEventForVolunteer: PAWTXEvent | null;
+  openVolunteerSignup: (event: PAWTXEvent) => void;
+  closeVolunteerSignup: () => void;
+  /**
+   * Signs a volunteer up for one shift without an account.
+   *
+   * Separate from toggleShiftBooking, which is the portal's path and needs a
+   * session: this one is reached from an event and identifies the person by
+   * what they typed.
+   */
+  submitEventVolunteer: (data: {
+    shiftId: string;
+    fullName: string;
+    email: string;
+    phone?: string;
+    note?: string;
+  }) => Promise<ActionResult>;
   submitRsvp: (data: {
     eventId: string;
     fullName: string;
@@ -225,7 +244,8 @@ export const useAppStore = create<AppState>((set, get) => ({
       language: lang,
       ...derived,
       selectedEventForRsvp: relabel(get().selectedEventForRsvp),
-      selectedEventForDetails: relabel(get().selectedEventForDetails)
+      selectedEventForDetails: relabel(get().selectedEventForDetails),
+      selectedEventForVolunteer: relabel(get().selectedEventForVolunteer)
     });
   },
 
@@ -319,12 +339,25 @@ export const useAppStore = create<AppState>((set, get) => ({
   // button inside that view is the main way in, and leaving both mounted
   // stacks two dialogs — two focus traps, and Escape dropping the visitor
   // back onto a page they thought they had left.
-  openRsvpModal: (event) => set({ selectedEventForRsvp: event, selectedEventForDetails: null }),
+  openRsvpModal: (event) =>
+    set({
+      selectedEventForRsvp: event,
+      selectedEventForDetails: null,
+      selectedEventForVolunteer: null
+    }),
   closeRsvpModal: () => set({ selectedEventForRsvp: null }),
 
   selectedEventForDetails: null,
   openEventDetails: (event) => set({ selectedEventForDetails: event }),
   closeEventDetails: () => set({ selectedEventForDetails: null }),
+
+  selectedEventForVolunteer: null,
+  // Closes the details view behind it for the same reason openRsvpModal does:
+  // the volunteer button lives inside that view, and two mounted dialogs mean
+  // two focus traps.
+  openVolunteerSignup: (event) =>
+    set({ selectedEventForVolunteer: event, selectedEventForDetails: null }),
+  closeVolunteerSignup: () => set({ selectedEventForVolunteer: null }),
 
   submitRsvp: async (data) => {
     try {
@@ -356,6 +389,40 @@ export const useAppStore = create<AppState>((set, get) => ({
           : row
       );
       const raw = { ...state.raw, events };
+      return { raw, ...derive(raw, state.language) };
+    });
+
+    void get().refreshContent();
+    return { ok: true };
+  },
+
+  submitEventVolunteer: async (data) => {
+    try {
+      await signUpEventVolunteer({
+        shiftId: data.shiftId,
+        fullName: data.fullName,
+        email: data.email,
+        phone: data.phone,
+        note: data.note,
+        // Read from the store for the same reason submitRsvp does: the
+        // language is a property of the session, not of this form.
+        language: get().language
+      });
+    } catch (error) {
+      return { ok: false, error: reportError('Volunteer signup failed', error) };
+    }
+
+    // Not optimistic, unlike toggleShiftBooking: there is nothing to roll back
+    // on, because the write has already succeeded by the time this runs. The
+    // local bump keeps the shift list honest until the refetch lands, which
+    // matters because the form stays open to sign up for a second shift.
+    set((state) => {
+      const shifts = state.raw.shifts.map((row) =>
+        row.id === data.shiftId
+          ? { ...row, spots_filled: Math.min(row.spots_total, row.spots_filled + 1) }
+          : row
+      );
+      const raw = { ...state.raw, shifts };
       return { raw, ...derive(raw, state.language) };
     });
 
