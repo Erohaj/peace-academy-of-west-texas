@@ -1,5 +1,27 @@
 [
   {
+    "id": "fb-106152660936815_1589382546550117",
+    "platform": "facebook",
+    "author": {
+      "name": "Peace Academy of West Texas",
+      "handle": "@pawtx",
+      "avatarUrl": "",
+      "verified": false
+    },
+    "content": "We’re happy to support Jesse Porras’s 13th Annual Community Thanksgiving Dinner!\n\n🦃 Join us for the 13th Annual FREE Community Thanksgiving Dinner! Bring your family and friends for a time of gratitude, friendship, and community.\n\n📅 Sunday, November 22 | 2:00 PM\n📍 American Legion • 2701 East 8th Street, Odessa\n\n🙌 We need 100 volunteers! We’re expecting a big crowd and need your help to make everyone feel welcome.\n\nReady to help? Fill out the short volunteer form using the link below or scan the QR code on the flyer:\n\nhttps://pawtx.org/?volunteer=013ffde8-ea8c-4092-aa6b-c373b16918d2\n\n❤️ Come share a meal—or lend a hand!",
+    "contentEs": "We’re happy to support Jesse Porras’s 13th Annual Community Thanksgiving Dinner!\n\n🦃 Join us for the 13th Annual FREE Community Thanksgiving Dinner! Bring your family and friends for a time of gratitude, friendship, and community.\n\n📅 Sunday, November 22 | 2:00 PM\n📍 American Legion • 2701 East 8th Street, Odessa\n\n🙌 We need 100 volunteers! We’re expecting a big crowd and need your help to make everyone feel welcome.\n\nReady to help? Fill out the short volunteer form using the link below or scan the QR code on the flyer:\n\nhttps://pawtx.org/?volunteer=013ffde8-ea8c-4092-aa6b-c373b16918d2\n\n❤️ Come share a meal—or lend a hand!",
+    "mediaUrl": "social-media/fb-106152660936815_1589382546550117.webp",
+    "mediaType": "image",
+    "publishedAt": "2026-11-08T04:37:56+0000",
+    "publishedAtRelative": "",
+    "publishedAtRelativeEs": "",
+    "likesCount": 16,
+    "commentsCount": 1,
+    "sharesCount": 5,
+    "postUrl": "https://www.facebook.com/1566649342156771/posts/1589382546550117",
+    "tags": []
+  },
+  {
     "id": "ig-18345584077257191",
     "platform": "instagram",
     "author": {
@@ -15,7 +37,7 @@
     "publishedAt": "2026-11-08T04:01:56+0000",
     "publishedAtRelative": "",
     "publishedAtRelativeEs": "",
-    "likesCount": 1,
+    "likesCount": 8,
     "commentsCount": 0,
     "sharesCount": 0,
     "postUrl": "https://www.instagram.com/p/Dfd2eqbEZw9/",
@@ -41,7 +63,7 @@
     "publishedAt": "2026-11-08T03:58:46+0000",
     "publishedAtRelative": "",
     "publishedAtRelativeEs": "",
-    "likesCount": 1,
+    "likesCount": 13,
     "commentsCount": 0,
     "sharesCount": 0,
     "postUrl": "https://www.instagram.com/p/Dfd2HaXkXo_/",
@@ -68,9 +90,9 @@
     "publishedAt": "2026-11-08T03:53:06+0000",
     "publishedAtRelative": "",
     "publishedAtRelativeEs": "",
-    "likesCount": 7,
+    "likesCount": 23,
     "commentsCount": 1,
-    "sharesCount": 1,
+    "sharesCount": 2,
     "postUrl": "https://www.facebook.com/1566649342156771/posts/1589345559887149",
     "tags": [
       "PeaceAcademyOfWestTexas",
@@ -511,34 +533,6 @@
       "ChineseCommunity",
       "OdessaTX",
       "UnityThroughCulture"
-    ]
-  },
-  {
-    "id": "fb-106152660936815_1578157111005994",
-    "platform": "facebook",
-    "author": {
-      "name": "Peace Academy of West Texas",
-      "handle": "@pawtx",
-      "avatarUrl": "",
-      "verified": false
-    },
-    "content": "Celebrating culture through dance! 🌎✨\n\nThis Pre-Hispanic dance performance brought tradition, rhythm, and energy to our 3rd International Cultural Festival in Odessa.\n\nThank you to the dancers for sharing their cultural heritage with our community! ❤️\n\n#PeaceAcademyOfWestTexas #InternationalCulturalFestival #PreHispanicDance #OdessaTX #CelebratingCultures",
-    "contentEs": "Celebrating culture through dance! 🌎✨\n\nThis Pre-Hispanic dance performance brought tradition, rhythm, and energy to our 3rd International Cultural Festival in Odessa.\n\nThank you to the dancers for sharing their cultural heritage with our community! ❤️\n\n#PeaceAcademyOfWestTexas #InternationalCulturalFestival #PreHispanicDance #OdessaTX #CelebratingCultures",
-    "mediaUrl": "social-media/fb-106152660936815_1578157111005994.webp",
-    "mediaType": "image",
-    "publishedAt": "2026-10-29T01:02:50+0000",
-    "publishedAtRelative": "",
-    "publishedAtRelativeEs": "",
-    "likesCount": 20,
-    "commentsCount": 1,
-    "sharesCount": 0,
-    "postUrl": "https://www.facebook.com/reel/1664246721956747/",
-    "tags": [
-      "PeaceAcademyOfWestTexas",
-      "InternationalCulturalFestival",
-      "PreHispanicDance",
-      "OdessaTX",
-      "CelebratingCultures"
     ]
   }
 ]
