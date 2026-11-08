@@ -23,8 +23,18 @@ import { PAWTXEvent } from '../types';
 
 export const EVENT_PARAM = 'event';
 
-/** The address that opens this one event. */
-export function eventShareUrl(event: PAWTXEvent): string {
+/**
+ * The same idea aimed at the volunteer form rather than the write-up.
+ *
+ * A one-off event is recruited for in a WhatsApp group, and what gets pasted
+ * there has to land on the thing being asked for. `?event=` opens the
+ * description, which is right for an invitation and wrong for "we need six
+ * people on Saturday" — the recipient then has to find the volunteer button
+ * inside the dialog. This one opens the shift list and the form directly.
+ */
+export const VOLUNTEER_PARAM = 'volunteer';
+
+function paramShareUrl(name: string, eventId: string): string {
   const url = new URL(window.location.href);
 
   // Drop whatever brought this visitor here — a Stripe return, a tab
@@ -32,17 +42,44 @@ export function eventShareUrl(event: PAWTXEvent): string {
   // else. Sharing somebody else's `?session_id=` would be worse than untidy.
   url.search = '';
   url.hash = '';
-  url.searchParams.set(EVENT_PARAM, event.id);
+  url.searchParams.set(name, eventId);
 
   return url.toString();
 }
 
-/** The id asked for by the address the visitor arrived on, if any. */
-export function readEventRequest(): string | null {
+function readParam(name: string): string | null {
   if (typeof window === 'undefined') return null;
 
-  const requested = new URLSearchParams(window.location.search).get(EVENT_PARAM);
+  const requested = new URLSearchParams(window.location.search).get(name);
   return requested?.trim() ? requested.trim() : null;
+}
+
+function clearParam(name: string): void {
+  if (typeof window === 'undefined') return;
+
+  const url = new URL(window.location.href);
+  url.searchParams.delete(name);
+  window.history.replaceState({}, '', url.toString());
+}
+
+/** The address that opens this one event. */
+export function eventShareUrl(event: PAWTXEvent): string {
+  return paramShareUrl(EVENT_PARAM, event.id);
+}
+
+/** The address that opens this one event's volunteer form. */
+export function volunteerShareUrl(event: PAWTXEvent): string {
+  return paramShareUrl(VOLUNTEER_PARAM, event.id);
+}
+
+/** The id asked for by the address the visitor arrived on, if any. */
+export function readEventRequest(): string | null {
+  return readParam(EVENT_PARAM);
+}
+
+/** The event whose volunteer form the address asked for, if any. */
+export function readVolunteerRequest(): string | null {
+  return readParam(VOLUNTEER_PARAM);
 }
 
 /**
@@ -52,11 +89,12 @@ export function readEventRequest(): string | null {
  * replaceState rather than pushState: this is not a step to go back to.
  */
 export function clearEventParam(): void {
-  if (typeof window === 'undefined') return;
+  clearParam(EVENT_PARAM);
+}
 
-  const url = new URL(window.location.href);
-  url.searchParams.delete(EVENT_PARAM);
-  window.history.replaceState({}, '', url.toString());
+/** Same, for the volunteer form's own parameter. */
+export function clearVolunteerParam(): void {
+  clearParam(VOLUNTEER_PARAM);
 }
 
 export type ShareOutcome = 'shared' | 'copied' | 'dismissed' | 'failed';

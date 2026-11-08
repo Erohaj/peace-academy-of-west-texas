@@ -15,6 +15,7 @@ export function mapShiftRow(
 
   return {
     id: row.id,
+    eventId: row.event_id,
     title: row.title,
     titleEs: row.title_es,
     role: row.role,

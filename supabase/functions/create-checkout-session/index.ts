@@ -2,6 +2,7 @@ import Stripe from 'https://esm.sh/stripe@17.5.0?target=deno';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.47.10';
 import { errorResponse, handleCors, jsonResponse } from '../_shared/cors.ts';
 import { confirmationNumber } from '../_shared/receipt.ts';
+import { callerIp, withinRateLimit } from '../_shared/rateLimit.ts';
 
 /**
  * Creates a Stripe Checkout Session and hands back the hosted payment URL.
@@ -21,6 +22,19 @@ import { confirmationNumber } from '../_shared/receipt.ts';
 // be edited by whoever is running the browser.
 const MIN_AMOUNT_CENTS = 500;
 const MAX_AMOUNT_CENTS = 5_000_000; // $50,000
+
+/**
+ * Checkout sessions one address may start per hour.
+ *
+ * Nothing here holds a seat the way create-ticket-session does, so the cost of
+ * abuse is lower — but it is not nothing: every call writes a pending
+ * `donations` row and creates a Stripe session, so a loop fills the table with
+ * noise an admin has to read past and spends the org's API quota doing it.
+ * Higher than the ticket limit because a donor who mistypes an amount, backs
+ * out and tries again is ordinary behaviour.
+ */
+const SESSIONS_PER_HOUR = 10;
+const RATE_WINDOW_SECONDS = 3600;
 
 interface CheckoutPayload {
   amount?: number;
@@ -75,6 +89,18 @@ Deno.serve(async (req) => {
     Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
     { auth: { persistSession: false } }
   );
+
+  const allowed = await withinRateLimit(
+    supabase,
+    'checkout_session',
+    callerIp(req),
+    RATE_WINDOW_SECONDS,
+    SESSIONS_PER_HOUR
+  );
+
+  if (!allowed) {
+    return errorResponse('Too many payment attempts from this address. Please try again later.', 429);
+  }
 
   // The row id is generated here rather than left to the table's
   // gen_random_uuid() default, because the confirmation number on the receipt

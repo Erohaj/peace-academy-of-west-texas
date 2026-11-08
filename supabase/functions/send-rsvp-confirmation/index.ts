@@ -21,9 +21,22 @@ import { confirmationNumber } from '../_shared/receipt.ts';
  * page and the seat goes back if they do not pay, so "You're registered!"
  * would be a promise about a place that is about to be offered to someone else.
  *
- * The webhook posts with the project's service role key in the Authorization
- * header, which satisfies the default JWT check — deploy this one normally
- * (no --no-verify-jwt).
+ * Deploy this one normally (no --no-verify-jwt) — but the JWT check is NOT
+ * what authenticates the caller, and must never be mistaken for it. The
+ * trigger posts with the project's **anon** key, and so could anybody: that
+ * key ships inside the front-end bundle to every visitor. On its own the JWT
+ * gate leaves this endpoint an open mail relay, because `record.email` is the
+ * recipient — whoever reaches it can send "You're registered" from the
+ * organisation's own verified domain to any address they choose, and burn the
+ * sending reputation that every donation receipt depends on.
+ *
+ * RSVP_WEBHOOK_SECRET is the real boundary. The trigger reads it out of Vault
+ * and sends it as x-pawtx-webhook-secret; this function refuses anything that
+ * does not match, and refuses everything when the secret is unset rather than
+ * failing open. Set it in both places, to the same value:
+ *
+ *   supabase secrets set RSVP_WEBHOOK_SECRET=<value>
+ *   select vault.create_secret('<value>', 'rsvp_webhook_secret');
  */
 
 const ORG_INBOX = Deno.env.get('CONTACT_INBOX') ?? 'paowtx@gmail.com';
@@ -50,11 +63,45 @@ interface WebhookPayload {
   record?: RsvpRecord;
 }
 
+/**
+ * Compares in constant time, so a wrong secret cannot be recovered a byte at a
+ * time from how long the rejection takes. The length difference is folded into
+ * the result rather than returned early, which would leak the length.
+ */
+function secretMatches(received: string | null, expected: string): boolean {
+  if (!received) return false;
+
+  const encoder = new TextEncoder();
+  const a = encoder.encode(received);
+  const b = encoder.encode(expected);
+
+  let diff = a.length ^ b.length;
+  for (let i = 0; i < a.length; i++) {
+    diff |= a[i] ^ b[i % b.length];
+  }
+
+  return diff === 0;
+}
+
 Deno.serve(async (req) => {
   const preflight = handleCors(req);
   if (preflight) return preflight;
 
   if (req.method !== 'POST') return errorResponse('Method not allowed', 405);
+
+  // Fail closed. An unset secret used to mean "anyone holding the anon key",
+  // which is every visitor who has loaded the site, so treating it as
+  // "unprotected but working" is how this endpoint became a mail relay.
+  const expectedSecret = Deno.env.get('RSVP_WEBHOOK_SECRET');
+  if (!expectedSecret) {
+    console.error('[PAWTX] RSVP_WEBHOOK_SECRET is not set — refusing to send mail');
+    return errorResponse('Not configured', 503);
+  }
+
+  if (!secretMatches(req.headers.get('x-pawtx-webhook-secret'), expectedSecret)) {
+    console.warn('[PAWTX] Rejected an RSVP confirmation: bad or missing webhook secret');
+    return errorResponse('Forbidden', 403);
+  }
 
   let payload: WebhookPayload;
   try {

@@ -7,6 +7,7 @@ import {
   type RosterDecision,
   type RosterEntry
 } from '../../lib/api/serviceLog';
+import { countEventVolunteersForShift } from '../../lib/api/eventVolunteers';
 import { useAppStore } from '../../store/useAppStore';
 import { instantToWallClock } from '../../lib/formatEventDate';
 
@@ -39,6 +40,16 @@ export const ShiftRoster: React.FC<Props> = ({ shift, onClose, onSaved }) => {
   const volunteerName = useAppStore((state) => state.volunteer?.fullName ?? 'you');
 
   const [entries, setEntries] = useState<RosterEntry[]>([]);
+  /**
+   * How many people took this shift through the public form instead.
+   *
+   * This screen reads `shift_signups`, and the no-account sign-ups live in
+   * `event_volunteers` — so without this number the roster silently claims to
+   * be the whole list. It is a count and not a list on purpose: none of those
+   * people can be credited hours, and putting them on the screen that credits
+   * hours would invite somebody to try.
+   */
+  const [noAccountCount, setNoAccountCount] = useState(0);
   const [decisions, setDecisions] = useState<Record<string, Decision>>({});
   const [servedOn, setServedOn] = useState(() => instantToWallClock(shift.starts_at).slice(0, 10));
   const [isLoading, setIsLoading] = useState(true);
@@ -54,8 +65,12 @@ export const ShiftRoster: React.FC<Props> = ({ shift, onClose, onSaved }) => {
     setIsLoading(true);
     setError(null);
     try {
-      const roster = await fetchRoster(shift.id);
+      const [roster, noAccount] = await Promise.all([
+        fetchRoster(shift.id),
+        countEventVolunteersForShift(shift.id)
+      ]);
       setEntries(roster);
+      setNoAccountCount(noAccount);
       // Re-opening a closed roster shows what was decided last time, so a
       // correction only has to touch the row that was wrong.
       setDecisions(
@@ -211,6 +226,19 @@ export const ShiftRoster: React.FC<Props> = ({ shift, onClose, onSaved }) => {
         </div>
       )}
 
+      {noAccountCount > 0 && (
+        <div className="pawtx-callout">
+          <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+          <span>
+            {noAccountCount === 1
+              ? 'One more person signed up for this shift without an account, and is not listed below.'
+              : `${noAccountCount} more people signed up for this shift without an account, and are not listed below.`}{' '}
+            They cannot be credited hours — there is no account to credit. See{' '}
+            <strong>Event Volunteers</strong> for their names and phone numbers.
+          </span>
+        </div>
+      )}
+
       {error && (
         <div className="pawtx-callout">
           <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
@@ -222,8 +250,9 @@ export const ShiftRoster: React.FC<Props> = ({ shift, onClose, onSaved }) => {
         <p className="text-sm text-charcoal">Loading roster...</p>
       ) : entries.length === 0 ? (
         <p className="text-sm text-charcoal">
-          Nobody has claimed this shift yet. Hours worked outside the schedule can be
-          added to a volunteer's log directly.
+          {noAccountCount > 0
+            ? 'No account holder has claimed this shift, so there are no hours to credit here. The sign-ups above are under Event Volunteers.'
+            : "Nobody has claimed this shift yet. Hours worked outside the schedule can be added to a volunteer's log directly."}
         </p>
       ) : (
         <>

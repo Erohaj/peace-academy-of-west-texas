@@ -10,7 +10,8 @@ import {
   ExternalLink,
   AlertCircle,
   Ticket,
-  ZoomIn
+  ZoomIn,
+  HandHeart
 } from 'lucide-react';
 import { useAppStore } from '../store/useAppStore';
 import { useDialog } from '../lib/useDialog';
@@ -115,13 +116,31 @@ const EventPhotoDialog: React.FC<{
  */
 export const EventDetailsModal: React.FC = () => {
   const { t } = useTranslation();
-  const { selectedEventForDetails, closeEventDetails, openRsvpModal, language } = useAppStore();
+  const {
+    selectedEventForDetails,
+    closeEventDetails,
+    openRsvpModal,
+    openVolunteerSignup,
+    shifts,
+    language
+  } = useAppStore();
   const [isPhotoOpen, setIsPhotoOpen] = useState(false);
   const isSpanish = language === 'es';
 
   if (!selectedEventForDetails) return null;
 
   const event = selectedEventForDetails;
+
+  // Shifts somebody could still take: not full, not finished. The call-out
+  // below appears only when there are some, because "volunteer at this event"
+  // over a list of full shifts is an invitation to a dead end — and most
+  // events have no shifts attached at all.
+  const openShiftCount = shifts.filter(
+    (shift) =>
+      shift.eventId === event.id &&
+      shift.spotsFilled < shift.spotsTotal &&
+      new Date(shift.endsAt).getTime() > Date.now()
+  ).length;
   const title = isSpanish ? event.titleEs : event.title;
   const description = isSpanish ? event.descriptionEs : event.description;
   const spotsLeft = event.totalSpots - event.reservedSpots;
@@ -259,6 +278,23 @@ export const EventDetailsModal: React.FC = () => {
         <p className="text-charcoal text-sm sm:text-base leading-relaxed whitespace-pre-line">
           {description}
         </p>
+
+        {openShiftCount > 0 && (
+          <div className="bg-aged-paper border border-warm-taupe rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center gap-3">
+            <HandHeart className="w-5 h-5 text-terracotta shrink-0" aria-hidden="true" />
+            <p className="text-xs text-charcoal leading-relaxed flex-1">
+              {t('eventVolunteer.subtitle')}
+            </p>
+            <button
+              type="button"
+              onClick={() => openVolunteerSignup(event)}
+              className="shrink-0 py-2.5 px-5 rounded-full font-bold text-xs uppercase tracking-widest text-white bg-olive hover:bg-olive-deep transition-colors cursor-pointer pawtx-focus flex items-center justify-center gap-2"
+            >
+              <span>{t('eventVolunteer.heading')}</span>
+              <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Action Bar */}

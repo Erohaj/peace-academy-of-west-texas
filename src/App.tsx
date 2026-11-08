@@ -13,7 +13,13 @@ import { Gallery } from './components/Gallery';
 import { DonationWidget } from './components/DonationWidget';
 import { RSVPModal } from './components/RSVPModal';
 import { EventDetailsModal } from './components/EventDetailsModal';
-import { clearEventParam, readEventRequest } from './lib/eventShare';
+import { EventVolunteerModal } from './components/EventVolunteerModal';
+import {
+  clearEventParam,
+  clearVolunteerParam,
+  readEventRequest,
+  readVolunteerRequest
+} from './lib/eventShare';
 import { ContactModal } from './components/ContactModal';
 import { SearchModal } from './components/SearchModal';
 import { TicketReturn } from './components/TicketReturn';
@@ -63,7 +69,8 @@ export const App: React.FC = () => {
     refreshContent,
     language,
     events,
-    openEventDetails
+    openEventDetails,
+    openVolunteerSignup
   } = useAppStore();
   const [isContactOpen, setIsContactOpen] = useState(false);
   const { t } = useTranslation();
@@ -80,6 +87,11 @@ export const App: React.FC = () => {
   // like the two above, and held in state because it has to be given up once
   // acted on; see the effect further down for why it cannot act immediately.
   const [eventRequest, setEventRequest] = useState(() => readEventRequest());
+
+  // ?volunteer=<id> — the address recruitment is done with. Same lifecycle as
+  // the one above, and a separate parameter because the two land in different
+  // places: this one opens the shift list and the form, not the write-up.
+  const [volunteerRequest, setVolunteerRequest] = useState(() => readVolunteerRequest());
 
   // The Stripe return is read here, once, and handed down — see the effect
   // below. Read during render for the same reason as `verifyRequest`.
@@ -156,6 +168,25 @@ export const App: React.FC = () => {
     setEventRequest(null);
     clearEventParam();
   }, [eventRequest, dataStatus, events, setActiveTab, openEventDetails]);
+
+  /**
+   * Opens the volunteer form a shared link asked for.
+   *
+   * Waits for the content for the reason above, and for one more: the form
+   * lists the event's shifts out of the store, so arriving before
+   * `initialize` has filled it would show "no shifts are open" to somebody who
+   * followed a link asking them to take one.
+   */
+  useEffect(() => {
+    if (!volunteerRequest || dataStatus !== 'ready') return;
+
+    const match = events.find((candidate) => candidate.id === volunteerRequest);
+    setActiveTab('events');
+    if (match) openVolunteerSignup(match);
+
+    setVolunteerRequest(null);
+    clearVolunteerParam();
+  }, [volunteerRequest, dataStatus, events, setActiveTab, openVolunteerSignup]);
 
   // Bookmarkable section links, e.g. .../#admin — the admin panel is otherwise
   // reachable only through a footer link that appears after signing in, which
@@ -368,6 +399,7 @@ export const App: React.FC = () => {
         <TicketReturn params={ticketReturn} onClose={() => setTicketReturn(null)} />
       )}
       <EventDetailsModal />
+      <EventVolunteerModal />
       <ContactModal isOpen={isContactOpen} onClose={() => setIsContactOpen(false)} />
       <SearchModal />
 

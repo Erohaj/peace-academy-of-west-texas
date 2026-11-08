@@ -23,6 +23,17 @@ const SQLSTATE_TO_ACTION_ERROR: Record<string, ActionError> = {
   // PA008 (no such booking) is raised only by mark_rsvp_paid, which nothing in
   // the browser can call. It is deliberately absent, along with the codes that
   // went with the manual-payment function when that was removed.
+  // Raised by signup_event_volunteer() — the no-account path onto a shift.
+  // PA010 and PA011 are the two fields a form can get wrong and collapse into
+  // one code, because the form shows the same "check these details" either
+  // way; PA014 and PA015 reuse the codes the portal already has, since a full
+  // shift and a duplicate signup read the same to whoever hit them.
+  PA010: 'invalid_volunteer_details',
+  PA011: 'invalid_volunteer_details',
+  PA012: 'shift_not_found',
+  PA013: 'shift_over',
+  PA014: 'shift_full',
+  PA015: 'already_registered',
   // A shift signup that would exceed spots_total trips the
   // shifts_not_overbooked CHECK constraint inside the sync trigger.
   '23514': 'shift_full',

@@ -1,10 +1,11 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ShieldAlert, CalendarDays, Image as ImageIcon, Inbox, Mail, HeartHandshake, HandHeart, ClipboardList, Award } from 'lucide-react';
+import { ShieldAlert, CalendarDays, Image as ImageIcon, Inbox, Mail, HeartHandshake, HandHeart, ClipboardList, Award, Users } from 'lucide-react';
 import { useAppStore } from '../../store/useAppStore';
 import { EventsAdmin } from './EventsAdmin';
 import { GalleryAdmin } from './GalleryAdmin';
 import { ShiftsAdmin } from './ShiftsAdmin';
+import { EventVolunteersAdmin } from './EventVolunteersAdmin';
 import { ApplicationsAdmin } from './ApplicationsAdmin';
 import { CertificatesAdmin } from './CertificatesAdmin';
 import { SubmissionsAdmin } from './SubmissionsAdmin';
@@ -13,6 +14,7 @@ import { fetchUnhandledMessageCount } from '../../lib/api/admin';
 type AdminSection =
   | 'events'
   | 'shifts'
+  | 'eventVolunteers'
   | 'applications'
   | 'certificates'
   | 'gallery'
@@ -93,6 +95,10 @@ export const AdminPanel: React.FC = () => {
       [
         { id: 'events' as const, label: 'Events', icon: CalendarDays },
         { id: 'shifts' as const, label: 'Volunteer Shifts', icon: HandHeart },
+        // Next to the shifts it reads from, and above Applications: these are
+        // the people who signed up without one, and the distinction between
+        // the two is the whole reason this tab is separate.
+        { id: 'eventVolunteers' as const, label: 'Event Volunteers', icon: Users, badge: 0 },
         { id: 'applications' as const, label: 'Applications', icon: ClipboardList },
         { id: 'certificates' as const, label: 'Certificates', icon: Award },
         { id: 'gallery' as const, label: 'Gallery', icon: ImageIcon },
@@ -188,6 +194,7 @@ export const AdminPanel: React.FC = () => {
           <div className="lg:col-span-9">
             {section === 'events' && <EventsAdmin />}
             {section === 'shifts' && <ShiftsAdmin />}
+            {section === 'eventVolunteers' && <EventVolunteersAdmin />}
             {section === 'applications' && <ApplicationsAdmin />}
             {section === 'certificates' && <CertificatesAdmin />}
             {section === 'gallery' && <GalleryAdmin />}

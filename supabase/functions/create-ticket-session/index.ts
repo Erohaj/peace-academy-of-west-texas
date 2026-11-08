@@ -2,6 +2,7 @@ import Stripe from 'https://esm.sh/stripe@17.5.0?target=deno';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.47.10';
 import { errorResponse, handleCors, jsonResponse } from '../_shared/cors.ts';
 import { confirmationNumber } from '../_shared/receipt.ts';
+import { callerIp, withinRateLimit } from '../_shared/rateLimit.ts';
 
 /**
  * Books a seat at a prepaid event and hands back the Stripe Checkout URL.
@@ -64,6 +65,19 @@ const BOOKING_ERRORS: Record<string, string> = {
   PA007: 'payment_unavailable'
 };
 
+/**
+ * Seat holds one address may start per hour.
+ *
+ * Generous for a person — a declined card, a back button and a second attempt
+ * all land well inside it — and small enough that a loop cannot park a whole
+ * event's capacity behind unpaid holds. It is a speed bump, not a defence:
+ * x-forwarded-for is client-supplied and anyone with a pool of addresses walks
+ * straight past it. What it buys is that casual abuse costs more than a for
+ * loop, and that the org notices in the logs before the room is "full".
+ */
+const HOLDS_PER_HOUR = 6;
+const RATE_WINDOW_SECONDS = 3600;
+
 Deno.serve(async (req) => {
   const preflight = handleCors(req);
   if (preflight) return preflight;
@@ -109,6 +123,21 @@ Deno.serve(async (req) => {
     Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
     { auth: { persistSession: false } }
   );
+
+  // Checked before the event is even looked up, because the expensive thing
+  // here is not the query — it is create_rsvp taking seats off the event a few
+  // lines down.
+  const allowed = await withinRateLimit(
+    supabase,
+    'ticket_session',
+    callerIp(req),
+    RATE_WINDOW_SECONDS,
+    HOLDS_PER_HOUR
+  );
+
+  if (!allowed) {
+    return errorResponse('Too many booking attempts from this address. Please try again later.', 429);
+  }
 
   const { data: event, error: eventError } = await supabase
     .from('events')

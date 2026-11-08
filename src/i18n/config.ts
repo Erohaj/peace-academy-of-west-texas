@@ -251,6 +251,56 @@ const resources = {
         errorText: "We couldn't send your message. Please try again, or email us directly.",
         close: "Close"
       },
+      eventVolunteer: {
+        heading: "Volunteer at this event",
+        subtitle:
+          "Pick a shift and leave us your name. No account and nothing to read first — we only need to know who to expect.",
+        pickShift: "Choose a shift",
+        // i18next plural suffixes are not wired up in this project, so the
+        // singular is its own key — same arrangement as nextEvent.inDays.
+        spotsLeft: "{{count}} places left",
+        lastSpot: "Last place",
+        full: "Full",
+        closed: "Finished",
+        noShifts:
+          "No volunteer shifts are open for this event yet. Check back soon, or write to us and we will find you something to do.",
+        fullName: "Your name",
+        fullNamePlaceholder: "Ana Ramirez",
+        email: "Email",
+        emailPlaceholder: "you@example.com",
+        phone: "Phone",
+        phonePlaceholder: "(432) 555-0123",
+        note: "Anything we should know",
+        notePlaceholder: "I can only stay until 2pm",
+        submit: "Sign me up",
+        submitting: "Signing you up…",
+        successTitle: "You are on the list",
+        // Deliberately does not say a message was sent: there is no
+        // confirmation email on this path yet, and the site does not claim
+        // one. Same reasoning as rsvpModal.successMessageNoEmail.
+        successBody:
+          "Thank you — we have you down for {{shift}}. A coordinator will be in touch before the day with where to meet.",
+        successPaperwork:
+          "If you have not volunteered with us before, there is a short form to sign when you arrive. It takes a minute and we will have it ready.",
+        signUpAnother: "Sign up for another shift",
+        // The honest limit of this path, said where somebody who needs hours
+        // will read it before signing up rather than after the event.
+        hoursNotice:
+          "Signing up here does not record certified service hours. If you need hours for a school or a court, create an account in the Volunteer Portal instead — that is the only path that produces a signed certificate.",
+        openPortal: "Go to the Volunteer Portal",
+        errors: {
+          nameRequired: "Please tell us your name.",
+          emailRequired: "Please enter an email address.",
+          emailInvalid: "That does not look like an email address.",
+          shiftRequired: "Choose a shift first.",
+          full: "That shift filled up while you were reading. Pick another one.",
+          alreadySignedUp: "You are already signed up for that shift.",
+          shiftGone: "That shift is no longer listed. Reload the page to see what is open.",
+          shiftOver: "That shift has already finished.",
+          invalidDetails: "Please check your name and email address.",
+          network: "We could not sign you up. Please try again."
+        }
+      },
       volunteer: {
         // Only ever rendered in Spanish (see EnglishOnlyNotice), but kept in
         // both bundles so the key is not a special case.
@@ -631,6 +681,49 @@ const resources = {
         sentText: "Gracias por comunicarte con Peace Academy of West Texas. Nuestro equipo responderá pronto.",
         errorText: "No pudimos enviar tu mensaje. Inténtalo de nuevo o escríbenos directamente.",
         close: "Cerrar"
+      },
+      eventVolunteer: {
+        heading: "Sé voluntario en este evento",
+        subtitle:
+          "Elige un turno y déjanos tu nombre. Sin cuenta y sin nada que leer antes: solo necesitamos saber a quién esperar.",
+        pickShift: "Elige un turno",
+        spotsLeft: "Quedan {{count}} lugares",
+        lastSpot: "Último lugar",
+        full: "Completo",
+        closed: "Terminado",
+        noShifts:
+          "Todavía no hay turnos de voluntariado abiertos para este evento. Vuelve pronto o escríbenos y te encontraremos algo que hacer.",
+        fullName: "Tu nombre",
+        fullNamePlaceholder: "Ana Ramírez",
+        email: "Correo electrónico",
+        emailPlaceholder: "tu@ejemplo.com",
+        phone: "Teléfono",
+        phonePlaceholder: "(432) 555-0123",
+        note: "Algo que debamos saber",
+        notePlaceholder: "Solo puedo quedarme hasta las 2pm",
+        submit: "Apúntame",
+        submitting: "Apuntándote…",
+        successTitle: "Ya estás en la lista",
+        successBody:
+          "Gracias: te tenemos apuntado para {{shift}}. Un coordinador te contactará antes del día para decirte dónde encontrarnos.",
+        successPaperwork:
+          "Si no has sido voluntario con nosotros antes, hay un formulario corto que firmar al llegar. Toma un minuto y lo tendremos listo.",
+        signUpAnother: "Apuntarme a otro turno",
+        hoursNotice:
+          "Apuntarte aquí no registra horas de servicio certificadas. Si necesitas horas para una escuela o un tribunal, crea una cuenta en el Portal de Voluntarios: es el único camino que produce un certificado firmado.",
+        openPortal: "Ir al Portal de Voluntarios",
+        errors: {
+          nameRequired: "Dinos tu nombre, por favor.",
+          emailRequired: "Escribe un correo electrónico.",
+          emailInvalid: "Eso no parece un correo electrónico.",
+          shiftRequired: "Elige un turno primero.",
+          full: "Ese turno se llenó mientras leías. Elige otro.",
+          alreadySignedUp: "Ya estás apuntado a ese turno.",
+          shiftGone: "Ese turno ya no está en la lista. Recarga la página para ver lo que está abierto.",
+          shiftOver: "Ese turno ya terminó.",
+          invalidDetails: "Revisa tu nombre y tu correo electrónico.",
+          network: "No pudimos apuntarte. Inténtalo de nuevo."
+        }
       },
       volunteer: {
         formsEnglishOnly:

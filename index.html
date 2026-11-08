@@ -5,6 +5,46 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
     <!--
+      Content Security Policy, delivered as a meta tag because GitHub Pages
+      serves static files and cannot send headers. Every origin below is one
+      the site actually needs:
+
+        script-src 'self'   The bundle is the only script. Vite emits it as an
+                            external module, so no 'unsafe-inline' is needed —
+                            and that is the directive worth keeping strict,
+                            since it is what makes an injected <script> inert.
+                            The JSON-LD block further down is a data block, not
+                            executable, so script-src does not apply to it.
+        style-src           'unsafe-inline' is unavoidable: React writes
+                            style={{ ... }} out as style attributes, which this
+                            directive governs. Google Fonts serves the
+                            stylesheet from fonts.googleapis.com.
+        font-src            The font files themselves come from gstatic.
+        img-src             Local assets, plus Supabase Storage for anything an
+                            admin uploads through the panel. data: covers the
+                            small assets Vite inlines.
+        connect-src         PostgREST, Auth and the Edge Functions, all on the
+                            project's *.supabase.co host. Wildcarded because
+                            VITE_SUPABASE_URL is a build-time value and this
+                            file is static.
+        form-action 'self'  No form posts anywhere; every one is handled in JS
+                            and submitted by fetch. Stripe is reached by
+                            assigning window.location, which is a navigation
+                            and deliberately not restricted here.
+        object-src 'none'   No plugins, ever.
+
+      Note what this cannot do: frame-ancestors, and therefore clickjacking
+      protection, is ignored when CSP arrives in a meta tag — it needs a real
+      header. The same goes for X-Frame-Options. Fixing that properly means
+      moving off GitHub Pages to something that can set headers (Cloudflare
+      Pages or Netlify both can), which is a hosting decision, not a code one.
+    -->
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://*.supabase.co; connect-src 'self' https://*.supabase.co; form-action 'self'; upgrade-insecure-requests"
+    />
+
+    <!--
       Everything below, to the end of the head, is what a crawler sees. The
       %TOKENS% are filled in at build time by the pawtx-seo plugin in
       vite.config.ts, from src/lib/seo.ts — edit the values there, not here.
