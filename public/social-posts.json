@@ -15,7 +15,7 @@
     "publishedAt": "2026-11-08T23:09:30+0000",
     "publishedAtRelative": "",
     "publishedAtRelativeEs": "",
-    "likesCount": 18,
+    "likesCount": 19,
     "commentsCount": 0,
     "sharesCount": 0,
     "postUrl": "https://www.facebook.com/1566649342156771/posts/1590300896458282",
@@ -43,7 +43,7 @@
     "publishedAt": "2026-11-08T23:09:06+0000",
     "publishedAtRelative": "",
     "publishedAtRelativeEs": "",
-    "likesCount": 9,
+    "likesCount": 11,
     "commentsCount": 0,
     "sharesCount": 0,
     "postUrl": "https://www.instagram.com/p/Dff5wzLkYoT/",
@@ -71,7 +71,7 @@
     "publishedAt": "2026-11-08T20:50:36+0000",
     "publishedAtRelative": "",
     "publishedAtRelativeEs": "",
-    "likesCount": 28,
+    "likesCount": 31,
     "commentsCount": 1,
     "sharesCount": 3,
     "postUrl": "https://www.facebook.com/1566649342156771/posts/1590209656467406",
@@ -99,7 +99,7 @@
     "publishedAt": "2026-11-08T20:50:17+0000",
     "publishedAtRelative": "",
     "publishedAtRelativeEs": "",
-    "likesCount": 12,
+    "likesCount": 38,
     "commentsCount": 0,
     "sharesCount": 0,
     "postUrl": "https://www.instagram.com/p/Dffp4FVj5P7/",
@@ -110,28 +110,6 @@
       "CommunityService",
       "PermianBasin"
     ]
-  },
-  {
-    "id": "fb-106152660936815_1589382546550117",
-    "platform": "facebook",
-    "author": {
-      "name": "Peace Academy of West Texas",
-      "handle": "@pawtx",
-      "avatarUrl": "",
-      "verified": false
-    },
-    "content": "We’re happy to support Jesse Porras’s 13th Annual Community Thanksgiving Dinner!\n\n🦃 Join us for the 13th Annual FREE Community Thanksgiving Dinner! Bring your family and friends for a time of gratitude, friendship, and community.\n\n📅 Sunday, November 22 | 2:00 PM\n📍 American Legion • 2701 East 8th Street, Odessa\n\n🙌 We need 100 volunteers! We’re expecting a big crowd and need your help to make everyone feel welcome.\n\nReady to help? Fill out the short volunteer form using the link below or scan the QR code on the flyer:\n\nhttps://pawtx.org/?volunteer=013ffde8-ea8c-4092-aa6b-c373b16918d2\n\n❤️ Come share a meal—or lend a hand!",
-    "contentEs": "We’re happy to support Jesse Porras’s 13th Annual Community Thanksgiving Dinner!\n\n🦃 Join us for the 13th Annual FREE Community Thanksgiving Dinner! Bring your family and friends for a time of gratitude, friendship, and community.\n\n📅 Sunday, November 22 | 2:00 PM\n📍 American Legion • 2701 East 8th Street, Odessa\n\n🙌 We need 100 volunteers! We’re expecting a big crowd and need your help to make everyone feel welcome.\n\nReady to help? Fill out the short volunteer form using the link below or scan the QR code on the flyer:\n\nhttps://pawtx.org/?volunteer=013ffde8-ea8c-4092-aa6b-c373b16918d2\n\n❤️ Come share a meal—or lend a hand!",
-    "mediaUrl": "social-media/fb-106152660936815_1589382546550117.webp",
-    "mediaType": "image",
-    "publishedAt": "2026-11-08T04:37:56+0000",
-    "publishedAtRelative": "",
-    "publishedAtRelativeEs": "",
-    "likesCount": 94,
-    "commentsCount": 1,
-    "sharesCount": 40,
-    "postUrl": "https://www.facebook.com/1566649342156771/posts/1589382546550117",
-    "tags": []
   },
   {
     "id": "ig-18345584077257191",
@@ -175,7 +153,7 @@
     "publishedAt": "2026-11-08T03:58:46+0000",
     "publishedAtRelative": "",
     "publishedAtRelativeEs": "",
-    "likesCount": 24,
+    "likesCount": 25,
     "commentsCount": 0,
     "sharesCount": 0,
     "postUrl": "https://www.instagram.com/p/Dfd2HaXkXo_/",
@@ -202,7 +180,7 @@
     "publishedAt": "2026-11-08T03:53:06+0000",
     "publishedAtRelative": "",
     "publishedAtRelativeEs": "",
-    "likesCount": 46,
+    "likesCount": 47,
     "commentsCount": 2,
     "sharesCount": 2,
     "postUrl": "https://www.facebook.com/1566649342156771/posts/1589345559887149",
@@ -533,6 +511,34 @@
     "postUrl": "https://www.facebook.com/reel/1057182864039522/",
     "tags": [
       "Greek"
+    ]
+  },
+  {
+    "id": "fb-106152660936815_1579057680915937",
+    "platform": "facebook",
+    "author": {
+      "name": "Peace Academy of West Texas",
+      "handle": "@pawtx",
+      "avatarUrl": "",
+      "verified": false
+    },
+    "content": "🇵🇭✨ Incredible energy from our Filipino community!\n\nAfter their strong participation last year, our Filipino community returned to the 3rd International Cultural Festival with another lively performance, bringing joy and excitement to the crowd! 🎶👏\n\nThank you to all the performers and our Filipino community for sharing your culture, enthusiasm, and beautiful community spirit. We’re so happy to celebrate with you again! ❤️🌏\n\n#PeaceAcademyOfWestTexas #FilipinoCommunity #InternationalCulturalFestival #OdessaTX #UnityThroughCulture",
+    "contentEs": "🇵🇭✨ Incredible energy from our Filipino community!\n\nAfter their strong participation last year, our Filipino community returned to the 3rd International Cultural Festival with another lively performance, bringing joy and excitement to the crowd! 🎶👏\n\nThank you to all the performers and our Filipino community for sharing your culture, enthusiasm, and beautiful community spirit. We’re so happy to celebrate with you again! ❤️🌏\n\n#PeaceAcademyOfWestTexas #FilipinoCommunity #InternationalCulturalFestival #OdessaTX #UnityThroughCulture",
+    "mediaUrl": "social-media/fb-106152660936815_1579057680915937.webp",
+    "mediaType": "image",
+    "publishedAt": "2026-10-29T18:04:36+0000",
+    "publishedAtRelative": "",
+    "publishedAtRelativeEs": "",
+    "likesCount": 81,
+    "commentsCount": 2,
+    "sharesCount": 10,
+    "postUrl": "https://www.facebook.com/reel/2353971732059537/",
+    "tags": [
+      "PeaceAcademyOfWestTexas",
+      "FilipinoCommunity",
+      "InternationalCulturalFestival",
+      "OdessaTX",
+      "UnityThroughCulture"
     ]
   }
 ]
