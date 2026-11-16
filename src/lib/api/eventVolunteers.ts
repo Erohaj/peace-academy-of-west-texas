@@ -74,15 +74,16 @@ export interface EventVolunteerEntry extends EventVolunteer {
  * rather than a filter on a column that is not there — `event_volunteers` has
  * no `event_id` of its own, deliberately, since the shift already carries it.
  *
- * Ordered oldest first, the opposite of the RSVP list: this one gets read on
- * the day as a roster to tick down, not as an inbox.
+ * Ordered newest first, like the RSVP list: staff watch this screen while
+ * recruitment is still open, so the signup that just landed belongs at the top
+ * of its shift rather than at the bottom of nineteen names.
  */
 export async function fetchEventVolunteers(eventId: string): Promise<EventVolunteerEntry[]> {
   const { data, error } = await requireSupabase()
     .from('event_volunteers')
     .select('*, shifts!inner ( event_id, title, title_es, starts_at, ends_at )')
     .eq('shifts.event_id', eventId)
-    .order('created_at', { ascending: true });
+    .order('created_at', { ascending: false });
 
   if (error) throw error;
 
