@@ -15,7 +15,7 @@
     "publishedAt": "2026-11-23T01:47:41+0000",
     "publishedAtRelative": "",
     "publishedAtRelativeEs": "",
-    "likesCount": 11,
+    "likesCount": 14,
     "commentsCount": 0,
     "sharesCount": 0,
     "postUrl": "https://www.instagram.com/p/DgEPCeqkebk/",
@@ -42,9 +42,9 @@
     "publishedAt": "2026-11-23T00:23:40+0000",
     "publishedAtRelative": "",
     "publishedAtRelativeEs": "",
-    "likesCount": 47,
-    "commentsCount": 5,
-    "sharesCount": 5,
+    "likesCount": 56,
+    "commentsCount": 6,
+    "sharesCount": 6,
     "postUrl": "https://www.facebook.com/1566649342156771/posts/1605667808254924",
     "tags": [
       "PeaceAcademyOfWestTexas",
@@ -379,6 +379,28 @@
     ]
   },
   {
+    "id": "fb-106152660936815_1589382546550117",
+    "platform": "facebook",
+    "author": {
+      "name": "Peace Academy of West Texas",
+      "handle": "@pawtx",
+      "avatarUrl": "",
+      "verified": false
+    },
+    "content": "We’re happy to support Jesse Porras’s 13th Annual Community Thanksgiving Dinner!\n\n🦃 Join us for the 13th Annual FREE Community Thanksgiving Dinner! Bring your family and friends for a time of gratitude, friendship, and community.\n\n📅 Sunday, November 22 | 2:00 PM\n📍 American Legion • 2701 East 8th Street, Odessa\n\n🙌 We need 100 volunteers! We’re expecting a big crowd and need your help to make everyone feel welcome.\n\nReady to help? Fill out the short volunteer form using the link below or scan the QR code on the flyer:\n\nhttps://pawtx.org/?volunteer=013ffde8-ea8c-4092-aa6b-c373b16918d2\n\n❤️ Come share a meal—or lend a hand!",
+    "contentEs": "We’re happy to support Jesse Porras’s 13th Annual Community Thanksgiving Dinner!\n\n🦃 Join us for the 13th Annual FREE Community Thanksgiving Dinner! Bring your family and friends for a time of gratitude, friendship, and community.\n\n📅 Sunday, November 22 | 2:00 PM\n📍 American Legion • 2701 East 8th Street, Odessa\n\n🙌 We need 100 volunteers! We’re expecting a big crowd and need your help to make everyone feel welcome.\n\nReady to help? Fill out the short volunteer form using the link below or scan the QR code on the flyer:\n\nhttps://pawtx.org/?volunteer=013ffde8-ea8c-4092-aa6b-c373b16918d2\n\n❤️ Come share a meal—or lend a hand!",
+    "mediaUrl": "social-media/fb-106152660936815_1589382546550117.webp",
+    "mediaType": "image",
+    "publishedAt": "2026-11-08T04:37:56+0000",
+    "publishedAtRelative": "",
+    "publishedAtRelativeEs": "",
+    "likesCount": 397,
+    "commentsCount": 16,
+    "sharesCount": 155,
+    "postUrl": "https://www.facebook.com/1566649342156771/posts/1589382546550117",
+    "tags": []
+  },
+  {
     "id": "ig-18345584077257191",
     "platform": "instagram",
     "author": {
@@ -478,30 +500,6 @@
     "commentsCount": 0,
     "sharesCount": 0,
     "postUrl": "https://www.instagram.com/p/DfacvoOJLUX/",
-    "tags": [
-      "events"
-    ]
-  },
-  {
-    "id": "fb-106152660936815_1587813293373709",
-    "platform": "facebook",
-    "author": {
-      "name": "Peace Academy of West Texas",
-      "handle": "@pawtx",
-      "avatarUrl": "",
-      "verified": false
-    },
-    "content": "After the International Cultural Festival, we’re keeping the momentum going! Our Cooking Class is tomorrow, and only a few spots are left. Sign up now to join us!\n\n RSVP by scanning the QR code on the flyer or visiting:\nhttps://pawtx.org/#events\n\n📞 432-202-4722",
-    "contentEs": "After the International Cultural Festival, we’re keeping the momentum going! Our Cooking Class is tomorrow, and only a few spots are left. Sign up now to join us!\n\n RSVP by scanning the QR code on the flyer or visiting:\nhttps://pawtx.org/#events\n\n📞 432-202-4722",
-    "mediaUrl": "social-media/fb-106152660936815_1587813293373709.webp",
-    "mediaType": "image",
-    "publishedAt": "2026-11-06T19:59:29+0000",
-    "publishedAtRelative": "",
-    "publishedAtRelativeEs": "",
-    "likesCount": 35,
-    "commentsCount": 1,
-    "sharesCount": 1,
-    "postUrl": "https://www.facebook.com/1566649342156771/posts/1587813293373709",
     "tags": [
       "events"
     ]
